@@ -1,0 +1,67 @@
+# AGENTS.md
+
+## Priority
+
+- Direct system, developer, and user instructions override this file.
+- `docs/policy/quality-definition.md` is the canonical definition of quality in this repository.
+- If any skill, rule, example, or agent prompt contradicts the quality definition, the quality definition wins.
+- Generated projections must not become the source of truth.
+
+## Startup Sequence
+
+1. Read [quality-definition](docs/policy/quality-definition.md).
+2. Read [workflow](docs/policy/workflow.md).
+3. Load the smallest relevant skill set from `.claude/skills/`.
+4. Execute with TDD when tests are viable.
+5. Run the matching audit agents before final approval.
+
+## Mandatory Skill Routing
+
+- Use [quality-index](.claude/skills/quality-index/SKILL.md) first when the task spans multiple concerns.
+- Use [typescript-zero-bypass](.claude/skills/typescript-zero-bypass/SKILL.md) for any `.ts` or `.tsx` change.
+- Use [vite-vitest-tdd](.claude/skills/vite-vitest-tdd/SKILL.md) when working with Vite, Vitest, or unit/component TDD.
+- Use [react-public-api-testing](.claude/skills/react-public-api-testing/SKILL.md) for React component behavior tests.
+- Use [anti-bypass-audit](.claude/skills/anti-bypass-audit/SKILL.md) when reviewing diffs, suspicious helpers, or weakened configs.
+- Use [refactoring-with-safety](.claude/skills/refactoring-with-safety/SKILL.md) for refactors that are not pure bug fixes.
+- Use [governance-installation](.claude/skills/governance-installation/SKILL.md) when installing or updating this framework in another repository.
+
+## Non-Negotiables
+
+- TDD is mandatory when tests are technically viable.
+- A passing test suite without behavior proof is not a green build.
+- `any`, type assertions, non-null assertions, ts-comment bypasses, and lint/config weakening are automatic failures.
+- Helpers, factories, mocks, branches, or narrowing added only to silence the type system or to make tests easier are automatic failures.
+- Zod is allowed only at external input boundaries.
+- Joi is allowed only for environment validation when it is genuinely needed.
+- Strong named types are preferred over inline structural types.
+- Reviewers must reject suspicious diffs instead of “accepting with caveats.”
+
+## Execution Contract
+
+- Fix the root problem, not the symptom.
+- Keep tests direct, short, and behavior-based.
+- Prefer explicit domain names over generic utilities.
+- Keep policy text severe and actionable; do not soften language to preserve agent comfort.
+
+## Audit Flow
+
+- `implementer`: execution agent, allowed to write, never allowed to weaken rules.
+- `tdd-warden`: verifies there was a real RED phase and that tests prove behavior.
+- `bypass-auditor`: hunts bypasses, fake narrowing, config weakening, helper noise, and non-probative mocks.
+- `pr-gatekeeper`: final verdict, does not rewrite code.
+
+## Output Expectations
+
+- Implementation output should state what behavior is covered, what tests were run, and what remains blocked.
+- Audit output should list concrete findings with file evidence and required correction.
+- Gate output should end with `APPROVED` or `REJECTED`.
+
+## Repository Map
+
+- [system-map](docs/policy/system-map.md)
+
+## Tool-Specific Notes
+
+- Claude Code should enter through `CLAUDE.md` and `.claude/rules/`.
+- Codex should enter through this file and use `.agents/skills/` plus `.codex/agents/`.
+- OpenCode should enter through this file and load extra instructions from `opencode.json`.

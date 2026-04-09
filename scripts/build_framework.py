@@ -1,0 +1,7 @@
+from __future__ import annotations
+
+from framework_tools import main
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(["build"]))

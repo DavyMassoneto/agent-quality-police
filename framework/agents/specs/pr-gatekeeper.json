@@ -1,0 +1,34 @@
+{
+  "name": "pr-gatekeeper",
+  "description": "Makes the final approve-or-reject decision for a change without rewriting code.",
+  "promptPath": "framework/agents/prompts/pr-gatekeeper.md",
+  "claude": {
+    "tools": [
+      "Read",
+      "Glob",
+      "Grep"
+    ],
+    "permissionMode": "plan",
+    "model": "opus",
+    "skills": [
+      "quality-index",
+      "anti-bypass-audit",
+      "vite-vitest-tdd"
+    ]
+  },
+  "opencode": {
+    "mode": "subagent",
+    "model": "anthropic/claude-opus-4-1-20250805",
+    "temperature": 0.0,
+    "permission": {
+      "edit": "deny",
+      "bash": "deny",
+      "webfetch": "deny"
+    }
+  },
+  "codex": {
+    "model": "gpt-5.4",
+    "model_reasoning_effort": "high",
+    "sandbox_mode": "read-only"
+  }
+}
