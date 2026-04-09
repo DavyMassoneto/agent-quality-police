@@ -14,3 +14,4 @@
 - non-null assertions
 - ts-comment bypasses
 - generic records standing in for domain design
+- `Map` standing in for a named lookup input at the contract boundary

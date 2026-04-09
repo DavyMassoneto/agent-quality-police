@@ -30,6 +30,7 @@
 - TDD is mandatory when tests are technically viable.
 - A passing test suite without behavior proof is not a green build.
 - `any`, type assertions, non-null assertions, ts-comment bypasses, and lint/config weakening are automatic failures.
+- `Map` in public or domain-facing contracts is suspicious by default and must be treated as a modeling bypass unless a stronger repository rule explicitly allows it.
 - Helpers, factories, mocks, branches, or narrowing added only to silence the type system or to make tests easier are automatic failures.
 - Zod is allowed only at external input boundaries.
 - Joi is allowed only for environment validation when it is genuinely needed.
@@ -56,9 +57,9 @@
 - Audit output should list concrete findings with file evidence and required correction.
 - Gate output should end with `APPROVED` or `REJECTED`.
 
-## Repository Map
+## Repository Layout
 
-- [system-map](docs/policy/system-map.md)
+- [system-layout](docs/policy/system-layout.md)
 
 ## Tool-Specific Notes
 

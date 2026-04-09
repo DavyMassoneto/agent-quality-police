@@ -30,7 +30,7 @@ class BuildSkillProjectionTests(unittest.TestCase):
             )
             (skill_root / "references").mkdir()
             (skill_root / "references" / "map.md").write_text(
-                "# Map\n",
+                "# Reference\n",
                 encoding="utf-8",
             )
 

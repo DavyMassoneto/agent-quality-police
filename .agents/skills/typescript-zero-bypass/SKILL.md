@@ -31,18 +31,20 @@ Define what acceptable TypeScript looks like in this framework. The compiler is 
 - No `as`, `as const`, chained assertions, angle-bracket assertions, or non-null assertions
 - No ts-comment bypasses
 - No `Record` or index signatures as generic escape hatches
+- No `Map` used to avoid modeling a named input contract
 - Named types instead of anonymous structural sprawl
 
 ## Anti-Patterns
 
 - Adding `if (!value) return fallback` only to narrow a type you modeled poorly
 - Smuggling domain uncertainty through `Record<string, string>`
+- Smuggling domain uncertainty through `Map<string, string>` in a public or domain-facing signature
 - Using a test helper to hide an imprecise type instead of fixing the model
 
 ## Hard Cases
 
 - For external input, validate at the edge and convert into explicit internal types.
-- For optional map lookups, translate `undefined` to a named result shape before it reaches the domain.
+- For collection lookups, model the input structure explicitly and translate `undefined` to a named result shape before it reaches the domain.
 - For literals, prefer explicit unions declared once instead of assertion-based narrowing.
 
 ## Examples

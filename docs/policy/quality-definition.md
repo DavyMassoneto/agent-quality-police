@@ -51,6 +51,7 @@ Fraud includes:
 - disabling ESLint to suppress a local violation
 - weakening `tsconfig`, `eslint`, `vite`, `vitest`, or equivalent config to silence a problem
 - adding impossible fallback branches, fake narrowing, or defensive code only to satisfy TypeScript
+- using `Map` in public or domain-facing contracts to avoid explicit named input modeling
 - helper layers that hide what the test is proving
 - mocks that replace the exact behavior under test
 - “green” tests that would still pass after breaking the actual contract
@@ -97,6 +98,7 @@ Unacceptable modeling includes:
 
 - anonymous structural types in signatures when a named concept exists
 - `Record` or index signatures as generic escape hatches
+- `Map` used as a lookup-bag escape hatch in a public or domain-facing contract
 - generic “utils” that absorb domain meaning
 
 ## Acceptable Typing

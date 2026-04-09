@@ -35,6 +35,7 @@ Find and report bypasses with short, evidence-based language. This skill is not 
 - `any`
 - assertions
 - non-null assertions
+- `Map` used as a lookup-bag in public or domain-facing contracts
 - ts-comments
 - `eslint-disable`
 - lowered strictness in config
@@ -50,7 +51,7 @@ Find and report bypasses with short, evidence-based language. This skill is not 
 
 ## Examples
 
-- Good correction: `examples/good/fixed-bypass.ts`
+- Good correction: `examples/good/fixed-bypass.types.ts`, `examples/good/fixed-bypass.ts`
 - Bad diff: `examples/bad/explicit-bypass.ts`
 
 ## Checklist

@@ -3,7 +3,7 @@
   "instructions": [
     "docs/policy/quality-definition.md",
     "docs/policy/workflow.md",
-    "docs/policy/system-map.md",
+    "docs/policy/system-layout.md",
     ".claude/rules/**/*.md"
   ]
 }

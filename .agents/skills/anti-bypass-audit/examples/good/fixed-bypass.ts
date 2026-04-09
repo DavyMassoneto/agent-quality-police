@@ -1,26 +1,21 @@
-export interface LookupHit {
-  kind: 'hit';
-  email: string;
-}
-
-export interface LookupMiss {
-  kind: 'miss';
-}
-
-export type LookupResult = LookupHit | LookupMiss;
+import {
+  type CustomerEmailLookupInput,
+  type LookupResult,
+} from './fixed-bypass.types';
 
 export function findCustomerEmail(
-  emailsByCustomerId: Map<string, string>,
-  customerId: string,
+  input: CustomerEmailLookupInput,
 ): LookupResult {
-  const email = emailsByCustomerId.get(customerId);
+  const customerEmail = input.customerEmails.find(
+    (entry) => entry.customerId === input.customerId,
+  );
 
-  if (email === undefined) {
+  if (customerEmail === undefined) {
     return { kind: 'miss' };
   }
 
   return {
     kind: 'hit',
-    email,
+    email: customerEmail.email,
   };
 }
