@@ -1,5 +1,5 @@
 export interface PrimaryButtonProps {
   label: string;
-  disabledReason: string | null;
+  disabledReason?: string;
   onPress(): void;
 }

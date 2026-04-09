@@ -1,11 +1,11 @@
 interface PrimaryButtonProps {
   label: string;
-  disabledReason: string | null;
+  disabledReason?: string;
   onPress(): void;
 }
 
 export function PrimaryButton(props: PrimaryButtonProps): JSX.Element {
-  const isDisabled = props.disabledReason !== null;
+  const isDisabled = props.disabledReason !== undefined;
   const accessibilityProps = isDisabled
     ? { 'aria-describedby': 'primary-button-reason' }
     : {};

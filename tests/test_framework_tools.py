@@ -10,7 +10,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
-from framework_tools import (  # type: ignore
+from framework_tools import (
     GENERATED_MARKER,
     build_agent_projections,
     build_skill_projection,
@@ -137,6 +137,89 @@ class ValidateRepositoryTests(unittest.TestCase):
             result = validate_repository(root)
 
             self.assertTrue(any("placeholder" in error.lower() for error in result.errors))
+
+    def test_validate_repository_reports_skill_projection_content_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            (root / "README.md").write_text("# Repo\n", encoding="utf-8")
+            (root / "AGENTS.md").write_text("Load [quality](docs/policy/quality-definition.md).\n", encoding="utf-8")
+            (root / "CLAUDE.md").write_text("@AGENTS.md\n", encoding="utf-8")
+            (root / "docs" / "policy").mkdir(parents=True)
+            (root / "docs" / "policy" / "quality-definition.md").write_text("# Quality\n", encoding="utf-8")
+            (root / ".claude" / "skills" / "quality-index").mkdir(parents=True)
+            (root / ".claude" / "skills" / "quality-index" / "SKILL.md").write_text(
+                "---\nname: quality-index\ndescription: root skill\n---\n\ncanonical\n",
+                encoding="utf-8",
+            )
+            (root / ".agents" / "skills" / "quality-index").mkdir(parents=True)
+            (root / ".agents" / "skills" / "quality-index" / "SKILL.md").write_text(
+                "---\nname: quality-index\ndescription: root skill\n---\n\nstale\n",
+                encoding="utf-8",
+            )
+
+            result = validate_repository(root)
+
+            self.assertTrue(any("content drift" in error.lower() for error in result.errors))
+
+    def test_build_skill_projection_overwrites_stale_projection_content(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            source_skill = root / ".claude" / "skills" / "react-public-api-testing"
+            source_skill.mkdir(parents=True)
+            (source_skill / "SKILL.md").write_text(
+                "---\nname: react-public-api-testing\ndescription: root skill\n---\n",
+                encoding="utf-8",
+            )
+            (source_skill / "examples").mkdir()
+            (source_skill / "examples" / "sample.tsx").write_text(
+                "canonical\n",
+                encoding="utf-8",
+            )
+
+            projected_skill = root / ".agents" / "skills" / "react-public-api-testing"
+            projected_skill.mkdir(parents=True)
+            (projected_skill / "SKILL.md").write_text(
+                "---\nname: react-public-api-testing\ndescription: root skill\n---\n",
+                encoding="utf-8",
+            )
+            (projected_skill / "examples").mkdir()
+            (projected_skill / "examples" / "sample.tsx").write_text(
+                "stale\n",
+                encoding="utf-8",
+            )
+
+            build_skill_projection(root)
+
+            self.assertEqual(
+                "canonical\n",
+                (projected_skill / "examples" / "sample.tsx").read_text(encoding="utf-8"),
+            )
+
+    def test_build_skill_projection_rewrites_existing_file_after_source_edit(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            source_skill = root / ".claude" / "skills" / "react-public-api-testing"
+            source_skill.mkdir(parents=True)
+            (source_skill / "SKILL.md").write_text(
+                "---\nname: react-public-api-testing\ndescription: root skill\n---\n",
+                encoding="utf-8",
+            )
+            (source_skill / "examples").mkdir()
+            source_file = source_skill / "examples" / "primary-button.tsx"
+            source_file.write_text("first-version\n", encoding="utf-8")
+
+            build_skill_projection(root)
+
+            source_file.write_text("second-version\n", encoding="utf-8")
+
+            build_skill_projection(root)
+
+            self.assertEqual(
+                "second-version\n",
+                (root / ".agents" / "skills" / "react-public-api-testing" / "examples" / "primary-button.tsx").read_text(
+                    encoding="utf-8",
+                ),
+            )
 
 
 if __name__ == "__main__":

@@ -9,7 +9,6 @@ describe('PrimaryButton', () => {
 
     render(
       <PrimaryButton
-        disabledReason={null}
         label="Save invoice"
         onPress={onPress}
       />,

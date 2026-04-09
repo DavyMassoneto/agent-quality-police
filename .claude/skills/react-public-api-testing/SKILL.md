@@ -32,6 +32,7 @@ Test React through what the user can perceive: roles, names, text, states, and c
 - Assertions describe visible outcomes.
 - The test would stay meaningful after a structural refactor that preserves the UI contract.
 - Component examples should prefer inferred return types instead of explicit `JSX.Element`.
+- Optional UI props should use `?` when absence is the intended caller experience.
 
 ## Anti-Patterns
 
@@ -41,6 +42,9 @@ Test React through what the user can perceive: roles, names, text, states, and c
 - clicking internal nodes instead of the public control
 - declaring component types in the same file when the example should keep types and implementation separate
 - explicit `JSX.Element` return annotations in React component examples
+- duplicating nearly identical JSX through an early-return branch
+- deriving render state through temporary setup variables when the component contract can express it directly
+- forcing callers to pass `null` when an optional prop expresses absence more clearly
 - unnecessary ternaries in TSX when an explicit branch is clearer
 - building conditional prop-spread objects when direct rendering is simpler
 
@@ -48,6 +52,8 @@ Test React through what the user can perceive: roles, names, text, states, and c
 
 - Good component and test: `examples/good/primary-button.types.ts`, `examples/good/primary-button.tsx`, `examples/good/primary-button.test.tsx`
 - Bad component example: `examples/bad/primary-button.component-antipattern.tsx`
+- Bad conditional-setup example: `examples/bad/primary-button.conditional-setup-bloat.tsx`
+- Bad duplicated-branch example: `examples/bad/primary-button.duplicated-branch.tsx`
 - Bad implementation-detail test: `examples/bad/primary-button.internal.test.tsx`
 
 ## Checklist

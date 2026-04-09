@@ -20,7 +20,7 @@
 ## Repository Maintenance
 
 - Edit canonical policy and skill sources first.
-- Rebuild generated projections with `python3 scripts/build_framework.py`.
+- Rebuild generated projections with `python3 scripts/build_framework.py` every time canonical framework sources change.
 - Validate with `python3 scripts/validate_framework.py`.
 - Run `python3 -m unittest tests/test_framework_tools.py` after changing scripts.
 

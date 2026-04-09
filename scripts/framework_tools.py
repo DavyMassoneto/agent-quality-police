@@ -191,6 +191,14 @@ def _iter_text_files(root: Path) -> list[Path]:
     return sorted(text_paths)
 
 
+def _relative_file_set(root: Path) -> set[Path]:
+    files: set[Path] = set()
+    for path in root.rglob("*"):
+        if path.is_file():
+            files.add(path.relative_to(root))
+    return files
+
+
 def _check_local_links(root: Path, path: Path, content: str) -> list[str]:
     errors: list[str] = []
     for _, target in LOCAL_LINK_PATTERN.findall(content):
@@ -243,6 +251,20 @@ def validate_repository(root: Path) -> ValidationResult:
         )
         if claude_skill_names != agents_skill_names:
             errors.append("Skill projection mismatch between .claude/skills and .agents/skills")
+        else:
+            claude_skill_files = _relative_file_set(claude_skills_root)
+            agents_skill_files = _relative_file_set(agents_skills_root)
+            if claude_skill_files != agents_skill_files:
+                errors.append("Skill projection file set mismatch between .claude/skills and .agents/skills")
+            else:
+                for relative_path in sorted(claude_skill_files):
+                    claude_content = (claude_skills_root / relative_path).read_text(encoding="utf-8")
+                    agents_content = (agents_skills_root / relative_path).read_text(encoding="utf-8")
+                    if claude_content != agents_content:
+                        errors.append(
+                            "Skill projection content drift between "
+                            f".claude/skills/{relative_path} and .agents/skills/{relative_path}"
+                        )
 
     specs = _load_agent_specs(root)
     if specs:

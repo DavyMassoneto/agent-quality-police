@@ -1,25 +1,27 @@
 import type { PrimaryButtonProps } from './primary-button.types';
 
 export function PrimaryButton(props: PrimaryButtonProps) {
-  if (props.disabledReason === null) {
-    return (
-      <button onClick={props.onPress} type="button">
-        {props.label}
-      </button>
-    );
+  const isDisabled = props.disabledReason !== undefined;
+
+  function renderDisabledReasonParagraph() {
+    if (!isDisabled) {
+      return null;
+    }
+
+    return <p id="primary-button-reason">{props.disabledReason}</p>;
   }
 
   return (
     <div>
       <button
         aria-describedby="primary-button-reason"
-        disabled
+        disabled={isDisabled}
         onClick={props.onPress}
         type="button"
       >
         {props.label}
       </button>
-      <p id="primary-button-reason">{props.disabledReason}</p>
+      {renderDisabledReasonParagraph()}
     </div>
   );
 }
