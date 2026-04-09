@@ -31,6 +31,7 @@ Test React through what the user can perceive: roles, names, text, states, and c
 - Queries follow the Testing Library priority order.
 - Assertions describe visible outcomes.
 - The test would stay meaningful after a structural refactor that preserves the UI contract.
+- Component examples should prefer inferred return types instead of explicit `JSX.Element`.
 
 ## Anti-Patterns
 
@@ -38,10 +39,15 @@ Test React through what the user can perceive: roles, names, text, states, and c
 - asserting hook state directly
 - asserting CSS class names when a semantic state is available
 - clicking internal nodes instead of the public control
+- declaring component types in the same file when the example should keep types and implementation separate
+- explicit `JSX.Element` return annotations in React component examples
+- unnecessary ternaries in TSX when an explicit branch is clearer
+- building conditional prop-spread objects when direct rendering is simpler
 
 ## Examples
 
-- Good component and test: `examples/good/primary-button.tsx`, `examples/good/primary-button.test.tsx`
+- Good component and test: `examples/good/primary-button.types.ts`, `examples/good/primary-button.tsx`, `examples/good/primary-button.test.tsx`
+- Bad component example: `examples/bad/primary-button.component-antipattern.tsx`
 - Bad implementation-detail test: `examples/bad/primary-button.internal.test.tsx`
 
 ## Checklist

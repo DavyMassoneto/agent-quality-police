@@ -1,28 +1,25 @@
-interface PrimaryButtonProps {
-  label: string;
-  disabledReason: string | null;
-  onPress(): void;
-}
+import type { PrimaryButtonProps } from './primary-button.types';
 
-export function PrimaryButton(props: PrimaryButtonProps): JSX.Element {
-  const isDisabled = props.disabledReason !== null;
-  const accessibilityProps = isDisabled
-    ? { 'aria-describedby': 'primary-button-reason' }
-    : {};
+export function PrimaryButton(props: PrimaryButtonProps) {
+  if (props.disabledReason === null) {
+    return (
+      <button onClick={props.onPress} type="button">
+        {props.label}
+      </button>
+    );
+  }
 
   return (
     <div>
       <button
-        disabled={isDisabled}
+        aria-describedby="primary-button-reason"
+        disabled
         onClick={props.onPress}
-        {...accessibilityProps}
         type="button"
       >
         {props.label}
       </button>
-      {isDisabled ? (
-        <p id="primary-button-reason">{props.disabledReason}</p>
-      ) : null}
+      <p id="primary-button-reason">{props.disabledReason}</p>
     </div>
   );
 }
