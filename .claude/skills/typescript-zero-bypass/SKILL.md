@@ -30,6 +30,7 @@ Define what acceptable TypeScript looks like in this framework. The compiler is 
 - No `any`
 - No `as`, `as const`, chained assertions, angle-bracket assertions, or non-null assertions
 - No ts-comment bypasses
+- No inline structural types
 - No `Record` or index signatures as generic escape hatches
 - No `Map` used to avoid modeling a named input contract
 - Named types instead of anonymous structural sprawl

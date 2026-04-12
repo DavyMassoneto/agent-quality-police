@@ -1,0 +1,24 @@
+{
+  "name": "agent-quality-police",
+  "version": "0.2.0",
+  "description": "Strict governance framework for coding agents that blocks testing and typing bypasses.",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://github.com/DavyMassoneto/agent-quality-police",
+  "repository": "https://github.com/DavyMassoneto/agent-quality-police.git",
+  "author": {
+    "name": "Davy Massoneto",
+    "url": "https://github.com/DavyMassoneto"
+  },
+  "keywords": [
+    "agents",
+    "claude-code",
+    "codex",
+    "governance",
+    "tdd",
+    "typescript"
+  ],
+  "bin": {
+    "aqp": "bin/aqp.mjs"
+  }
+}

@@ -22,18 +22,21 @@ Install or refresh the framework without letting generated projections drift awa
 1. Copy the canonical files first.
 2. Run `python3 scripts/build_framework.py`.
 3. Run `python3 scripts/validate_framework.py`.
-4. If scripts changed, run `python3 -m unittest tests/test_framework_tools.py`.
+4. If scripts or package installer sources changed, run `python3 -m unittest tests/test_framework_tools.py` and `node --test tests/node/install.test.mjs`.
 5. Commit only after projections and validation are green.
 
 ## Quality Criteria
 
+- Repository entrypoints are generated from the canonical entrypoint source instead of being hand-authored per tool.
 - Canonical and generated layers are both present.
 - `.agents/skills/` matches `.claude/skills/`.
 - Agent projections exist for Claude, OpenCode, and Codex.
+- Package-ready plugin distribution and marketplace metadata exist for Claude and Codex.
 - No placeholders, missing links, or stale projections remain.
 
 ## Anti-Patterns
 
+- Hand-maintaining separate root entrypoints for Claude, Codex, and OpenCode
 - Editing generated files by hand
 - Copying only the generated layers and skipping the canonical source
 - Publishing without running build and validation

@@ -1,0 +1,40 @@
+{
+  "name": "agent-quality-police",
+  "version": "0.2.0",
+  "description": "Strict governance framework for coding agents that blocks testing and typing bypasses.",
+  "author": {
+    "name": "Davy Massoneto",
+    "url": "https://github.com/DavyMassoneto"
+  },
+  "homepage": "https://github.com/DavyMassoneto/agent-quality-police",
+  "repository": "https://github.com/DavyMassoneto/agent-quality-police.git",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "claude-code",
+    "codex",
+    "governance",
+    "tdd",
+    "typescript"
+  ],
+  "skills": "./.agents/skills",
+  "interface": {
+    "displayName": "Agent Quality Police",
+    "shortDescription": "Strict governance for coding agents",
+    "longDescription": "Install strict governance rules, skills, and audit agents for Codex with package-managed updates and generated projections from the canonical framework sources.",
+    "developerName": "Davy Massoneto",
+    "category": "Coding",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/DavyMassoneto/agent-quality-police",
+    "defaultPrompt": [
+      "Install strict governance in this environment",
+      "Audit this diff for typing or test bypasses",
+      "Apply TDD and zero-bypass TypeScript rules"
+    ],
+    "brandColor": "#111827"
+  }
+}
