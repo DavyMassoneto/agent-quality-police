@@ -6,6 +6,8 @@
 - [`docs/policy/quality-definition.md`](docs/policy/quality-definition.md) is the canonical definition of quality in this repository.
 - If any skill, rule, example, or agent prompt contradicts the quality definition, the quality definition wins.
 - Generated projections must not become the source of truth.
+- Do not modify machine-level global configuration, home-directory state, accounts, or tools outside this repository without explicit user permission.
+- Do not publish releases, tags, packages, or other external side effects without explicit user permission.
 
 ## Startup Sequence
 

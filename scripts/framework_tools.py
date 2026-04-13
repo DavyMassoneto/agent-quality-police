@@ -465,6 +465,8 @@ def _repo_policy_sections() -> dict[str, str]:
                 "- [`docs/policy/quality-definition.md`]({{quality_definition_path}}) is the canonical definition of quality in this repository.",
                 "- If any skill, rule, example, or agent prompt contradicts the quality definition, the quality definition wins.",
                 "- Generated projections must not become the source of truth.",
+                "- Do not modify machine-level global configuration, home-directory state, accounts, or tools outside this repository without explicit user permission.",
+                "- Do not publish releases, tags, packages, or other external side effects without explicit user permission.",
             ]
         ),
         "startup_sequence_body": "\n".join(
@@ -731,9 +733,16 @@ def build_plugin_distribution(root: Path, distribution_spec: dict[str, Any] | No
         system_layout_path="docs/policy/system-layout.md",
         **_global_policy_sections(),
     )
+    package_agents_replacements = _entrypoint_replacements(
+        quality_definition_path="docs/policy/quality-definition.md",
+        workflow_path="docs/policy/workflow.md",
+        primary_skill_root=".agents/skills/",
+        skill_root=".agents/skills",
+        system_layout_path="docs/policy/system-layout.md",
+        **_global_policy_sections(),
+    )
 
     copy_paths = [
-        Path("AGENTS.md"),
         Path("opencode.json"),
         Path("docs") / "policy",
         Path(".claude") / "rules",
@@ -754,6 +763,7 @@ def build_plugin_distribution(root: Path, distribution_spec: dict[str, Any] | No
     _copy_path(root / "framework" / "package" / "lib", plugin_root / "lib")
 
     _write_text(plugin_root / "CLAUDE.md", _render_packaged_claude_md(resolved_entrypoint_policy, package_replacements))
+    _write_text(plugin_root / "AGENTS.md", _render_agents_md(resolved_entrypoint_policy, package_agents_replacements))
     _write_text(plugin_root / "README.md", _render_package_readme(resolved_distribution_spec))
     _write_text(plugin_root / "LICENSE", _render_package_license(resolved_distribution_spec))
     _write_text(plugin_root / "package.json", _render_generated_package_json(resolved_distribution_spec))
@@ -839,6 +849,14 @@ def _expected_plugin_distribution(root: Path) -> dict[Path, str]:
         system_layout_path="docs/policy/system-layout.md",
         **_global_policy_sections(),
     )
+    package_agents_replacements = _entrypoint_replacements(
+        quality_definition_path="docs/policy/quality-definition.md",
+        workflow_path="docs/policy/workflow.md",
+        primary_skill_root=".agents/skills/",
+        skill_root=".agents/skills",
+        system_layout_path="docs/policy/system-layout.md",
+        **_global_policy_sections(),
+    )
     expected[plugin_root / "package.json"] = _normalized_output(_render_generated_package_json(distribution_spec))
     expected[plugin_root / "README.md"] = _normalized_output(_render_package_readme(distribution_spec))
     expected[plugin_root / "LICENSE"] = _normalized_output(_render_package_license(distribution_spec))
@@ -859,7 +877,6 @@ def _expected_plugin_distribution(root: Path) -> dict[Path, str]:
     )
 
     copied_roots = [
-        Path("AGENTS.md"),
         Path("opencode.json"),
         Path("docs") / "policy",
         Path(".claude") / "rules",
@@ -873,6 +890,9 @@ def _expected_plugin_distribution(root: Path) -> dict[Path, str]:
     ]
     expected[plugin_root / "CLAUDE.md"] = _normalized_output(
         _render_packaged_claude_md(entrypoint_policy, package_replacements)
+    )
+    expected[plugin_root / "AGENTS.md"] = _normalized_output(
+        _render_agents_md(entrypoint_policy, package_agents_replacements)
     )
     for relative_root in copied_roots:
         source = root / relative_root

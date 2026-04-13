@@ -261,6 +261,14 @@ class BuildEntrypointProjectionTests(unittest.TestCase):
             self.assertEqual(["quality-index"], built_skills)
             self.assertEqual(["implementer"], built_agents)
             self.assertEqual(["agent-quality-police"], built_distributions)
+            self.assertIn(
+                "Do not modify machine-level global configuration, home-directory state, accounts, or tools outside this repository without explicit user permission.",
+                (root / "AGENTS.md").read_text(encoding="utf-8"),
+            )
+            self.assertIn(
+                "Do not publish releases, tags, packages, or other external side effects without explicit user permission.",
+                (root / "AGENTS.md").read_text(encoding="utf-8"),
+            )
             self.assertNotIn("Tool-Specific Notes", (root / "AGENTS.md").read_text(encoding="utf-8"))
             self.assertTrue((root / "CLAUDE.md").read_text(encoding="utf-8").startswith("@AGENTS.md\n"))
             self.assertIn("Always-on rules live under `.claude/rules/`.", (root / "CLAUDE.md").read_text(encoding="utf-8"))
@@ -722,6 +730,7 @@ class PluginDistributionTests(unittest.TestCase):
             self.assertEqual("./.claude/skills", claude_manifest["skills"])
             self.assertEqual("./.claude/agents", claude_manifest["agents"])
             packaged_claude = (root / "plugins" / "agent-quality-police" / "CLAUDE.md").read_text(encoding="utf-8")
+            packaged_agents = (root / "plugins" / "agent-quality-police" / "AGENTS.md").read_text(encoding="utf-8")
             self.assertIn("Prefer current local code and current official documentation over memory.", packaged_claude)
             self.assertIn("Load the required skills before proposing edits or writing code.", packaged_claude)
             self.assertIn("For code changes, do not finalize until the required auditors have run and their results were reviewed.", packaged_claude)
@@ -729,6 +738,15 @@ class PluginDistributionTests(unittest.TestCase):
             self.assertIn("For behavior changes or bug fixes, run `tdd-warden` and `bypass-auditor`.", packaged_claude)
             self.assertIn("For final approval, release, or merge decisions, run `pr-gatekeeper` after the other required auditors.", packaged_claude)
             self.assertIn("If a required skill or auditor cannot run in the current runtime, stop and report `BLOCKED`.", packaged_claude)
+            self.assertIn("Prefer current local code and current official documentation over memory.", packaged_agents)
+            self.assertNotIn(
+                "Do not modify machine-level global configuration, home-directory state, accounts, or tools outside this repository without explicit user permission.",
+                packaged_agents,
+            )
+            self.assertNotIn(
+                "Do not publish releases, tags, packages, or other external side effects without explicit user permission.",
+                packaged_agents,
+            )
             self.assertNotIn("python3 scripts/build_framework.py", packaged_claude)
             self.assertNotIn("Codex should enter", packaged_claude)
             self.assertNotIn("OpenCode should enter", packaged_claude)
