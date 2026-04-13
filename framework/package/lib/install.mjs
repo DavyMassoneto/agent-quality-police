@@ -35,7 +35,7 @@ export function supportedTargets() {
 }
 
 async function loadEntrypointPolicy(packageRoot) {
-  return (await readFile(packagePath(packageRoot, "framework", "entrypoints", "policy.md"), "utf8")).trimEnd();
+  return (await readFile(packagePath(packageRoot, "framework", "entrypoints", "global-policy.md"), "utf8")).trimEnd();
 }
 
 function renderTemplate(content, replacements) {

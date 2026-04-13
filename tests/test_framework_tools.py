@@ -133,8 +133,12 @@ class BuildEntrypointProjectionTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (root / "framework" / "entrypoints").mkdir(parents=True)
-            (root / "framework" / "entrypoints" / "policy.md").write_text(
+            (root / "framework" / "entrypoints" / "repo-policy.md").write_text(
                 "## Priority\n\n- Shared policy.\n",
+                encoding="utf-8",
+            )
+            (root / "framework" / "entrypoints" / "global-policy.md").write_text(
+                "## Priority\n\n- Global policy.\n",
                 encoding="utf-8",
             )
             (root / "framework" / "entrypoints" / "opencode.json").write_text(
@@ -515,8 +519,12 @@ class PluginDistributionTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (root / "framework" / "entrypoints").mkdir(parents=True)
-            (root / "framework" / "entrypoints" / "policy.md").write_text(
+            (root / "framework" / "entrypoints" / "repo-policy.md").write_text(
                 "## Priority\n\n- Project policy.\n",
+                encoding="utf-8",
+            )
+            (root / "framework" / "entrypoints" / "global-policy.md").write_text(
+                "## Priority\n\n- Global install policy.\n",
                 encoding="utf-8",
             )
             (root / "framework" / "entrypoints" / "opencode.json").write_text(
@@ -618,7 +626,8 @@ class PluginDistributionTests(unittest.TestCase):
             self.assertIn("MIT License", package_license)
             self.assertEqual("./.claude/skills", claude_manifest["skills"])
             self.assertEqual("./.claude/agents", claude_manifest["agents"])
-            self.assertIn("Project policy.", (root / "plugins" / "agent-quality-police" / "CLAUDE.md").read_text(encoding="utf-8"))
+            self.assertIn("Global install policy.", (root / "plugins" / "agent-quality-police" / "CLAUDE.md").read_text(encoding="utf-8"))
+            self.assertNotIn("python3 scripts/build_framework.py", (root / "plugins" / "agent-quality-police" / "CLAUDE.md").read_text(encoding="utf-8"))
             self.assertEqual("./.agents/skills", codex_manifest["skills"])
             self.assertEqual("Agent Quality Police", codex_manifest["interface"]["displayName"])
             self.assertEqual("./plugins/agent-quality-police", claude_marketplace["plugins"][0]["source"])
@@ -628,8 +637,8 @@ class PluginDistributionTests(unittest.TestCase):
                 (root / "plugins" / "agent-quality-police" / "opencode.json").read_text(encoding="utf-8"),
             )
             self.assertEqual(
-                "## Priority\n\n- Project policy.\n",
-                (root / "plugins" / "agent-quality-police" / "framework" / "entrypoints" / "policy.md").read_text(encoding="utf-8"),
+                "## Priority\n\n- Global install policy.\n",
+                (root / "plugins" / "agent-quality-police" / "framework" / "entrypoints" / "global-policy.md").read_text(encoding="utf-8"),
             )
             self.assertIn("npm publish", publish_workflow)
             self.assertIn("plugins/agent-quality-police", publish_workflow)

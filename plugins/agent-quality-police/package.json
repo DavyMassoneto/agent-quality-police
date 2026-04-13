@@ -1,6 +1,6 @@
 {
   "name": "agent-quality-police",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Strict governance framework for coding agents that blocks testing and typing bypasses.",
   "type": "module",
   "license": "MIT",

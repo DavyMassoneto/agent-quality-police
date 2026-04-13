@@ -10,7 +10,7 @@ import { installGlobal, resolveCleanupPlan, resolveInstallPlan } from "../../fra
 async function writeFixture(packageRoot) {
   await mkdir(path.join(packageRoot, "framework", "entrypoints"), { recursive: true });
   await writeFile(
-    path.join(packageRoot, "framework", "entrypoints", "policy.md"),
+    path.join(packageRoot, "framework", "entrypoints", "global-policy.md"),
     [
       "## Priority",
       "",
@@ -35,6 +35,11 @@ async function writeFixture(packageRoot) {
       "- Codex should enter through this file and use `{{codex_skills_root}}` plus `{{codex_agents_root}}`.",
       "- OpenCode should enter through this file and load extra instructions from `{{opencode_config_path}}`."
     ].join("\n"),
+    "utf8"
+  );
+  await writeFile(
+    path.join(packageRoot, "framework", "entrypoints", "repo-policy.md"),
+    "## Priority\n\n- Repo policy.\n\n## Execution Contract\n\n- After any change, run `python3 scripts/build_framework.py`.\n",
     "utf8"
   );
   await writeFile(
@@ -161,6 +166,9 @@ test("installGlobal emits manual steps when root management is denied", async ()
   assert.equal(result.manualSteps[0].snippet.includes("Use [quality-index](skills/quality-index/SKILL.md)."), true);
   assert.equal(result.manualSteps[0].snippet.includes("## Claude Code"), true);
   assert.equal(result.manualSteps[0].snippet.startsWith("## Priority"), true);
+  assert.equal(result.manualSteps[0].snippet.includes("python3 scripts/build_framework.py"), false);
+  assert.equal(result.manualSteps[1].snippet.includes("python3 scripts/build_framework.py"), false);
+  assert.equal(result.manualSteps[2].snippet.includes("python3 scripts/build_framework.py"), false);
   assert.equal(result.manualSteps[1].destination, path.join(homeDir, ".codex", "AGENTS.md"));
   assert.equal(result.manualSteps[1].snippet.startsWith("## Priority"), true);
   assert.equal(result.manualSteps[2].destination, path.join(homeDir, ".config", "opencode", "AGENTS.md"));

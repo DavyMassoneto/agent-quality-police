@@ -30,12 +30,12 @@ def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _load_entrypoint_policy(root: Path, *, required: bool) -> str | None:
-    policy_path = root / "framework" / "entrypoints" / "policy.md"
+def _load_entrypoint_policy(root: Path, *, filename: str, required: bool) -> str | None:
+    policy_path = root / "framework" / "entrypoints" / filename
     if not policy_path.exists():
         if required:
             raise BuildError(
-                "Missing canonical entrypoint policy: framework/entrypoints/policy.md. "
+                f"Missing canonical entrypoint policy: framework/entrypoints/{filename}. "
                 "Build requires canonical entrypoint sources before generated projections are reset."
             )
         return None
@@ -500,7 +500,7 @@ def _render_opencode_config(opencode_config: dict[str, Any]) -> str:
 
 def build_entrypoint_projections(root: Path, entrypoint_policy: str | None = None, opencode_config: dict[str, Any] | None = None) -> list[str]:
     resolved_entrypoint_policy = (
-        entrypoint_policy if entrypoint_policy is not None else _load_entrypoint_policy(root, required=True)
+        entrypoint_policy if entrypoint_policy is not None else _load_entrypoint_policy(root, filename="repo-policy.md", required=True)
     )
     resolved_opencode_config = (
         opencode_config if opencode_config is not None else _load_entrypoint_opencode_config(root, required=True)
@@ -605,7 +605,7 @@ def build_plugin_distribution(root: Path, distribution_spec: dict[str, Any] | No
         distribution_spec if distribution_spec is not None else _load_distribution_spec(root, required=True)
     )
     assert resolved_distribution_spec is not None
-    resolved_entrypoint_policy = _load_entrypoint_policy(root, required=True)
+    resolved_entrypoint_policy = _load_entrypoint_policy(root, filename="global-policy.md", required=True)
     resolved_opencode_config = _load_entrypoint_opencode_config(root, required=True)
     assert resolved_entrypoint_policy is not None
     assert resolved_opencode_config is not None
@@ -697,7 +697,7 @@ def _expected_agent_projections(root: Path) -> dict[Path, str]:
 
 
 def _expected_entrypoint_projections(root: Path) -> dict[Path, str]:
-    entrypoint_policy = _load_entrypoint_policy(root, required=False)
+    entrypoint_policy = _load_entrypoint_policy(root, filename="repo-policy.md", required=False)
     opencode_config = _load_entrypoint_opencode_config(root, required=False)
     if entrypoint_policy is None or opencode_config is None:
         return {}
@@ -722,7 +722,7 @@ def _expected_entrypoint_projections(root: Path) -> dict[Path, str]:
 
 def _expected_plugin_distribution(root: Path) -> dict[Path, str]:
     distribution_spec = _load_distribution_spec(root, required=False)
-    entrypoint_policy = _load_entrypoint_policy(root, required=False)
+    entrypoint_policy = _load_entrypoint_policy(root, filename="global-policy.md", required=False)
     opencode_config = _load_entrypoint_opencode_config(root, required=False)
     if distribution_spec is None or entrypoint_policy is None or opencode_config is None:
         return {}
@@ -958,7 +958,7 @@ def validate_repository(root: Path) -> ValidationResult:
 
 
 def build_all(root: Path) -> tuple[list[str], list[str], list[str], list[str]]:
-    entrypoint_policy = _load_entrypoint_policy(root, required=True)
+    entrypoint_policy = _load_entrypoint_policy(root, filename="repo-policy.md", required=True)
     assert entrypoint_policy is not None
     source_skills = _load_skill_sources(root, required=True)
     specs = _load_agent_specs(root, required=True)
