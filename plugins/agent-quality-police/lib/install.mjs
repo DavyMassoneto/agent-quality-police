@@ -4,6 +4,8 @@ import os from "node:os";
 import path from "node:path";
 
 const PACKAGE_NAME = "agent-quality-police";
+const MANAGED_BLOCK_START = "<!-- agent-quality-police:start -->";
+const MANAGED_BLOCK_END = "<!-- agent-quality-police:end -->";
 
 function timestamp() {
   return new Date().toISOString().replace(/[:.]/g, "-");
@@ -310,6 +312,56 @@ async function writeRenderedEntry(content, destination) {
   await writeFile(destination, content, "utf8");
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function managedBlockPattern() {
+  return new RegExp(
+    `${escapeRegExp(MANAGED_BLOCK_START)}[\\s\\S]*?${escapeRegExp(MANAGED_BLOCK_END)}\\n?`,
+    "m"
+  );
+}
+
+function renderManagedBlock(content) {
+  return [MANAGED_BLOCK_START, content.trimEnd(), MANAGED_BLOCK_END, ""].join("\n");
+}
+
+async function readOptionalText(destination) {
+  try {
+    return await readFile(destination, "utf8");
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
+      return null;
+    }
+    throw error;
+  }
+}
+
+function mergeManagedRoot(existingContent, managedContent, legacyFullRoot) {
+  const managedBlock = renderManagedBlock(managedContent);
+  if (existingContent === null) {
+    return managedBlock;
+  }
+
+  const existingTrimmed = existingContent.trim();
+  if (existingTrimmed.length === 0) {
+    return managedBlock;
+  }
+
+  const legacyTrimmed = legacyFullRoot.trim();
+  if (existingTrimmed === legacyTrimmed) {
+    return managedBlock;
+  }
+
+  const pattern = managedBlockPattern();
+  if (pattern.test(existingContent)) {
+    return existingContent.replace(pattern, managedBlock).trimEnd() + "\n";
+  }
+
+  return `${existingContent.trimEnd()}\n\n${managedBlock}`;
+}
+
 async function removeLegacyPath(destination, backupRoot, homeDir) {
   const backedUp = await backupExisting(destination, backupRoot, homeDir);
   if (!backedUp) {
@@ -384,7 +436,10 @@ export async function installGlobal(packageRoot, decisions, homeDir = os.homedir
 
     if (manageGlobalRoot) {
       const destination = globalRootDestination(target, homeDir);
-      const content = await renderRootFile(packageRoot, target);
+      const existingContent = await readOptionalText(destination);
+      const managedContent = await renderRootSnippet(packageRoot, target);
+      const legacyFullRoot = await renderRootFile(packageRoot, target);
+      const content = mergeManagedRoot(existingContent, managedContent, legacyFullRoot);
       await backupExisting(destination, backupRoot, homeDir);
       await writeRenderedEntry(content, destination);
       installed.push({
