@@ -111,10 +111,11 @@ test("installGlobal manages Claude, Codex, and OpenCode roots when allowed", asy
 
   await mkdir(path.join(homeDir, ".claude"), { recursive: true });
   await writeFile(path.join(homeDir, ".claude", "AGENTS.md"), "legacy-claude-agents\n", "utf8");
+  await writeFile(path.join(homeDir, ".claude", "CLAUDE.md"), "# Existing Claude Root\n\n- Keep this Claude rule.\n", "utf8");
   await mkdir(path.join(homeDir, ".codex"), { recursive: true });
-  await writeFile(path.join(homeDir, ".codex", "AGENTS.md"), "old-codex-agents\n", "utf8");
+  await writeFile(path.join(homeDir, ".codex", "AGENTS.md"), "# Existing Codex Root\n\n- Keep this Codex rule.\n", "utf8");
   await mkdir(path.join(homeDir, ".config", "opencode"), { recursive: true });
-  await writeFile(path.join(homeDir, ".config", "opencode", "AGENTS.md"), "old-opencode-agents\n", "utf8");
+  await writeFile(path.join(homeDir, ".config", "opencode", "AGENTS.md"), "# Existing OpenCode Root\n\n- Keep this OpenCode rule.\n", "utf8");
 
   const result = await installGlobal(
     packageRoot,
@@ -134,6 +135,15 @@ test("installGlobal manages Claude, Codex, and OpenCode roots when allowed", asy
   await assert.rejects(readFile(path.join(homeDir, ".claude", "AGENTS.md"), "utf8"));
   assert.equal(installedCodexRoot.includes("Prefer current local code and current official documentation over memory."), true);
   assert.equal(installedOpenCodeRoot.includes("Prefer current local code and current official documentation over memory."), true);
+  assert.equal(installedClaudeRoot.includes("Keep this Claude rule."), true);
+  assert.equal(installedCodexRoot.includes("Keep this Codex rule."), true);
+  assert.equal(installedOpenCodeRoot.includes("Keep this OpenCode rule."), true);
+  assert.equal(installedClaudeRoot.includes("<!-- agent-quality-police:start -->"), true);
+  assert.equal(installedCodexRoot.includes("<!-- agent-quality-police:start -->"), true);
+  assert.equal(installedOpenCodeRoot.includes("<!-- agent-quality-police:start -->"), true);
+  assert.equal(installedClaudeRoot.split("<!-- agent-quality-police:start -->").length - 1, 1);
+  assert.equal(installedCodexRoot.split("<!-- agent-quality-police:start -->").length - 1, 1);
+  assert.equal(installedOpenCodeRoot.split("<!-- agent-quality-police:start -->").length - 1, 1);
   assert.equal(installedClaudeRoot.includes("Load the required skills before proposing edits or writing code."), true);
   assert.equal(installedCodexRoot.includes("Load the required skills before proposing edits or writing code."), true);
   assert.equal(installedOpenCodeRoot.includes("Load the required skills before proposing edits or writing code."), true);
@@ -154,8 +164,26 @@ test("installGlobal manages Claude, Codex, and OpenCode roots when allowed", asy
   assert.equal(installedOpenCodeRoot.includes("For final approval, release, or merge decisions, run `pr-gatekeeper` after the other required auditors."), true);
   assert.equal(await readFile(path.join(homeDir, ".config", "opencode", "skills", "quality-index", "SKILL.md"), "utf8"), "---\nname: quality-index\ndescription: skill\n---\n");
   assert.equal(result.manualSteps.length, 0);
-  assert.equal(await readFile(path.join(result.backupRoot, ".codex", "AGENTS.md"), "utf8"), "old-codex-agents\n");
-  assert.equal(await readFile(path.join(result.backupRoot, ".config", "opencode", "AGENTS.md"), "utf8"), "old-opencode-agents\n");
+  assert.equal(await readFile(path.join(result.backupRoot, ".codex", "AGENTS.md"), "utf8"), "# Existing Codex Root\n\n- Keep this Codex rule.\n");
+  assert.equal(await readFile(path.join(result.backupRoot, ".config", "opencode", "AGENTS.md"), "utf8"), "# Existing OpenCode Root\n\n- Keep this OpenCode rule.\n");
+
+  await installGlobal(
+    packageRoot,
+    [
+      { target: "claude", manageGlobalRoot: true },
+      { target: "codex", manageGlobalRoot: true },
+      { target: "opencode", manageGlobalRoot: true }
+    ],
+    homeDir
+  );
+
+  const rerunClaudeRoot = await readFile(path.join(homeDir, ".claude", "CLAUDE.md"), "utf8");
+  const rerunCodexRoot = await readFile(path.join(homeDir, ".codex", "AGENTS.md"), "utf8");
+  const rerunOpenCodeRoot = await readFile(path.join(homeDir, ".config", "opencode", "AGENTS.md"), "utf8");
+
+  assert.equal(rerunClaudeRoot.split("<!-- agent-quality-police:start -->").length - 1, 1);
+  assert.equal(rerunCodexRoot.split("<!-- agent-quality-police:start -->").length - 1, 1);
+  assert.equal(rerunOpenCodeRoot.split("<!-- agent-quality-police:start -->").length - 1, 1);
 });
 
 test("installGlobal emits manual steps when root management is denied", async () => {
