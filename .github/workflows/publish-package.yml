@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -23,6 +24,12 @@ jobs:
         with:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
+      - name: Read package version
+        id: package
+        run: echo "version=$(node -p \"require('./plugins/agent-quality-police/package.json').version\")" >> "$GITHUB_OUTPUT"
+      - name: Read published version
+        id: published
+        run: echo "version=$(npm view agent-quality-police version 2>/dev/null || true)" >> "$GITHUB_OUTPUT"
       - name: Build framework
         run: python3 scripts/build_framework.py
       - name: Validate framework
@@ -32,7 +39,11 @@ jobs:
       - name: Run Node tests
         run: node --test tests/node/install.test.mjs
       - name: Publish package
+        if: steps.package.outputs.version != steps.published.outputs.version
         run: npm publish --access public
         working-directory: plugins/agent-quality-police
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Skip publish when version already exists
+        if: steps.package.outputs.version == steps.published.outputs.version
+        run: echo "Package version already published; skipping npm publish."
