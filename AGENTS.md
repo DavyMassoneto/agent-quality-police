@@ -13,19 +13,19 @@
 
 1. Read [quality-definition](docs/policy/quality-definition.md).
 2. Read [workflow](docs/policy/workflow.md).
-3. Load the smallest relevant skill set from `.claude/skills/`.
+3. Load the smallest relevant skill set from `framework/skills/`.
 4. Execute with TDD when tests are viable.
 5. Run the matching audit agents before final approval.
 
 ## Skill Routing
 
-- Use [quality-index](.claude/skills/quality-index/SKILL.md) first when the task spans multiple concerns.
-- Use [typescript-zero-bypass](.claude/skills/typescript-zero-bypass/SKILL.md) for any `.ts` or `.tsx` change.
-- Use [vite-vitest-tdd](.claude/skills/vite-vitest-tdd/SKILL.md) when working with Vite, Vitest, or unit/component TDD.
-- Use [react-public-api-testing](.claude/skills/react-public-api-testing/SKILL.md) for React component behavior tests.
-- Use [anti-bypass-audit](.claude/skills/anti-bypass-audit/SKILL.md) when reviewing diffs, suspicious helpers, or weakened configs.
-- Use [refactoring-with-safety](.claude/skills/refactoring-with-safety/SKILL.md) for refactors that are not pure bug fixes.
-- Use [governance-installation](.claude/skills/governance-installation/SKILL.md) when installing or updating this framework in another repository.
+- Use [quality-index](framework/skills/quality-index/SKILL.md) first when the task spans multiple concerns.
+- Use [typescript-zero-bypass](framework/skills/typescript-zero-bypass/SKILL.md) for any `.ts` or `.tsx` change.
+- Use [vite-vitest-tdd](framework/skills/vite-vitest-tdd/SKILL.md) when working with Vite, Vitest, or unit/component TDD.
+- Use [react-public-api-testing](framework/skills/react-public-api-testing/SKILL.md) for React component behavior tests.
+- Use [anti-bypass-audit](framework/skills/anti-bypass-audit/SKILL.md) when reviewing diffs, suspicious helpers, or weakened configs.
+- Use [refactoring-with-safety](framework/skills/refactoring-with-safety/SKILL.md) for refactors that are not pure bug fixes.
+- Use [governance-installation](framework/skills/governance-installation/SKILL.md) when installing or updating this framework in another repository.
 
 ## Quality Rules
 

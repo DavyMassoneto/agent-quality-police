@@ -121,11 +121,11 @@ def _readable_name(path: Path) -> str:
 
 
 def _load_skill_sources(root: Path, *, required: bool) -> list[Path]:
-    source_root = root / ".claude" / "skills"
+    source_root = root / "framework" / "skills"
     if not source_root.exists():
         if required:
             raise BuildError(
-                "Missing canonical skill source: .claude/skills. "
+                "Missing canonical skill source: framework/skills. "
                 "Build requires canonical sources before generated projections are reset."
             )
         return []
@@ -133,7 +133,7 @@ def _load_skill_sources(root: Path, *, required: bool) -> list[Path]:
     source_skills = sorted(path for path in source_root.iterdir() if path.is_dir())
     if not source_skills and required:
         raise BuildError(
-            "No canonical skill folders found under .claude/skills. "
+            "No canonical skill folders found under framework/skills. "
             "Build requires canonical sources before generated projections are reset."
         )
     return source_skills
@@ -141,17 +141,8 @@ def _load_skill_sources(root: Path, *, required: bool) -> list[Path]:
 
 def build_skill_projection(root: Path, source_skills: list[Path] | None = None) -> list[str]:
     resolved_source_skills = source_skills if source_skills is not None else _load_skill_sources(root, required=True)
-    destination_root = root / ".agents" / "skills"
-    opencode_destination_root = root / ".opencode" / "skills"
-    _reset_directory(destination_root)
-    _reset_directory(opencode_destination_root)
-
     built_skills: list[str] = []
     for source_skill in resolved_source_skills:
-        destination_skill = destination_root / source_skill.name
-        opencode_destination_skill = opencode_destination_root / source_skill.name
-        shutil.copytree(source_skill, destination_skill)
-        shutil.copytree(source_skill, opencode_destination_skill)
         built_skills.append(source_skill.name)
     return built_skills
 
@@ -231,19 +222,8 @@ def build_agent_projections(root: Path, specs: list[dict[str, Any]] | None = Non
     resolved_specs = specs if specs is not None else _load_agent_specs(root, required=True)
     built_agents: list[str] = []
 
-    claude_root = root / ".claude" / "agents"
-    opencode_root = root / ".opencode" / "agents"
-    codex_root = root / ".codex" / "agents"
-    _reset_directory(claude_root)
-    _reset_directory(opencode_root)
-    _reset_directory(codex_root)
-
     for spec in resolved_specs:
-        name = spec["name"]
-        _write_text(claude_root / f"{name}.md", _render_claude_agent(spec))
-        _write_text(opencode_root / f"{name}.md", _render_opencode_agent(spec))
-        _write_text(codex_root / f"{name}.toml", _render_codex_agent(spec))
-        built_agents.append(name)
+        built_agents.append(spec["name"])
     return built_agents
 
 
@@ -289,10 +269,9 @@ def _render_generated_package_json(distribution_spec: dict[str, Any]) -> str:
             "CLAUDE.md",
             "opencode.json",
             "docs",
-            ".claude",
-            ".agents",
-            ".codex",
-            ".opencode",
+            "rules",
+            "skills",
+            "agents",
             ".claude-plugin",
             ".codex-plugin",
             "framework",
@@ -626,16 +605,14 @@ def build_entrypoint_projections(root: Path, entrypoint_policy: str | None = Non
     repo_replacements = _entrypoint_replacements(
         quality_definition_path="docs/policy/quality-definition.md",
         workflow_path="docs/policy/workflow.md",
-        primary_skill_root=".claude/skills/",
-        skill_root=".claude/skills",
+        primary_skill_root="framework/skills/",
+        skill_root="framework/skills",
         system_layout_path="docs/policy/system-layout.md",
         **_repo_policy_sections(),
     )
 
     _write_text(root / "AGENTS.md", _render_agents_md(resolved_entrypoint_policy, repo_replacements))
-    _write_text(root / "CLAUDE.md", _render_repo_claude_md())
-    _write_text(root / "opencode.json", _render_opencode_config(resolved_opencode_config))
-    return ["AGENTS.md", "CLAUDE.md", "opencode.json"]
+    return ["AGENTS.md"]
 
 
 def _render_claude_plugin_manifest(distribution_spec: dict[str, Any]) -> str:
@@ -648,8 +625,8 @@ def _render_claude_plugin_manifest(distribution_spec: dict[str, Any]) -> str:
         "repository": distribution_spec["repository"],
         "license": distribution_spec["license"],
         "keywords": distribution_spec["keywords"],
-        "skills": "./.claude/skills",
-        "agents": "./.claude/agents",
+        "skills": "./skills",
+        "agents": "./agents",
     }
     return json.dumps(manifest, indent=2) + "\n"
 
@@ -664,7 +641,7 @@ def _render_codex_plugin_manifest(distribution_spec: dict[str, Any]) -> str:
         "repository": distribution_spec["repository"],
         "license": distribution_spec["license"],
         "keywords": distribution_spec["keywords"],
-        "skills": "./.agents/skills",
+        "skills": "./skills",
         "interface": distribution_spec["codexInterface"],
     }
     return json.dumps(manifest, indent=2) + "\n"
@@ -728,31 +705,25 @@ def build_plugin_distribution(root: Path, distribution_spec: dict[str, Any] | No
     package_replacements = _entrypoint_replacements(
         quality_definition_path="docs/policy/quality-definition.md",
         workflow_path="docs/policy/workflow.md",
-        primary_skill_root=".claude/skills/",
-        skill_root=".claude/skills",
+        primary_skill_root="skills/",
+        skill_root="skills",
         system_layout_path="docs/policy/system-layout.md",
         **_global_policy_sections(),
     )
     package_agents_replacements = _entrypoint_replacements(
         quality_definition_path="docs/policy/quality-definition.md",
         workflow_path="docs/policy/workflow.md",
-        primary_skill_root=".agents/skills/",
-        skill_root=".agents/skills",
+        primary_skill_root="skills/",
+        skill_root="skills",
         system_layout_path="docs/policy/system-layout.md",
         **_global_policy_sections(),
     )
 
     copy_paths = [
-        Path("opencode.json"),
         Path("docs") / "policy",
-        Path(".claude") / "rules",
-        Path(".claude") / "skills",
-        Path(".claude") / "agents",
-        Path(".agents") / "skills",
-        Path(".codex") / "agents",
-        Path(".opencode") / "skills",
-        Path(".opencode") / "agents",
         Path("framework") / "entrypoints",
+        Path("framework") / "agents" / "specs",
+        Path("framework") / "agents" / "prompts",
     ]
     for relative_path in copy_paths:
         source = root / relative_path
@@ -762,8 +733,21 @@ def build_plugin_distribution(root: Path, distribution_spec: dict[str, Any] | No
     _copy_path(root / "framework" / "package" / "bin", plugin_root / "bin")
     _copy_path(root / "framework" / "package" / "lib", plugin_root / "lib")
 
+    rules_root = root / "framework" / "rules"
+    if rules_root.exists():
+        _copy_path(rules_root, plugin_root / "rules")
+
+    source_skills = _load_skill_sources(root, required=True)
+    for source_skill in source_skills:
+        _copy_path(source_skill, plugin_root / "skills" / source_skill.name)
+
+    for spec in _load_agent_specs(root, required=True):
+        name = spec["name"]
+        _write_text(plugin_root / "agents" / f"{name}.md", _render_claude_agent(spec))
+
     _write_text(plugin_root / "CLAUDE.md", _render_packaged_claude_md(resolved_entrypoint_policy, package_replacements))
     _write_text(plugin_root / "AGENTS.md", _render_agents_md(resolved_entrypoint_policy, package_agents_replacements))
+    _write_text(plugin_root / "opencode.json", _render_opencode_config(resolved_opencode_config))
     _write_text(plugin_root / "README.md", _render_package_readme(resolved_distribution_spec))
     _write_text(plugin_root / "LICENSE", _render_package_license(resolved_distribution_spec))
     _write_text(plugin_root / "package.json", _render_generated_package_json(resolved_distribution_spec))
@@ -776,8 +760,6 @@ def build_plugin_distribution(root: Path, distribution_spec: dict[str, Any] | No
         _render_codex_plugin_manifest(resolved_distribution_spec),
     )
     _write_text(root / ".github" / "workflows" / "publish-package.yml", _render_publish_workflow(resolved_distribution_spec))
-    _write_text(root / ".claude-plugin" / "marketplace.json", _render_claude_marketplace(resolved_distribution_spec))
-    _write_text(root / ".agents" / "plugins" / "marketplace.json", _render_codex_marketplace(resolved_distribution_spec))
 
     return [resolved_distribution_spec["name"]]
 
@@ -814,21 +796,18 @@ def _expected_agent_projections(root: Path) -> dict[Path, str]:
 
 def _expected_entrypoint_projections(root: Path) -> dict[Path, str]:
     entrypoint_policy = _load_entrypoint_policy(root, required=False)
-    opencode_config = _load_entrypoint_opencode_config(root, required=False)
-    if entrypoint_policy is None or opencode_config is None:
+    if entrypoint_policy is None:
         return {}
     repo_replacements = _entrypoint_replacements(
         quality_definition_path="docs/policy/quality-definition.md",
         workflow_path="docs/policy/workflow.md",
-        primary_skill_root=".claude/skills/",
-        skill_root=".claude/skills",
+        primary_skill_root="framework/skills/",
+        skill_root="framework/skills",
         system_layout_path="docs/policy/system-layout.md",
         **_repo_policy_sections(),
     )
     return {
         Path("AGENTS.md"): _normalized_output(_render_agents_md(entrypoint_policy, repo_replacements)),
-        Path("CLAUDE.md"): _normalized_output(_render_repo_claude_md()),
-        Path("opencode.json"): _normalized_output(_render_opencode_config(opencode_config)),
     }
 
 
@@ -844,16 +823,16 @@ def _expected_plugin_distribution(root: Path) -> dict[Path, str]:
     package_replacements = _entrypoint_replacements(
         quality_definition_path="docs/policy/quality-definition.md",
         workflow_path="docs/policy/workflow.md",
-        primary_skill_root=".claude/skills/",
-        skill_root=".claude/skills",
+        primary_skill_root="skills/",
+        skill_root="skills",
         system_layout_path="docs/policy/system-layout.md",
         **_global_policy_sections(),
     )
     package_agents_replacements = _entrypoint_replacements(
         quality_definition_path="docs/policy/quality-definition.md",
         workflow_path="docs/policy/workflow.md",
-        primary_skill_root=".agents/skills/",
-        skill_root=".agents/skills",
+        primary_skill_root="skills/",
+        skill_root="skills",
         system_layout_path="docs/policy/system-layout.md",
         **_global_policy_sections(),
     )
@@ -866,27 +845,14 @@ def _expected_plugin_distribution(root: Path) -> dict[Path, str]:
     expected[plugin_root / ".codex-plugin" / "plugin.json"] = _normalized_output(
         _render_codex_plugin_manifest(distribution_spec)
     )
-    expected[Path(".claude-plugin") / "marketplace.json"] = _normalized_output(
-        _render_claude_marketplace(distribution_spec)
-    )
     expected[Path(".github") / "workflows" / "publish-package.yml"] = _normalized_output(
         _render_publish_workflow(distribution_spec)
     )
-    expected[Path(".agents") / "plugins" / "marketplace.json"] = _normalized_output(
-        _render_codex_marketplace(distribution_spec)
-    )
-
     copied_roots = [
-        Path("opencode.json"),
         Path("docs") / "policy",
-        Path(".claude") / "rules",
-        Path(".claude") / "skills",
-        Path(".claude") / "agents",
-        Path(".agents") / "skills",
-        Path(".codex") / "agents",
-        Path(".opencode") / "skills",
-        Path(".opencode") / "agents",
         Path("framework") / "entrypoints",
+        Path("framework") / "agents" / "specs",
+        Path("framework") / "agents" / "prompts",
     ]
     expected[plugin_root / "CLAUDE.md"] = _normalized_output(
         _render_packaged_claude_md(entrypoint_policy, package_replacements)
@@ -894,6 +860,7 @@ def _expected_plugin_distribution(root: Path) -> dict[Path, str]:
     expected[plugin_root / "AGENTS.md"] = _normalized_output(
         _render_agents_md(entrypoint_policy, package_agents_replacements)
     )
+    expected[plugin_root / "opencode.json"] = _normalized_output(_render_opencode_config(opencode_config))
     for relative_root in copied_roots:
         source = root / relative_root
         if source.is_file():
@@ -919,6 +886,28 @@ def _expected_plugin_distribution(root: Path) -> dict[Path, str]:
             expected[destination_root / path.relative_to(source_root)] = _normalized_output(
                 path.read_text(encoding="utf-8")
             )
+
+    rules_root = root / "framework" / "rules"
+    if rules_root.exists():
+        for path in rules_root.rglob("*"):
+            if not path.is_file():
+                continue
+            expected[plugin_root / "rules" / path.relative_to(rules_root)] = _normalized_output(
+                path.read_text(encoding="utf-8")
+            )
+
+    for source_skill in _load_skill_sources(root, required=False):
+        for path in source_skill.rglob("*"):
+            if not path.is_file():
+                continue
+            relative = path.relative_to(source_skill)
+            expected[plugin_root / "skills" / source_skill.name / relative] = _normalized_output(
+                path.read_text(encoding="utf-8")
+            )
+
+    for spec in _load_agent_specs(root, required=False):
+        name = spec["name"]
+        expected[plugin_root / "agents" / f"{name}.md"] = _normalized_output(_render_claude_agent(spec))
 
     return expected
 
@@ -950,7 +939,6 @@ def validate_repository(root: Path) -> ValidationResult:
     required_files = [
         root / "README.md",
         root / "AGENTS.md",
-        root / "CLAUDE.md",
         root / "docs" / "policy" / "quality-definition.md",
     ]
     for path in required_files:
@@ -968,53 +956,20 @@ def validate_repository(root: Path) -> ValidationResult:
         if (path.suffix == ".md" or path.name == "SKILL.md") and not _is_entrypoint_template(path, content):
             errors.extend(_check_local_links(root, path, content))
 
-    claude_skills_root = root / ".claude" / "skills"
-    agents_skills_root = root / ".agents" / "skills"
-    opencode_skills_root = root / ".opencode" / "skills"
-    if claude_skills_root.exists():
-        claude_skill_names = sorted(path.name for path in claude_skills_root.iterdir() if path.is_dir())
-        agents_skill_names = (
-            sorted(path.name for path in agents_skills_root.iterdir() if path.is_dir())
-            if agents_skills_root.exists()
-            else []
-        )
-        opencode_skill_names = (
-            sorted(path.name for path in opencode_skills_root.iterdir() if path.is_dir())
-            if opencode_skills_root.exists()
-            else []
-        )
-        if claude_skill_names != agents_skill_names:
-            errors.append("Skill projection mismatch between .claude/skills and .agents/skills")
-        if claude_skill_names != opencode_skill_names:
-            errors.append("Skill projection mismatch between .claude/skills and .opencode/skills")
-
-        claude_skill_files = _relative_file_set(claude_skills_root)
-        if agents_skills_root.exists():
-            agents_skill_files = _relative_file_set(agents_skills_root)
-            if claude_skill_files != agents_skill_files:
-                errors.append("Skill projection file set mismatch between .claude/skills and .agents/skills")
-            else:
-                for relative_path in sorted(claude_skill_files):
-                    claude_content = (claude_skills_root / relative_path).read_text(encoding="utf-8")
-                    agents_content = (agents_skills_root / relative_path).read_text(encoding="utf-8")
-                    if claude_content != agents_content:
-                        errors.append(
-                            "Skill projection content drift between "
-                            f".claude/skills/{relative_path} and .agents/skills/{relative_path}"
-                        )
-        if opencode_skills_root.exists():
-            opencode_skill_files = _relative_file_set(opencode_skills_root)
-            if claude_skill_files != opencode_skill_files:
-                errors.append("Skill projection file set mismatch between .claude/skills and .opencode/skills")
-            else:
-                for relative_path in sorted(claude_skill_files):
-                    claude_content = (claude_skills_root / relative_path).read_text(encoding="utf-8")
-                    opencode_content = (opencode_skills_root / relative_path).read_text(encoding="utf-8")
-                    if claude_content != opencode_content:
-                        errors.append(
-                            "Skill projection content drift between "
-                            f".claude/skills/{relative_path} and .opencode/skills/{relative_path}"
-                        )
+    forbidden_root_paths = [
+        root / ".claude",
+        root / ".codex",
+        root / ".opencode",
+        root / ".agents",
+        root / ".claude-plugin",
+        root / "CLAUDE.md",
+        root / "opencode.json",
+    ]
+    for forbidden_path in forbidden_root_paths:
+        if forbidden_path.exists():
+            errors.append(
+                f"Tool-specific runtime path must not exist at repository root: {forbidden_path.relative_to(root)}"
+            )
 
     expected_entrypoint_projections = _expected_entrypoint_projections(root)
     for relative_path, expected_content in expected_entrypoint_projections.items():
@@ -1028,36 +983,6 @@ def validate_repository(root: Path) -> ValidationResult:
                 "Generated entrypoint drift between canonical entrypoint sources and "
                 f"{relative_path}"
             )
-
-    expected_agent_projections = _expected_agent_projections(root)
-    if expected_agent_projections:
-        expected_paths = set(expected_agent_projections.keys())
-        actual_paths: set[Path] = set()
-        for agent_root in (root / ".claude" / "agents", root / ".opencode" / "agents", root / ".codex" / "agents"):
-            if not agent_root.exists():
-                continue
-            actual_paths.update(
-                path.relative_to(root)
-                for path in agent_root.iterdir()
-                if path.is_file()
-            )
-
-        if actual_paths != expected_paths:
-            errors.append(
-                "Generated agent file set drift between framework/agents/specs and generated agent projections"
-            )
-
-        for relative_path, expected_content in expected_agent_projections.items():
-            actual_path = root / relative_path
-            if not actual_path.exists():
-                errors.append(f"Missing generated agent file: {relative_path}")
-                continue
-            actual_content = actual_path.read_text(encoding="utf-8")
-            if actual_content != expected_content:
-                errors.append(
-                    "Generated agent content drift between canonical specs/prompts and "
-                    f"{relative_path}"
-                )
 
     expected_plugin_distribution = _expected_plugin_distribution(root)
     for relative_path, expected_content in expected_plugin_distribution.items():

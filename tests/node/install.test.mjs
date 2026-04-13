@@ -9,6 +9,8 @@ import { installGlobal, resolveCleanupPlan, resolveInstallPlan } from "../../fra
 
 async function writeFixture(packageRoot) {
   await mkdir(path.join(packageRoot, "framework", "entrypoints"), { recursive: true });
+  await mkdir(path.join(packageRoot, "framework", "agents", "specs"), { recursive: true });
+  await mkdir(path.join(packageRoot, "framework", "agents", "prompts"), { recursive: true });
   await writeFile(
     path.join(packageRoot, "framework", "entrypoints", "policy.md"),
     [
@@ -45,34 +47,27 @@ async function writeFixture(packageRoot) {
   await writeFile(path.join(packageRoot, "docs", "policy", "workflow.md"), "workflow\n", "utf8");
   await writeFile(path.join(packageRoot, "docs", "policy", "system-layout.md"), "layout\n", "utf8");
 
-  await mkdir(path.join(packageRoot, ".claude", "rules"), { recursive: true });
-  await mkdir(path.join(packageRoot, ".claude", "skills", "quality-index"), { recursive: true });
-  await mkdir(path.join(packageRoot, ".claude", "agents"), { recursive: true });
-  await writeFile(path.join(packageRoot, ".claude", "rules", "core.md"), "rule\n", "utf8");
+  await mkdir(path.join(packageRoot, "rules"), { recursive: true });
+  await mkdir(path.join(packageRoot, "skills", "quality-index"), { recursive: true });
+  await writeFile(path.join(packageRoot, "rules", "core.md"), "rule\n", "utf8");
   await writeFile(
-    path.join(packageRoot, ".claude", "skills", "quality-index", "SKILL.md"),
+    path.join(packageRoot, "skills", "quality-index", "SKILL.md"),
     "---\nname: quality-index\ndescription: skill\n---\n",
     "utf8"
   );
-  await writeFile(path.join(packageRoot, ".claude", "agents", "implementer.md"), "---\nname: implementer\n---\n", "utf8");
-
-  await mkdir(path.join(packageRoot, ".agents", "skills", "quality-index"), { recursive: true });
-  await mkdir(path.join(packageRoot, ".codex", "agents"), { recursive: true });
   await writeFile(
-    path.join(packageRoot, ".agents", "skills", "quality-index", "SKILL.md"),
-    "---\nname: quality-index\ndescription: skill\n---\n",
+    path.join(packageRoot, "framework", "agents", "specs", "implementer.json"),
+    JSON.stringify({
+      name: "implementer",
+      description: "Writes code under policy.",
+      promptPath: "framework/agents/prompts/implementer.md",
+      claude: { tools: ["Read"], model: "sonnet", skills: ["quality-index"] },
+      opencode: { mode: "subagent", model: "anthropic/claude-sonnet-4-20250514" },
+      codex: { model: "gpt-5.3-codex-spark" }
+    }, null, 2),
     "utf8"
   );
-  await writeFile(path.join(packageRoot, ".codex", "agents", "implementer.toml"), 'name = "implementer"\n', "utf8");
-
-  await mkdir(path.join(packageRoot, ".opencode", "skills", "quality-index"), { recursive: true });
-  await mkdir(path.join(packageRoot, ".opencode", "agents"), { recursive: true });
-  await writeFile(
-    path.join(packageRoot, ".opencode", "skills", "quality-index", "SKILL.md"),
-    "---\nname: quality-index\ndescription: skill\n---\n",
-    "utf8"
-  );
-  await writeFile(path.join(packageRoot, ".opencode", "agents", "implementer.md"), "---\ndescription: implementer\n---\n", "utf8");
+  await writeFile(path.join(packageRoot, "framework", "agents", "prompts", "implementer.md"), "Follow the governance skill stack.\n", "utf8");
 }
 
 test("resolveInstallPlan returns the expected home targets for codex", async () => {
@@ -83,7 +78,6 @@ test("resolveInstallPlan returns the expected home targets for codex", async () 
 
   assert.equal(plan[0][1], path.join(homeDir, ".codex", "docs", "policy"));
   assert.equal(plan[1][1], path.join(homeDir, ".agents", "skills"));
-  assert.equal(plan[2][1], path.join(homeDir, ".codex", "agents"));
 });
 
 test("resolveInstallPlan returns the expected home targets for opencode", async () => {
@@ -94,7 +88,6 @@ test("resolveInstallPlan returns the expected home targets for opencode", async 
 
   assert.equal(plan[0][1], path.join(homeDir, ".config", "opencode", "docs", "policy"));
   assert.equal(plan[1][1], path.join(homeDir, ".config", "opencode", "skills"));
-  assert.equal(plan[2][1], path.join(homeDir, ".config", "opencode", "agents"));
 });
 
 test("resolveCleanupPlan removes legacy Claude AGENTS only when managing the root", async () => {
@@ -163,6 +156,9 @@ test("installGlobal manages Claude, Codex, and OpenCode roots when allowed", asy
   assert.equal(installedCodexRoot.includes("For final approval, release, or merge decisions, run `pr-gatekeeper` after the other required auditors."), true);
   assert.equal(installedOpenCodeRoot.includes("For final approval, release, or merge decisions, run `pr-gatekeeper` after the other required auditors."), true);
   assert.equal(await readFile(path.join(homeDir, ".config", "opencode", "skills", "quality-index", "SKILL.md"), "utf8"), "---\nname: quality-index\ndescription: skill\n---\n");
+  assert.equal((await readFile(path.join(homeDir, ".claude", "agents", "implementer.md"), "utf8")).includes("Follow the governance skill stack."), true);
+  assert.equal((await readFile(path.join(homeDir, ".codex", "agents", "implementer.toml"), "utf8")).includes('name = "implementer"'), true);
+  assert.equal((await readFile(path.join(homeDir, ".config", "opencode", "agents", "implementer.md"), "utf8")).includes("mode: subagent"), true);
   assert.equal(result.manualSteps.length, 0);
   assert.equal(await readFile(path.join(result.backupRoot, ".codex", "AGENTS.md"), "utf8"), "# Existing Codex Root\n\n- Keep this Codex rule.\n");
   assert.equal(await readFile(path.join(result.backupRoot, ".config", "opencode", "AGENTS.md"), "utf8"), "# Existing OpenCode Root\n\n- Keep this OpenCode rule.\n");

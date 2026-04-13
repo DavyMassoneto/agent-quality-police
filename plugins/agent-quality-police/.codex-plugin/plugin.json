@@ -1,6 +1,6 @@
 {
   "name": "agent-quality-police",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "description": "Strict governance framework for coding agents that blocks testing and typing bypasses.",
   "author": {
     "name": "Davy Massoneto",
@@ -17,7 +17,7 @@
     "tdd",
     "typescript"
   ],
-  "skills": "./.agents/skills",
+  "skills": "./skills",
   "interface": {
     "displayName": "Agent Quality Police",
     "shortDescription": "Strict governance for coding agents",

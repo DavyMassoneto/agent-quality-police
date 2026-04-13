@@ -21,10 +21,10 @@ from framework_tools import (
 
 
 class BuildSkillProjectionTests(unittest.TestCase):
-    def test_build_skill_projection_copies_claude_skills_to_agents_skills(self) -> None:
+    def test_build_skill_projection_discovers_framework_skills_without_root_projections(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
-            skill_root = root / ".claude" / "skills" / "quality-index"
+            skill_root = root / "framework" / "skills" / "quality-index"
             skill_root.mkdir(parents=True)
             (skill_root / "SKILL.md").write_text(
                 "---\nname: quality-index\ndescription: entry point\n---\n\nUse this skill.\n",
@@ -36,20 +36,15 @@ class BuildSkillProjectionTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            build_skill_projection(root)
+            built_skills = build_skill_projection(root)
 
-            projected_skill = root / ".agents" / "skills" / "quality-index" / "SKILL.md"
-            self.assertTrue(projected_skill.exists())
-            self.assertIn("name: quality-index", projected_skill.read_text(encoding="utf-8"))
-            projected_reference = root / ".agents" / "skills" / "quality-index" / "references" / "map.md"
-            self.assertTrue(projected_reference.exists())
-            opencode_projected_skill = root / ".opencode" / "skills" / "quality-index" / "SKILL.md"
-            self.assertTrue(opencode_projected_skill.exists())
-            self.assertIn("name: quality-index", opencode_projected_skill.read_text(encoding="utf-8"))
+            self.assertEqual(["quality-index"], built_skills)
+            self.assertFalse((root / ".agents").exists())
+            self.assertFalse((root / ".opencode").exists())
 
 
 class BuildAgentProjectionTests(unittest.TestCase):
-    def test_build_agent_projections_emits_tool_specific_agent_files(self) -> None:
+    def test_build_agent_projections_discovers_framework_specs_without_root_projections(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             spec_dir = root / "framework" / "agents" / "specs"
@@ -82,25 +77,36 @@ class BuildAgentProjectionTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            build_agent_projections(root)
+            built_agents = build_agent_projections(root)
 
-            claude_agent = (root / ".claude" / "agents" / "implementer.md").read_text(encoding="utf-8")
-            opencode_agent = (root / ".opencode" / "agents" / "implementer.md").read_text(encoding="utf-8")
-            codex_agent = (root / ".codex" / "agents" / "implementer.toml").read_text(encoding="utf-8")
-
-            self.assertTrue(claude_agent.startswith("---\n"))
-            self.assertIn("name: implementer", claude_agent)
-            self.assertIn("skills:", claude_agent)
-            self.assertIn("Follow the governance skill stack.", claude_agent)
-            self.assertIn("mode: subagent", opencode_agent)
-            self.assertIn('description = "Writes code under policy."', codex_agent)
-            self.assertIn('name = "implementer"', codex_agent)
-            self.assertNotIn("[[skills.config]]", codex_agent)
-            self.assertNotIn(GENERATED_MARKER, claude_agent)
+            self.assertEqual(["implementer"], built_agents)
+            self.assertFalse((root / ".claude").exists())
+            self.assertFalse((root / ".opencode").exists())
+            self.assertFalse((root / ".codex").exists())
 
     def test_build_agent_projections_preserves_proactive_validator_descriptions(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
+            (root / "README.md").write_text("# Repo\n", encoding="utf-8")
+            (root / "docs" / "policy").mkdir(parents=True)
+            (root / "docs" / "policy" / "quality-definition.md").write_text("# Quality\n", encoding="utf-8")
+            (root / "docs" / "policy" / "workflow.md").write_text("# Workflow\n", encoding="utf-8")
+            (root / "framework" / "rules").mkdir(parents=True)
+            (root / "framework" / "rules" / "typescript-zero-bypass.md").write_text("# Rule\n", encoding="utf-8")
+            (root / "framework" / "skills" / "quality-index").mkdir(parents=True)
+            (root / "framework" / "skills" / "quality-index" / "SKILL.md").write_text(
+                "---\nname: quality-index\ndescription: root skill\n---\n",
+                encoding="utf-8",
+            )
+            (root / "framework" / "entrypoints").mkdir(parents=True)
+            (root / "framework" / "entrypoints" / "policy.md").write_text(
+                "## Priority\n\n{{priority_body}}\n\n## Startup Sequence\n\n{{startup_sequence_body}}\n\n## Skill Routing\n\n{{skill_routing_body}}\n\n## Quality Rules\n\n{{quality_rules_body}}\n\n## Review Flow\n\n{{review_flow_body}}\n",
+                encoding="utf-8",
+            )
+            (root / "framework" / "entrypoints" / "opencode.json").write_text(
+                json.dumps({"$schema": "https://opencode.ai/config.json", "instructions": ["docs/policy/workflow.md"]}),
+                encoding="utf-8",
+            )
             spec_dir = root / "framework" / "agents" / "specs"
             spec_dir.mkdir(parents=True)
             (spec_dir / "bypass-auditor.json").write_text(
@@ -142,50 +148,97 @@ class BuildAgentProjectionTests(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
+            (root / "framework" / "distribution").mkdir(parents=True)
+            (root / "framework" / "distribution" / "plugin.json").write_text(
+                json.dumps(
+                    {
+                        "name": "agent-quality-police",
+                        "version": "1.2.3",
+                        "description": "Strict governance package.",
+                        "author": {"name": "Test Maintainer"},
+                        "homepage": "https://example.com/aqp",
+                        "repository": "https://example.com/aqp.git",
+                        "license": "MIT",
+                        "keywords": ["governance", "agents"],
+                        "claudeMarketplace": {
+                            "name": "agent-quality-police",
+                            "owner": {"name": "Test Maintainer"},
+                            "metadata": {"description": "Strict governance package.", "version": "1.2.3"},
+                        },
+                        "codexMarketplace": {
+                            "name": "agent-quality-police",
+                            "interface": {"displayName": "Agent Quality Police"},
+                            "category": "Coding",
+                            "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
+                        },
+                        "codexInterface": {
+                            "displayName": "Agent Quality Police",
+                            "shortDescription": "Strict governance package",
+                            "longDescription": "Strict governance package for coding agents.",
+                            "developerName": "Test Maintainer",
+                            "category": "Coding",
+                            "capabilities": ["Interactive", "Read", "Write"],
+                            "websiteURL": "https://example.com/aqp",
+                            "defaultPrompt": ["Audit this repo", "Enforce TDD", "Block typing bypasses"],
+                            "brandColor": "#111111",
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (root / "framework" / "package" / "bin").mkdir(parents=True)
+            (root / "framework" / "package" / "lib").mkdir(parents=True)
+            (root / "framework" / "package" / "bin" / "aqp.mjs").write_text("#!/usr/bin/env node\n", encoding="utf-8")
+            (root / "framework" / "package" / "lib" / "install.mjs").write_text("export {};\n", encoding="utf-8")
 
-            build_agent_projections(root)
+            build_all(root)
 
-            claude_bypass = (root / ".claude" / "agents" / "bypass-auditor.md").read_text(encoding="utf-8")
-            opencode_tdd = (root / ".opencode" / "agents" / "tdd-warden.md").read_text(encoding="utf-8")
-            codex_gatekeeper = (root / ".codex" / "agents" / "pr-gatekeeper.toml").read_text(encoding="utf-8")
+            claude_bypass = (root / "plugins" / "agent-quality-police" / "agents" / "bypass-auditor.md").read_text(encoding="utf-8")
+            opencode_tdd = (root / "plugins" / "agent-quality-police" / "framework" / "agents" / "specs" / "tdd-warden.json").read_text(encoding="utf-8")
+            codex_gatekeeper = (root / "plugins" / "agent-quality-police" / "framework" / "agents" / "specs" / "pr-gatekeeper.json").read_text(encoding="utf-8")
 
             self.assertIn("Use proactively before final approval for typing, config, mock, helper, and suspicious diff review.", claude_bypass)
             self.assertIn("Use proactively before final approval whenever behavior changed, tests changed, or tests should have changed.", opencode_tdd)
-            self.assertIn('description = "Use proactively as the final approve-or-reject gate after the other required auditors complete."', codex_gatekeeper)
+            self.assertIn("Use proactively as the final approve-or-reject gate after the other required auditors complete.", codex_gatekeeper)
+
+    def test_audit_agent_prompts_scope_reviews_to_current_branch_diff(self) -> None:
+        bypass_prompt = (PROJECT_ROOT / "framework" / "agents" / "prompts" / "bypass-auditor.md").read_text(
+            encoding="utf-8"
+        )
+        tdd_prompt = (PROJECT_ROOT / "framework" / "agents" / "prompts" / "tdd-warden.md").read_text(
+            encoding="utf-8"
+        )
+        gate_prompt = (PROJECT_ROOT / "framework" / "agents" / "prompts" / "pr-gatekeeper.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("only the files changed in the current branch", bypass_prompt)
+        self.assertIn("merge target branch", bypass_prompt)
+        self.assertIn("do not roam through untouched repository files", bypass_prompt)
+        self.assertIn("only the changed tests and changed implementation files", tdd_prompt)
+        self.assertIn("current branch diff", tdd_prompt)
+        self.assertIn("evaluate only the diff against the merge target branch", gate_prompt)
+        self.assertIn("do not block on pre-existing unrelated repository issues", gate_prompt)
 
     def test_build_agent_projections_fails_before_reset_when_specs_are_missing(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
-            claude_agent = root / ".claude" / "agents" / "existing.md"
-            opencode_agent = root / ".opencode" / "agents" / "existing.md"
-            codex_agent = root / ".codex" / "agents" / "existing.toml"
-            claude_agent.parent.mkdir(parents=True)
-            opencode_agent.parent.mkdir(parents=True)
-            codex_agent.parent.mkdir(parents=True)
-            claude_agent.write_text("keep me\n", encoding="utf-8")
-            opencode_agent.write_text("keep me\n", encoding="utf-8")
-            codex_agent.write_text("keep me\n", encoding="utf-8")
-
             with self.assertRaises(BuildError):
                 build_agent_projections(root)
 
-            self.assertEqual("keep me\n", claude_agent.read_text(encoding="utf-8"))
-            self.assertEqual("keep me\n", opencode_agent.read_text(encoding="utf-8"))
-            self.assertEqual("keep me\n", codex_agent.read_text(encoding="utf-8"))
-
 
 class BuildEntrypointProjectionTests(unittest.TestCase):
-    def test_build_all_emits_root_agents_and_claude_from_single_entrypoint_source(self) -> None:
+    def test_build_all_emits_root_agents_only_from_single_entrypoint_source(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             (root / "README.md").write_text("# Repo\n", encoding="utf-8")
             (root / "docs" / "policy").mkdir(parents=True)
             (root / "docs" / "policy" / "quality-definition.md").write_text("# Quality\n", encoding="utf-8")
             (root / "docs" / "policy" / "workflow.md").write_text("# Workflow\n", encoding="utf-8")
-            (root / ".claude" / "rules").mkdir(parents=True)
-            (root / ".claude" / "rules" / "typescript-zero-bypass.md").write_text("# Rule\n", encoding="utf-8")
-            (root / ".claude" / "skills" / "quality-index").mkdir(parents=True)
-            (root / ".claude" / "skills" / "quality-index" / "SKILL.md").write_text(
+            (root / "framework" / "rules").mkdir(parents=True)
+            (root / "framework" / "rules" / "typescript-zero-bypass.md").write_text("# Rule\n", encoding="utf-8")
+            (root / "framework" / "skills" / "quality-index").mkdir(parents=True)
+            (root / "framework" / "skills" / "quality-index" / "SKILL.md").write_text(
                 "---\nname: quality-index\ndescription: root skill\n---\n",
                 encoding="utf-8",
             )
@@ -257,7 +310,7 @@ class BuildEntrypointProjectionTests(unittest.TestCase):
 
             built_entrypoints, built_skills, built_agents, built_distributions = build_all(root)
 
-            self.assertEqual(["AGENTS.md", "CLAUDE.md", "opencode.json"], built_entrypoints)
+            self.assertEqual(["AGENTS.md"], built_entrypoints)
             self.assertEqual(["quality-index"], built_skills)
             self.assertEqual(["implementer"], built_agents)
             self.assertEqual(["agent-quality-police"], built_distributions)
@@ -270,12 +323,9 @@ class BuildEntrypointProjectionTests(unittest.TestCase):
                 (root / "AGENTS.md").read_text(encoding="utf-8"),
             )
             self.assertNotIn("Tool-Specific Notes", (root / "AGENTS.md").read_text(encoding="utf-8"))
-            self.assertTrue((root / "CLAUDE.md").read_text(encoding="utf-8").startswith("@AGENTS.md\n"))
-            self.assertIn("Always-on rules live under `.claude/rules/`.", (root / "CLAUDE.md").read_text(encoding="utf-8"))
-            self.assertEqual(
-                '{\n  "$schema": "https://opencode.ai/config.json",\n  "instructions": [\n    "docs/policy/workflow.md"\n  ]\n}\n',
-                (root / "opencode.json").read_text(encoding="utf-8"),
-            )
+            self.assertIn("framework/skills/quality-index/SKILL.md", (root / "AGENTS.md").read_text(encoding="utf-8"))
+            self.assertFalse((root / "CLAUDE.md").exists())
+            self.assertFalse((root / "opencode.json").exists())
 
 
 class ValidateRepositoryTests(unittest.TestCase):
@@ -283,38 +333,12 @@ class ValidateRepositoryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             (root / "AGENTS.md").write_text("Load [quality](docs/policy/quality-definition.md).\n", encoding="utf-8")
-            (root / "CLAUDE.md").write_text("@AGENTS.md\n", encoding="utf-8")
             (root / "README.md").write_text("# Repo\n", encoding="utf-8")
             (root / "docs" / "policy").mkdir(parents=True)
             (root / "docs" / "policy" / "quality-definition.md").write_text("# Quality\n", encoding="utf-8")
-            (root / ".claude" / "skills" / "quality-index").mkdir(parents=True)
-            (root / ".claude" / "skills" / "quality-index" / "SKILL.md").write_text(
+            (root / "framework" / "skills" / "quality-index").mkdir(parents=True)
+            (root / "framework" / "skills" / "quality-index" / "SKILL.md").write_text(
                 "---\nname: quality-index\ndescription: root skill\n---\n",
-                encoding="utf-8",
-            )
-            (root / ".agents" / "skills" / "quality-index").mkdir(parents=True)
-            (root / ".agents" / "skills" / "quality-index" / "SKILL.md").write_text(
-                "---\nname: quality-index\ndescription: root skill\n---\n",
-                encoding="utf-8",
-            )
-            (root / ".opencode" / "skills" / "quality-index").mkdir(parents=True)
-            (root / ".opencode" / "skills" / "quality-index" / "SKILL.md").write_text(
-                "---\nname: quality-index\ndescription: root skill\n---\n",
-                encoding="utf-8",
-            )
-            (root / ".claude" / "agents").mkdir(parents=True)
-            (root / ".claude" / "agents" / "implementer.md").write_text(
-                "---\nname: implementer\ndescription: Writes\n---\nbody\n",
-                encoding="utf-8",
-            )
-            (root / ".opencode" / "agents").mkdir(parents=True)
-            (root / ".opencode" / "agents" / "implementer.md").write_text(
-                f"{GENERATED_MARKER}\n---\ndescription: Writes\nmode: subagent\n---\nbody\n",
-                encoding="utf-8",
-            )
-            (root / ".codex" / "agents").mkdir(parents=True)
-            (root / ".codex" / "agents" / "implementer.toml").write_text(
-                'name = "implementer"\ndescription = "Writes"\ndeveloper_instructions = """body"""\n',
                 encoding="utf-8",
             )
 
@@ -331,35 +355,25 @@ class ValidateRepositoryTests(unittest.TestCase):
 
             self.assertTrue(any("placeholder" in error.lower() for error in result.errors))
 
-    def test_validate_repository_reports_skill_projection_content_drift(self) -> None:
+    def test_validate_repository_reports_tool_specific_runtime_dirs_at_repository_root(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             (root / "README.md").write_text("# Repo\n", encoding="utf-8")
             (root / "AGENTS.md").write_text("Load [quality](docs/policy/quality-definition.md).\n", encoding="utf-8")
-            (root / "CLAUDE.md").write_text("@AGENTS.md\n", encoding="utf-8")
             (root / "docs" / "policy").mkdir(parents=True)
             (root / "docs" / "policy" / "quality-definition.md").write_text("# Quality\n", encoding="utf-8")
             (root / ".claude" / "skills" / "quality-index").mkdir(parents=True)
-            (root / ".claude" / "skills" / "quality-index" / "SKILL.md").write_text(
-                "---\nname: quality-index\ndescription: root skill\n---\n\ncanonical\n",
-                encoding="utf-8",
-            )
-            (root / ".agents" / "skills" / "quality-index").mkdir(parents=True)
-            (root / ".agents" / "skills" / "quality-index" / "SKILL.md").write_text(
-                "---\nname: quality-index\ndescription: root skill\n---\n\nstale\n",
-                encoding="utf-8",
-            )
+            (root / ".claude" / "skills" / "quality-index" / "SKILL.md").write_text("drift\n", encoding="utf-8")
 
             result = validate_repository(root)
 
-            self.assertTrue(any("content drift" in error.lower() for error in result.errors))
+            self.assertTrue(any("must not exist at repository root" in error.lower() for error in result.errors))
 
     def test_validate_repository_reports_claude_agent_content_drift(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             (root / "README.md").write_text("# Repo\n", encoding="utf-8")
             (root / "AGENTS.md").write_text("Load [quality](docs/policy/quality-definition.md).\n", encoding="utf-8")
-            (root / "CLAUDE.md").write_text("@AGENTS.md\n", encoding="utf-8")
             (root / "docs" / "policy").mkdir(parents=True)
             (root / "docs" / "policy" / "quality-definition.md").write_text("# Quality\n", encoding="utf-8")
             spec_dir = root / "framework" / "agents" / "specs"
@@ -378,19 +392,18 @@ class ValidateRepositoryTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            build_agent_projections(root)
+            (root / ".claude" / "agents").mkdir(parents=True)
             (root / ".claude" / "agents" / "implementer.md").write_text("drift\n", encoding="utf-8")
 
             result = validate_repository(root)
 
-            self.assertTrue(any(".claude/agents/implementer.md" in error for error in result.errors))
+            self.assertTrue(any("must not exist at repository root" in error.lower() for error in result.errors))
 
     def test_validate_repository_reports_opencode_agent_content_drift(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             (root / "README.md").write_text("# Repo\n", encoding="utf-8")
             (root / "AGENTS.md").write_text("Load [quality](docs/policy/quality-definition.md).\n", encoding="utf-8")
-            (root / "CLAUDE.md").write_text("@AGENTS.md\n", encoding="utf-8")
             (root / "docs" / "policy").mkdir(parents=True)
             (root / "docs" / "policy" / "quality-definition.md").write_text("# Quality\n", encoding="utf-8")
             spec_dir = root / "framework" / "agents" / "specs"
@@ -409,19 +422,18 @@ class ValidateRepositoryTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            build_agent_projections(root)
+            (root / ".opencode" / "agents").mkdir(parents=True)
             (root / ".opencode" / "agents" / "implementer.md").write_text("drift\n", encoding="utf-8")
 
             result = validate_repository(root)
 
-            self.assertTrue(any(".opencode/agents/implementer.md" in error for error in result.errors))
+            self.assertTrue(any("must not exist at repository root" in error.lower() for error in result.errors))
 
     def test_validate_repository_reports_codex_agent_content_drift(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             (root / "README.md").write_text("# Repo\n", encoding="utf-8")
             (root / "AGENTS.md").write_text("Load [quality](docs/policy/quality-definition.md).\n", encoding="utf-8")
-            (root / "CLAUDE.md").write_text("@AGENTS.md\n", encoding="utf-8")
             (root / "docs" / "policy").mkdir(parents=True)
             (root / "docs" / "policy" / "quality-definition.md").write_text("# Quality\n", encoding="utf-8")
             spec_dir = root / "framework" / "agents" / "specs"
@@ -440,21 +452,25 @@ class ValidateRepositoryTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            build_agent_projections(root)
+            (root / ".codex" / "agents").mkdir(parents=True)
             (root / ".codex" / "agents" / "implementer.toml").write_text("drift\n", encoding="utf-8")
 
             result = validate_repository(root)
 
-            self.assertTrue(any(".codex/agents/implementer.toml" in error for error in result.errors))
+            self.assertTrue(any("must not exist at repository root" in error.lower() for error in result.errors))
 
     def test_validate_repository_accepts_freshly_built_agent_projections(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             (root / "README.md").write_text("# Repo\n", encoding="utf-8")
             (root / "AGENTS.md").write_text("Load [quality](docs/policy/quality-definition.md).\n", encoding="utf-8")
-            (root / "CLAUDE.md").write_text("@AGENTS.md\n", encoding="utf-8")
             (root / "docs" / "policy").mkdir(parents=True)
             (root / "docs" / "policy" / "quality-definition.md").write_text("# Quality\n", encoding="utf-8")
+            (root / "framework" / "skills" / "quality-index").mkdir(parents=True)
+            (root / "framework" / "skills" / "quality-index" / "SKILL.md").write_text(
+                "---\nname: quality-index\ndescription: root skill\n---\n",
+                encoding="utf-8",
+            )
             spec_dir = root / "framework" / "agents" / "specs"
             spec_dir.mkdir(parents=True)
             (spec_dir / "implementer.json").write_text(
@@ -480,7 +496,7 @@ class ValidateRepositoryTests(unittest.TestCase):
     def test_build_skill_projection_overwrites_stale_projection_content(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
-            source_skill = root / ".claude" / "skills" / "react-public-api-testing"
+            source_skill = root / "framework" / "skills" / "react-public-api-testing"
             source_skill.mkdir(parents=True)
             (source_skill / "SKILL.md").write_text(
                 "---\nname: react-public-api-testing\ndescription: root skill\n---\n",
@@ -492,29 +508,14 @@ class ValidateRepositoryTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            projected_skill = root / ".agents" / "skills" / "react-public-api-testing"
-            projected_skill.mkdir(parents=True)
-            (projected_skill / "SKILL.md").write_text(
-                "---\nname: react-public-api-testing\ndescription: root skill\n---\n",
-                encoding="utf-8",
-            )
-            (projected_skill / "examples").mkdir()
-            (projected_skill / "examples" / "sample.tsx").write_text(
-                "stale\n",
-                encoding="utf-8",
-            )
+            built_skills = build_skill_projection(root)
 
-            build_skill_projection(root)
-
-            self.assertEqual(
-                "canonical\n",
-                (projected_skill / "examples" / "sample.tsx").read_text(encoding="utf-8"),
-            )
+            self.assertEqual(["react-public-api-testing"], built_skills)
 
     def test_build_skill_projection_rewrites_existing_file_after_source_edit(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
-            source_skill = root / ".claude" / "skills" / "react-public-api-testing"
+            source_skill = root / "framework" / "skills" / "react-public-api-testing"
             source_skill.mkdir(parents=True)
             (source_skill / "SKILL.md").write_text(
                 "---\nname: react-public-api-testing\ndescription: root skill\n---\n",
@@ -528,21 +529,16 @@ class ValidateRepositoryTests(unittest.TestCase):
 
             source_file.write_text("second-version\n", encoding="utf-8")
 
-            build_skill_projection(root)
+            built_skills = build_skill_projection(root)
 
-            self.assertEqual(
-                "second-version\n",
-                (root / ".agents" / "skills" / "react-public-api-testing" / "examples" / "primary-button.tsx").read_text(
-                    encoding="utf-8",
-                ),
-            )
+            self.assertEqual(["react-public-api-testing"], built_skills)
 
 
 class DocumentationTests(unittest.TestCase):
     def test_quality_definition_bans_inline_structural_types(self) -> None:
         quality_definition = (PROJECT_ROOT / "docs" / "policy" / "quality-definition.md").read_text(encoding="utf-8")
         agents = (PROJECT_ROOT / "AGENTS.md").read_text(encoding="utf-8")
-        claude_rule = (PROJECT_ROOT / ".claude" / "rules" / "typescript-zero-bypass.md").read_text(encoding="utf-8")
+        claude_rule = (PROJECT_ROOT / "framework" / "rules" / "typescript-zero-bypass.md").read_text(encoding="utf-8")
 
         self.assertIn("Inline structural types are prohibited", quality_definition)
         self.assertIn("including private methods, local helpers, and return types", quality_definition)
@@ -552,8 +548,8 @@ class DocumentationTests(unittest.TestCase):
 
     def test_policy_bans_constructor_bypass_and_prototype_fabrication(self) -> None:
         quality_definition = (PROJECT_ROOT / "docs" / "policy" / "quality-definition.md").read_text(encoding="utf-8")
-        claude_rule = (PROJECT_ROOT / ".claude" / "rules" / "typescript-zero-bypass.md").read_text(encoding="utf-8")
-        anti_bypass_skill = (PROJECT_ROOT / ".claude" / "skills" / "anti-bypass-audit" / "SKILL.md").read_text(
+        claude_rule = (PROJECT_ROOT / "framework" / "rules" / "typescript-zero-bypass.md").read_text(encoding="utf-8")
+        anti_bypass_skill = (PROJECT_ROOT / "framework" / "skills" / "anti-bypass-audit" / "SKILL.md").read_text(
             encoding="utf-8"
         )
         bypass_prompt = (PROJECT_ROOT / "framework" / "agents" / "prompts" / "bypass-auditor.md").read_text(
@@ -574,11 +570,11 @@ class DocumentationTests(unittest.TestCase):
 
     def test_policy_bans_meaningless_abbreviations_in_identifiers(self) -> None:
         quality_definition = (PROJECT_ROOT / "docs" / "policy" / "quality-definition.md").read_text(encoding="utf-8")
-        claude_rule = (PROJECT_ROOT / ".claude" / "rules" / "typescript-zero-bypass.md").read_text(encoding="utf-8")
-        zero_bypass_skill = (PROJECT_ROOT / ".claude" / "skills" / "typescript-zero-bypass" / "SKILL.md").read_text(
+        claude_rule = (PROJECT_ROOT / "framework" / "rules" / "typescript-zero-bypass.md").read_text(encoding="utf-8")
+        zero_bypass_skill = (PROJECT_ROOT / "framework" / "skills" / "typescript-zero-bypass" / "SKILL.md").read_text(
             encoding="utf-8"
         )
-        anti_bypass_skill = (PROJECT_ROOT / ".claude" / "skills" / "anti-bypass-audit" / "SKILL.md").read_text(
+        anti_bypass_skill = (PROJECT_ROOT / "framework" / "skills" / "anti-bypass-audit" / "SKILL.md").read_text(
             encoding="utf-8"
         )
         bypass_prompt = (PROJECT_ROOT / "framework" / "agents" / "prompts" / "bypass-auditor.md").read_text(
@@ -593,6 +589,47 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("inline structural object return types", zero_bypass_skill)
         self.assertIn("single-letter callback parameters", anti_bypass_skill)
         self.assertIn("meaningless abbreviations", bypass_prompt)
+
+    def test_policy_bans_plumbing_names_and_heterogeneous_model_unions(self) -> None:
+        quality_definition = (PROJECT_ROOT / "docs" / "policy" / "quality-definition.md").read_text(encoding="utf-8")
+        claude_rule = (PROJECT_ROOT / "framework" / "rules" / "typescript-zero-bypass.md").read_text(encoding="utf-8")
+        zero_bypass_skill = (PROJECT_ROOT / "framework" / "skills" / "typescript-zero-bypass" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        anti_bypass_skill = (PROJECT_ROOT / "framework" / "skills" / "anti-bypass-audit" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        bypass_prompt = (PROJECT_ROOT / "framework" / "agents" / "prompts" / "bypass-auditor.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("plumbing or persistence names", quality_definition)
+        self.assertIn("listOfAllChecklistJoinCategory", quality_definition)
+        self.assertIn("heterogeneous unions of unrelated models", quality_definition)
+        self.assertIn("Join", claude_rule)
+        self.assertIn("heterogeneous unions of unrelated models", zero_bypass_skill)
+        self.assertIn("plumbing names", anti_bypass_skill)
+        self.assertIn("heterogeneous model unions", bypass_prompt)
+
+    def test_policy_bans_unreadable_inline_comparator_callbacks(self) -> None:
+        quality_definition = (PROJECT_ROOT / "docs" / "policy" / "quality-definition.md").read_text(encoding="utf-8")
+        claude_rule = (PROJECT_ROOT / "framework" / "rules" / "typescript-zero-bypass.md").read_text(encoding="utf-8")
+        zero_bypass_skill = (PROJECT_ROOT / "framework" / "skills" / "typescript-zero-bypass" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        anti_bypass_skill = (PROJECT_ROOT / "framework" / "skills" / "anti-bypass-audit" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        bypass_prompt = (PROJECT_ROOT / "framework" / "agents" / "prompts" / "bypass-auditor.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("unreadable inline comparator callbacks", quality_definition)
+        self.assertIn("sort((sortA, sortB) => (sortA.description || '').localeCompare(sortB.description || ''))", quality_definition)
+        self.assertIn("unreadable inline comparator callbacks", claude_rule)
+        self.assertIn("sorting and filtering logic", zero_bypass_skill)
+        self.assertIn("inline comparator", anti_bypass_skill)
+        self.assertIn("inline comparator", bypass_prompt)
 
     def test_readme_distinguishes_generated_only_reuse_from_framework_development(self) -> None:
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
@@ -618,10 +655,10 @@ class PluginDistributionTests(unittest.TestCase):
             (root / "docs" / "policy").mkdir(parents=True)
             (root / "docs" / "policy" / "quality-definition.md").write_text("# Quality\n", encoding="utf-8")
             (root / "docs" / "policy" / "workflow.md").write_text("# Workflow\n", encoding="utf-8")
-            (root / ".claude" / "rules").mkdir(parents=True)
-            (root / ".claude" / "rules" / "typescript-zero-bypass.md").write_text("# Rule\n", encoding="utf-8")
-            (root / ".claude" / "skills" / "quality-index").mkdir(parents=True)
-            (root / ".claude" / "skills" / "quality-index" / "SKILL.md").write_text(
+            (root / "framework" / "rules").mkdir(parents=True)
+            (root / "framework" / "rules" / "typescript-zero-bypass.md").write_text("# Rule\n", encoding="utf-8")
+            (root / "framework" / "skills" / "quality-index").mkdir(parents=True)
+            (root / "framework" / "skills" / "quality-index" / "SKILL.md").write_text(
                 "---\nname: quality-index\ndescription: root skill\n---\n",
                 encoding="utf-8",
             )
@@ -693,7 +730,7 @@ class PluginDistributionTests(unittest.TestCase):
 
             built_entrypoints, built_skills, built_agents, built_distributions = build_all(root)
 
-            self.assertEqual(["AGENTS.md", "CLAUDE.md", "opencode.json"], built_entrypoints)
+            self.assertEqual(["AGENTS.md"], built_entrypoints)
             self.assertEqual(["quality-index"], built_skills)
             self.assertEqual(["implementer"], built_agents)
             self.assertEqual(["agent-quality-police"], built_distributions)
@@ -713,22 +750,16 @@ class PluginDistributionTests(unittest.TestCase):
                     encoding="utf-8"
                 )
             )
-            claude_marketplace = json.loads(
-                (root / ".claude-plugin" / "marketplace.json").read_text(encoding="utf-8")
-            )
-            codex_marketplace = json.loads(
-                (root / ".agents" / "plugins" / "marketplace.json").read_text(encoding="utf-8")
-            )
             publish_workflow = (root / ".github" / "workflows" / "publish-package.yml").read_text(encoding="utf-8")
 
             self.assertEqual("agent-quality-police", package_manifest["name"])
             self.assertEqual({"aqp": "bin/aqp.mjs"}, package_manifest["bin"])
-            self.assertEqual(["AGENTS.md", "CLAUDE.md", "opencode.json", "docs", ".claude", ".agents", ".codex", ".opencode", ".claude-plugin", ".codex-plugin", "framework", "bin", "lib", "README.md", "LICENSE"], package_manifest["files"])
+            self.assertEqual(["AGENTS.md", "CLAUDE.md", "opencode.json", "docs", "rules", "skills", "agents", ".claude-plugin", ".codex-plugin", "framework", "bin", "lib", "README.md", "LICENSE"], package_manifest["files"])
             self.assertEqual({"node": ">=22.14.0"}, package_manifest["engines"])
             self.assertIn("npx agent-quality-police install", package_readme)
             self.assertIn("MIT License", package_license)
-            self.assertEqual("./.claude/skills", claude_manifest["skills"])
-            self.assertEqual("./.claude/agents", claude_manifest["agents"])
+            self.assertEqual("./skills", claude_manifest["skills"])
+            self.assertEqual("./agents", claude_manifest["agents"])
             packaged_claude = (root / "plugins" / "agent-quality-police" / "CLAUDE.md").read_text(encoding="utf-8")
             packaged_agents = (root / "plugins" / "agent-quality-police" / "AGENTS.md").read_text(encoding="utf-8")
             self.assertIn("Prefer current local code and current official documentation over memory.", packaged_claude)
@@ -750,10 +781,8 @@ class PluginDistributionTests(unittest.TestCase):
             self.assertNotIn("python3 scripts/build_framework.py", packaged_claude)
             self.assertNotIn("Codex should enter", packaged_claude)
             self.assertNotIn("OpenCode should enter", packaged_claude)
-            self.assertEqual("./.agents/skills", codex_manifest["skills"])
+            self.assertEqual("./skills", codex_manifest["skills"])
             self.assertEqual("Agent Quality Police", codex_manifest["interface"]["displayName"])
-            self.assertEqual("./plugins/agent-quality-police", claude_marketplace["plugins"][0]["source"])
-            self.assertEqual("./plugins/agent-quality-police", codex_marketplace["plugins"][0]["source"]["path"])
             self.assertEqual(
                 '{\n  "$schema": "https://opencode.ai/config.json",\n  "instructions": [\n    "docs/policy/workflow.md"\n  ]\n}\n',
                 (root / "plugins" / "agent-quality-police" / "opencode.json").read_text(encoding="utf-8"),

@@ -1,0 +1,38 @@
+{
+  "name": "implementer",
+  "description": "Executes approved code changes under the framework and hands off to the required audit agents before completion.",
+  "promptPath": "framework/agents/prompts/implementer.md",
+  "claude": {
+    "tools": [
+      "Read",
+      "Write",
+      "Edit",
+      "MultiEdit",
+      "Glob",
+      "Grep",
+      "Bash"
+    ],
+    "permissionMode": "acceptEdits",
+    "model": "sonnet",
+    "skills": [
+      "quality-index",
+      "typescript-zero-bypass",
+      "vite-vitest-tdd"
+    ]
+  },
+  "opencode": {
+    "mode": "subagent",
+    "model": "anthropic/claude-sonnet-4-20250514",
+    "temperature": 0.1,
+    "permission": {
+      "edit": "allow",
+      "bash": "ask",
+      "webfetch": "deny"
+    }
+  },
+  "codex": {
+    "model": "gpt-5.3-codex-spark",
+    "model_reasoning_effort": "medium",
+    "sandbox_mode": "workspace-write"
+  }
+}

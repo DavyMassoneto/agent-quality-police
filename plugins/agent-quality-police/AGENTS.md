@@ -10,17 +10,17 @@
 
 1. Read [quality-definition](docs/policy/quality-definition.md) when the task needs repository policy context.
 2. Read [workflow](docs/policy/workflow.md) when the repository defines one.
-3. Load the smallest required skill set from `.agents/skills/` before proposing edits or writing code.
+3. Load the smallest required skill set from `skills/` before proposing edits or writing code.
 
 ## Skill Routing
 
-- Use [quality-index](.agents/skills/quality-index/SKILL.md) when the task spans multiple concerns or when you are unsure which validators apply.
-- Use [typescript-zero-bypass](.agents/skills/typescript-zero-bypass/SKILL.md) for `.ts` or `.tsx` changes.
-- Use [vite-vitest-tdd](.agents/skills/vite-vitest-tdd/SKILL.md) for Vite or Vitest TDD.
-- Use [react-public-api-testing](.agents/skills/react-public-api-testing/SKILL.md) for React behavior tests.
-- Use [anti-bypass-audit](.agents/skills/anti-bypass-audit/SKILL.md) when reviewing diffs, suspicious helpers, weakened configs, or type/config-heavy changes.
-- Use [refactoring-with-safety](.agents/skills/refactoring-with-safety/SKILL.md) for refactors that are not pure bug fixes.
-- Use [governance-installation](.agents/skills/governance-installation/SKILL.md) when installing or updating this governance package.
+- Use [quality-index](skills/quality-index/SKILL.md) when the task spans multiple concerns or when you are unsure which validators apply.
+- Use [typescript-zero-bypass](skills/typescript-zero-bypass/SKILL.md) for `.ts` or `.tsx` changes.
+- Use [vite-vitest-tdd](skills/vite-vitest-tdd/SKILL.md) for Vite or Vitest TDD.
+- Use [react-public-api-testing](skills/react-public-api-testing/SKILL.md) for React behavior tests.
+- Use [anti-bypass-audit](skills/anti-bypass-audit/SKILL.md) when reviewing diffs, suspicious helpers, weakened configs, or type/config-heavy changes.
+- Use [refactoring-with-safety](skills/refactoring-with-safety/SKILL.md) for refactors that are not pure bug fixes.
+- Use [governance-installation](skills/governance-installation/SKILL.md) when installing or updating this governance package.
 
 ## Quality Rules
 

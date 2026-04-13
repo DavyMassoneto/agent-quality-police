@@ -54,6 +54,9 @@ Fraud includes:
 - constructor bypass through `Object.create(SomeClass.prototype)` or equivalent prototype fabrication
 - internal field hydration through `Object.assign(...)` or direct assignment to simulate a valid instance without using the real constructor or public factory
 - meaningless abbreviations in identifiers that hide domain meaning
+- plumbing or persistence names in APIs and helpers when the behavior can be named in domain terms
+- heterogeneous unions of unrelated models in a single parameter or return contract when a named domain concept should exist
+- unreadable inline comparator callbacks that compress fallback logic, ordering logic, and weak names into one expression
 - using `Map` in public or domain-facing contracts to avoid explicit named input modeling
 - helper layers that hide what the test is proving
 - mocks that replace the exact behavior under test
@@ -69,6 +72,9 @@ Reject immediately when a diff introduces any of the following without an explic
 - unproven tests
 - suspicious helper noise
 - meaningless abbreviations in newly introduced identifiers, including single-letter callback parameters such as `c`, `x`, or `i` when they do not carry real meaning
+- plumbing or persistence names such as `Join`, `Model`, `Type`, or `listOfAll...` when they leak storage or implementation structure instead of behavior
+- heterogeneous unions of unrelated models used as a convenience parameter type instead of a named domain contract
+- unreadable inline comparator callbacks such as `sort((sortA, sortB) => (sortA.description || '').localeCompare(sortB.description || ''))`
 - narrowing that exists only to appease the compiler
 - constructor bypasses, prototype fabrication, or internal field hydration that fabricate class instances without their real invariants
 - branching that changes runtime semantics without product or domain justification
@@ -96,6 +102,7 @@ Acceptable modeling favors:
 - named union types for state and result variants
 - explicit nullability instead of implicit missing cases
 - domain vocabulary over generic containers
+- behavior-oriented names over plumbing or persistence terminology
 - Zod only for external input boundaries
 - Joi only for environment validation when that boundary exists and matters
 
@@ -109,6 +116,8 @@ Unacceptable modeling includes:
 - `Record` or index signatures as generic escape hatches
 - `Map` used as a lookup-bag escape hatch in a public or domain-facing contract
 - generic “utils” that absorb domain meaning
+- function names that leak plumbing or persistence details such as `listOfAllChecklistJoinCategory`
+- heterogeneous unions of unrelated models such as `CategoryJoinChecklists | CategoryTypeModel | EconnectInformationModel['category']` when a named domain input should exist
 
 ## Acceptable Typing
 
@@ -119,6 +128,7 @@ Acceptable typing:
 - keeps imported types and values coherent
 - lets the compiler confirm the model instead of being tricked into silence
 - uses names that preserve domain meaning instead of meaningless abbreviations
+- keeps callbacks and comparators readable instead of compressing fallback-heavy logic into one opaque expression
 
 Unacceptable typing:
 

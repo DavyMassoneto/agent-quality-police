@@ -13,22 +13,17 @@ This repository is a reusable governance pack for coding agents. It is designed 
 
 ## Canonical Structure
 
-- `framework/entrypoints/`: canonical source for generated root entrypoints and OpenCode config.
+- `framework/entrypoints/`: canonical source for generated prompts and package entrypoints.
 - `docs/policy/`: canonical quality definition and workflow.
-- `.claude/rules/`: always-on Claude rules.
-- `.claude/skills/`: canonical skill source.
-- `.agents/skills/`: generated Codex skill projection.
-- `.opencode/skills/`: generated OpenCode skill projection.
+- `framework/rules/`: canonical always-on rules.
+- `framework/skills/`: canonical skill source.
 - `framework/agents/specs/`: canonical agent specs.
+- `framework/agents/prompts/`: canonical agent prompts.
 - `framework/distribution/plugin.json`: canonical package/plugin metadata.
 - `framework/package/`: canonical package installer source.
 - `AGENTS.md`: generated repository routing contract.
-- `CLAUDE.md`: generated repository Claude router.
-- `opencode.json`: generated repository OpenCode config.
-- `.claude/agents/`, `.opencode/agents/`, `.codex/agents/`: generated agent projections.
 - `plugins/agent-quality-police/`: package-ready generated distribution.
 - `.github/workflows/publish-package.yml`: generated npm publish workflow for the package distribution.
-- `.claude-plugin/marketplace.json`, `.agents/plugins/marketplace.json`: generated local marketplaces.
 - `scripts/`: build and validation utilities.
 - `tests/`: regression tests for the projection and validation utilities.
 
@@ -54,8 +49,8 @@ Canonical sources in this repository:
 
 - `framework/entrypoints/`
 - `docs/policy/`
-- `.claude/rules/`
-- `.claude/skills/`
+- `framework/rules/`
+- `framework/skills/`
 - `framework/agents/specs/`
 - `framework/agents/prompts/`
 - `framework/distribution/plugin.json`
@@ -66,17 +61,8 @@ Canonical sources in this repository:
 Generated outputs in this repository:
 
 - `AGENTS.md`
-- `CLAUDE.md`
-- `opencode.json`
-- `.agents/skills/`
-- `.opencode/skills/`
-- `.claude/agents/`
-- `.opencode/agents/`
-- `.codex/agents/`
 - `plugins/agent-quality-police/`
 - `.github/workflows/publish-package.yml`
-- `.claude-plugin/marketplace.json`
-- `.agents/plugins/marketplace.json`
 
 Never hand-edit generated outputs.
 
@@ -85,20 +71,8 @@ Never hand-edit generated outputs.
 Copy these files if you want to consume the framework in another repository without rebuilding it:
 
 - `AGENTS.md`
-- `CLAUDE.md`
-- `opencode.json`
 - `docs/policy/`
-- `.claude/rules/`
-- `.claude/skills/`
-- `.agents/skills/`
-- `.opencode/skills/`
-- `.claude/agents/`
-- `.opencode/agents/`
-- `.codex/agents/`
 - `plugins/agent-quality-police/`
-- `.claude-plugin/marketplace.json`
-- `.agents/plugins/marketplace.json`
-- `opencode.json`
 
 Do not run `python3 scripts/build_framework.py` in this mode. The build step is for framework development and requires canonical sources such as `framework/agents/specs/` and `framework/agents/prompts/`. Running build without those sources would be incorrect, and the builder now fails explicitly instead of silently deleting agent projections.
 
@@ -108,20 +82,13 @@ Copy or clone the full framework development set before running build:
 
 - `framework/entrypoints/`
 - `docs/policy/`
-- `.claude/rules/`
-- `.claude/skills/`
+- `framework/rules/`
+- `framework/skills/`
 - `framework/agents/specs/`
 - `framework/agents/prompts/`
 - `framework/distribution/plugin.json`
 - `framework/package/`
-- `.agents/skills/`
-- `.claude/agents/`
-- `.opencode/agents/`
-- `.codex/agents/`
 - `plugins/agent-quality-police/`
-- `.claude-plugin/marketplace.json`
-- `.agents/plugins/marketplace.json`
-- `opencode.json`
 - `scripts/`
 - `tests/`
 
@@ -134,7 +101,7 @@ python3 -m unittest tests/test_framework_tools.py
 node --test tests/node/install.test.mjs
 ```
 
-The build step refreshes generated projections so Codex and OpenCode stay aligned with the canonical Claude skill set and the canonical agent specs, and also emits a package-ready distribution plus local marketplace catalogs for Claude and Codex.
+The build step refreshes the repository contract plus the package-ready distribution generated from the canonical framework sources.
 
 ### Package-style installation
 
@@ -166,8 +133,6 @@ If the user denies root management, the installer still installs skills, agents,
 - Codex: append the generated `AGENTS.md` prompt body manually
 - OpenCode: append the generated `AGENTS.md` prompt body manually
 
-For Claude Code distribution, the repository now also emits `.claude-plugin/marketplace.json`, which follows the official marketplace/plugin model and can later be switched to an npm source when publishing the generated package.
-
 ### Release Flow
 
 Before publishing a new version, update the canonical package metadata in `framework/distribution/plugin.json`, then run:
@@ -196,11 +161,11 @@ npx agent-quality-police install
 
 ### Codex `skills.config`
 
-This repository does not emit `skills.config` in `.codex/agents/*.toml`.
+This repository does not emit `skills.config` in `plugins/agent-quality-police/.codex/agents/*.toml`.
 
 Reason:
 
-- Codex already discovers repository skills from `.agents/skills`.
+- Codex already discovers packaged skills from `.agents/skills`.
 - The current official `skills.config` examples for custom agents use an absolute path.
 - This repository does not bake absolute path values into versioned files.
 
@@ -209,6 +174,6 @@ If OpenAI documents a safe relative-path form for versioned repositories, the pr
 ## Evolution Rules
 
 - Update `docs/policy/quality-definition.md` first when changing the meaning of quality.
-- Add new reusable workflows as skills under `.claude/skills/`.
+- Add new reusable workflows as skills under `framework/skills/`.
 - Add new agents by creating a spec under `framework/agents/specs/` and rebuilding.
-- Do not hand-edit generated files under `.agents/skills/`, `.claude/agents/`, `.opencode/agents/`, `.codex/agents/`, `plugins/agent-quality-police/`, `.claude-plugin/marketplace.json`, or `.agents/plugins/marketplace.json`.
+- Do not hand-edit generated files under `AGENTS.md`, `plugins/agent-quality-police/`, or `.github/workflows/publish-package.yml`.

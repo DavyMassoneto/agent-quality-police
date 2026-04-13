@@ -1,9 +1,0 @@
-{
-  "$schema": "https://opencode.ai/config.json",
-  "instructions": [
-    "docs/policy/quality-definition.md",
-    "docs/policy/workflow.md",
-    "docs/policy/system-layout.md",
-    ".claude/rules/**/*.md"
-  ]
-}

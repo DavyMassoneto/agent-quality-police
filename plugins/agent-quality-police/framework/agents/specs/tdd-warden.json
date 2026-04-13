@@ -1,0 +1,33 @@
+{
+  "name": "tdd-warden",
+  "description": "Use proactively before final approval whenever behavior changed, tests changed, or tests should have changed.",
+  "promptPath": "framework/agents/prompts/tdd-warden.md",
+  "claude": {
+    "tools": [
+      "Read",
+      "Glob",
+      "Grep"
+    ],
+    "permissionMode": "plan",
+    "model": "sonnet",
+    "skills": [
+      "vite-vitest-tdd",
+      "react-public-api-testing"
+    ]
+  },
+  "opencode": {
+    "mode": "subagent",
+    "model": "anthropic/claude-sonnet-4-20250514",
+    "temperature": 0.0,
+    "permission": {
+      "edit": "deny",
+      "bash": "deny",
+      "webfetch": "deny"
+    }
+  },
+  "codex": {
+    "model": "gpt-5.4-mini",
+    "model_reasoning_effort": "high",
+    "sandbox_mode": "read-only"
+  }
+}
