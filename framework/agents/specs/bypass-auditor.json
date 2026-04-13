@@ -1,6 +1,6 @@
 {
   "name": "bypass-auditor",
-  "description": "Audits a diff for type, test, mock, helper, and config bypasses with blocker-oriented output.",
+  "description": "Use proactively before final approval for any typing, config, mock, helper, or suspicious diff review.",
   "promptPath": "framework/agents/prompts/bypass-auditor.md",
   "claude": {
     "tools": [

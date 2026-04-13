@@ -11,6 +11,8 @@
 7. Run the appropriate audit agents.
 8. Validate the repository before commit or publication.
 
+Inline self-review does not satisfy an audit requirement. When an audit agent is required, invoke the named agent. If the required agent cannot run, report `BLOCKED` instead of claiming completion.
+
 ## Required Audit Pairing
 
 - TypeScript or config-heavy change: run `bypass-auditor`.

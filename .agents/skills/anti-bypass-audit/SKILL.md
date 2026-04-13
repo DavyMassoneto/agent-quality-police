@@ -40,6 +40,9 @@ Find and report bypasses with short, evidence-based language. This skill is not 
 - `eslint-disable`
 - lowered strictness in config
 - fake narrowing branches
+- constructor bypass
+- prototype fabrication
+- internal field hydration that fakes a valid class instance
 - helper or factory noise hiding test intent
 - mocks that replace the behavior under test
 

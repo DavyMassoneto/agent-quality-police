@@ -91,10 +91,67 @@ class BuildAgentProjectionTests(unittest.TestCase):
             self.assertTrue(claude_agent.startswith("---\n"))
             self.assertIn("name: implementer", claude_agent)
             self.assertIn("skills:", claude_agent)
+            self.assertIn("Follow the governance skill stack.", claude_agent)
             self.assertIn("mode: subagent", opencode_agent)
+            self.assertIn('description = "Writes code under policy."', codex_agent)
             self.assertIn('name = "implementer"', codex_agent)
             self.assertNotIn("[[skills.config]]", codex_agent)
             self.assertNotIn(GENERATED_MARKER, claude_agent)
+
+    def test_build_agent_projections_preserves_proactive_validator_descriptions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            spec_dir = root / "framework" / "agents" / "specs"
+            spec_dir.mkdir(parents=True)
+            (spec_dir / "bypass-auditor.json").write_text(
+                json.dumps(
+                    {
+                        "name": "bypass-auditor",
+                        "description": "Use proactively before final approval for typing, config, mock, helper, and suspicious diff review.",
+                        "prompt": "Audit the diff.",
+                        "claude": {"tools": ["Read"], "model": "sonnet"},
+                        "opencode": {"mode": "subagent", "model": "anthropic/claude-sonnet-4-20250514"},
+                        "codex": {"model": "gpt-5.4-mini"},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (spec_dir / "tdd-warden.json").write_text(
+                json.dumps(
+                    {
+                        "name": "tdd-warden",
+                        "description": "Use proactively before final approval whenever behavior changed, tests changed, or tests should have changed.",
+                        "prompt": "Audit the TDD flow.",
+                        "claude": {"tools": ["Read"], "model": "sonnet"},
+                        "opencode": {"mode": "subagent", "model": "anthropic/claude-sonnet-4-20250514"},
+                        "codex": {"model": "gpt-5.4-mini"},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (spec_dir / "pr-gatekeeper.json").write_text(
+                json.dumps(
+                    {
+                        "name": "pr-gatekeeper",
+                        "description": "Use proactively as the final approve-or-reject gate after the other required auditors complete.",
+                        "prompt": "Gate the change.",
+                        "claude": {"tools": ["Read"], "model": "opus"},
+                        "opencode": {"mode": "subagent", "model": "anthropic/claude-opus-4-1-20250805"},
+                        "codex": {"model": "gpt-5.4"},
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            build_agent_projections(root)
+
+            claude_bypass = (root / ".claude" / "agents" / "bypass-auditor.md").read_text(encoding="utf-8")
+            opencode_tdd = (root / ".opencode" / "agents" / "tdd-warden.md").read_text(encoding="utf-8")
+            codex_gatekeeper = (root / ".codex" / "agents" / "pr-gatekeeper.toml").read_text(encoding="utf-8")
+
+            self.assertIn("Use proactively before final approval for typing, config, mock, helper, and suspicious diff review.", claude_bypass)
+            self.assertIn("Use proactively before final approval whenever behavior changed, tests changed, or tests should have changed.", opencode_tdd)
+            self.assertIn('description = "Use proactively as the final approve-or-reject gate after the other required auditors complete."', codex_gatekeeper)
 
     def test_build_agent_projections_fails_before_reset_when_specs_are_missing(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -479,9 +536,33 @@ class DocumentationTests(unittest.TestCase):
         agents = (PROJECT_ROOT / "AGENTS.md").read_text(encoding="utf-8")
         claude_rule = (PROJECT_ROOT / ".claude" / "rules" / "typescript-zero-bypass.md").read_text(encoding="utf-8")
 
-        self.assertIn("Inline structural types are prohibited.", quality_definition)
-        self.assertIn("Inline structural types are prohibited.", agents)
-        self.assertIn("Prohibit inline structural types.", claude_rule)
+        self.assertIn("Inline structural types are prohibited", quality_definition)
+        self.assertIn("including private methods, local helpers, and return types", quality_definition)
+        self.assertIn("Inline structural types are prohibited", agents)
+        self.assertIn("Prohibit inline structural types", claude_rule)
+        self.assertIn("including in private methods, local helpers, and return types", claude_rule)
+
+    def test_policy_bans_constructor_bypass_and_prototype_fabrication(self) -> None:
+        quality_definition = (PROJECT_ROOT / "docs" / "policy" / "quality-definition.md").read_text(encoding="utf-8")
+        claude_rule = (PROJECT_ROOT / ".claude" / "rules" / "typescript-zero-bypass.md").read_text(encoding="utf-8")
+        anti_bypass_skill = (PROJECT_ROOT / ".claude" / "skills" / "anti-bypass-audit" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        bypass_prompt = (PROJECT_ROOT / "framework" / "agents" / "prompts" / "bypass-auditor.md").read_text(
+            encoding="utf-8"
+        )
+        implementer_prompt = (PROJECT_ROOT / "framework" / "agents" / "prompts" / "implementer.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("constructor bypass", quality_definition)
+        self.assertIn("Object.create(SomeClass.prototype)", quality_definition)
+        self.assertIn("internal field hydration", quality_definition)
+        self.assertIn("Object.create(SomeClass.prototype)", claude_rule)
+        self.assertIn("constructor bypass", anti_bypass_skill)
+        self.assertIn("prototype fabrication", bypass_prompt)
+        self.assertIn("Object.create(SomeClass.prototype)", implementer_prompt)
+        self.assertIn("bypass constructors or public factories", implementer_prompt)
 
     def test_readme_distinguishes_generated_only_reuse_from_framework_development(self) -> None:
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
@@ -622,6 +703,7 @@ class PluginDistributionTests(unittest.TestCase):
             self.assertIn("Prefer current local code and current official documentation over memory.", packaged_claude)
             self.assertIn("Load the required skills before proposing edits or writing code.", packaged_claude)
             self.assertIn("For code changes, do not finalize until the required auditors have run and their results were reviewed.", packaged_claude)
+            self.assertIn("Do not substitute inline self-review for a required audit agent invocation.", packaged_claude)
             self.assertIn("For behavior changes or bug fixes, run `tdd-warden` and `bypass-auditor`.", packaged_claude)
             self.assertIn("For final approval, release, or merge decisions, run `pr-gatekeeper` after the other required auditors.", packaged_claude)
             self.assertIn("If a required skill or auditor cannot run in the current runtime, stop and report `BLOCKED`.", packaged_claude)

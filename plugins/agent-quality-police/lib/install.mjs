@@ -115,6 +115,7 @@ function globalPolicySections() {
     reviewFlowBody: [
       "- For code changes, explicitly invoke the required auditors before final approval.",
       "- For code changes, do not finalize until the required auditors have run and their results were reviewed.",
+      "- Do not substitute inline self-review for a required audit agent invocation.",
       "- For typing, config, mocks, helpers, or suspicious diffs, run `bypass-auditor`.",
       "- For behavior changes or bug fixes, run `tdd-warden` and `bypass-auditor`.",
       "- For final approval, release, or merge decisions, run `pr-gatekeeper` after the other required auditors.",

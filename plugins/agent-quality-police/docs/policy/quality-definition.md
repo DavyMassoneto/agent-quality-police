@@ -51,6 +51,8 @@ Fraud includes:
 - disabling ESLint to suppress a local violation
 - weakening `tsconfig`, `eslint`, `vite`, `vitest`, or equivalent config to silence a problem
 - adding impossible fallback branches, fake narrowing, or defensive code only to satisfy TypeScript
+- constructor bypass through `Object.create(SomeClass.prototype)` or equivalent prototype fabrication
+- internal field hydration through `Object.assign(...)` or direct assignment to simulate a valid instance without using the real constructor or public factory
 - using `Map` in public or domain-facing contracts to avoid explicit named input modeling
 - helper layers that hide what the test is proving
 - mocks that replace the exact behavior under test
@@ -66,6 +68,7 @@ Reject immediately when a diff introduces any of the following without an explic
 - unproven tests
 - suspicious helper noise
 - narrowing that exists only to appease the compiler
+- constructor bypasses, prototype fabrication, or internal field hydration that fabricate class instances without their real invariants
 - branching that changes runtime semantics without product or domain justification
 
 ## Safe Refactor
@@ -94,12 +97,13 @@ Acceptable modeling favors:
 - Zod only for external input boundaries
 - Joi only for environment validation when that boundary exists and matters
 
-Inline structural types are prohibited.
+Inline structural types are prohibited, including private methods, local helpers, and return types.
 
 Unacceptable modeling includes:
 
 - anonymous structural types in signatures
 - inline structural types in local declarations when a named concept exists
+- inline structural object return types such as `(): { completed: number; total: number }`
 - `Record` or index signatures as generic escape hatches
 - `Map` used as a lookup-bag escape hatch in a public or domain-facing contract
 - generic “utils” that absorb domain meaning

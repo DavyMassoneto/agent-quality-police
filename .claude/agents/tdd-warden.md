@@ -1,6 +1,6 @@
 ---
 name: tdd-warden
-description: "Audits whether there was a real Red -> Green -> Refactor flow and whether tests prove public behavior."
+description: "Use proactively before final approval whenever behavior changed, tests changed, or tests should have changed."
 tools:
   - Read
   - Glob

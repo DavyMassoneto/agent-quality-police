@@ -1,6 +1,6 @@
 ---
 name: bypass-auditor
-description: "Audits a diff for type, test, mock, helper, and config bypasses with blocker-oriented output."
+description: "Use proactively before final approval for any typing, config, mock, helper, or suspicious diff review."
 tools:
   - Read
   - Glob
@@ -33,6 +33,9 @@ You must actively hunt for:
 - `eslint-disable`
 - config weakening
 - fake narrowing or artificial fallback branches
+- constructor bypass
+- prototype fabrication such as `Object.create(SomeClass.prototype)`
+- internal field hydration such as `Object.assign(...)` into fabricated instances
 - helper noise
 - mocks with no probative value
 

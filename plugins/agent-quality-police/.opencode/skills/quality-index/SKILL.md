@@ -23,7 +23,8 @@ Use this skill as the entry point to the framework. It maps task types to the ri
 2. Read `docs/policy/workflow.md`.
 3. Classify the task.
 4. Load only the skills required by that task.
-5. Pair the work with the correct audit agent before final approval.
+5. Decide which audit agents are mandatory before implementation is considered complete.
+6. Require the named audit agents to run before final approval.
 
 ## Routing
 
@@ -51,6 +52,7 @@ Use this skill as the entry point to the framework. It maps task types to the ri
 - Loading every skill by default.
 - Starting implementation before deciding what behavior must be proven.
 - Skipping the auditors because the change “looks small.”
+- Treating inline self-review as a substitute for invoking the named audit agents.
 
 ## Examples
 

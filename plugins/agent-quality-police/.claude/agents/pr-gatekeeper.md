@@ -1,6 +1,6 @@
 ---
 name: pr-gatekeeper
-description: "Makes the final approve-or-reject decision for a change without rewriting code."
+description: "Use proactively as the final approve-or-reject gate after the other required auditors complete."
 tools:
   - Read
   - Glob

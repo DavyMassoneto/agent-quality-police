@@ -20,6 +20,9 @@ You must actively hunt for:
 - `eslint-disable`
 - config weakening
 - fake narrowing or artificial fallback branches
+- constructor bypass
+- prototype fabrication such as `Object.create(SomeClass.prototype)`
+- internal field hydration such as `Object.assign(...)` into fabricated instances
 - helper noise
 - mocks with no probative value
 

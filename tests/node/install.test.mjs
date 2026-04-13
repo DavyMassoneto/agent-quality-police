@@ -143,6 +143,9 @@ test("installGlobal manages Claude, Codex, and OpenCode roots when allowed", asy
   assert.equal(installedClaudeRoot.includes("For code changes, do not finalize until the required auditors have run and their results were reviewed."), true);
   assert.equal(installedCodexRoot.includes("For code changes, do not finalize until the required auditors have run and their results were reviewed."), true);
   assert.equal(installedOpenCodeRoot.includes("For code changes, do not finalize until the required auditors have run and their results were reviewed."), true);
+  assert.equal(installedClaudeRoot.includes("Do not substitute inline self-review for a required audit agent invocation."), true);
+  assert.equal(installedCodexRoot.includes("Do not substitute inline self-review for a required audit agent invocation."), true);
+  assert.equal(installedOpenCodeRoot.includes("Do not substitute inline self-review for a required audit agent invocation."), true);
   assert.equal(installedClaudeRoot.includes("For behavior changes or bug fixes, run `tdd-warden` and `bypass-auditor`."), true);
   assert.equal(installedCodexRoot.includes("For behavior changes or bug fixes, run `tdd-warden` and `bypass-auditor`."), true);
   assert.equal(installedOpenCodeRoot.includes("For behavior changes or bug fixes, run `tdd-warden` and `bypass-auditor`."), true);
@@ -179,6 +182,7 @@ test("installGlobal emits manual steps when root management is denied", async ()
   assert.equal(result.manualSteps[0].snippet.startsWith("## Priority"), true);
   assert.equal(result.manualSteps[0].snippet.includes("Load the required skills before proposing edits or writing code."), true);
   assert.equal(result.manualSteps[0].snippet.includes("For code changes, do not finalize until the required auditors have run and their results were reviewed."), true);
+  assert.equal(result.manualSteps[0].snippet.includes("Do not substitute inline self-review for a required audit agent invocation."), true);
   assert.equal(result.manualSteps[0].snippet.includes("If a required skill or auditor cannot run in the current runtime, stop and report `BLOCKED`."), true);
   assert.equal(result.manualSteps[0].snippet.includes("python3 scripts/build_framework.py"), false);
   assert.equal(result.manualSteps[0].snippet.includes("Codex should enter"), false);
@@ -186,6 +190,7 @@ test("installGlobal emits manual steps when root management is denied", async ()
   assert.equal(result.manualSteps[1].snippet.includes("Load the required skills before proposing edits or writing code."), true);
   assert.equal(result.manualSteps[1].snippet.includes("For behavior changes or bug fixes, run `tdd-warden` and `bypass-auditor`."), true);
   assert.equal(result.manualSteps[1].snippet.includes("For final approval, release, or merge decisions, run `pr-gatekeeper` after the other required auditors."), true);
+  assert.equal(result.manualSteps[1].snippet.includes("Do not substitute inline self-review for a required audit agent invocation."), true);
   assert.equal(result.manualSteps[1].snippet.includes("If a required skill or auditor cannot run in the current runtime, stop and report `BLOCKED`."), true);
   assert.equal(result.manualSteps[1].snippet.includes("python3 scripts/build_framework.py"), false);
   assert.equal(result.manualSteps[1].snippet.includes("Claude Code should enter"), false);
@@ -193,6 +198,7 @@ test("installGlobal emits manual steps when root management is denied", async ()
   assert.equal(result.manualSteps[2].snippet.includes("Load the required skills before proposing edits or writing code."), true);
   assert.equal(result.manualSteps[2].snippet.includes("For behavior changes or bug fixes, run `tdd-warden` and `bypass-auditor`."), true);
   assert.equal(result.manualSteps[2].snippet.includes("For final approval, release, or merge decisions, run `pr-gatekeeper` after the other required auditors."), true);
+  assert.equal(result.manualSteps[2].snippet.includes("Do not substitute inline self-review for a required audit agent invocation."), true);
   assert.equal(result.manualSteps[2].snippet.includes("If a required skill or auditor cannot run in the current runtime, stop and report `BLOCKED`."), true);
   assert.equal(result.manualSteps[2].snippet.includes("python3 scripts/build_framework.py"), false);
   assert.equal(result.manualSteps[2].snippet.includes("Claude Code should enter"), false);

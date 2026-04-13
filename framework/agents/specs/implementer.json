@@ -1,6 +1,6 @@
 {
   "name": "implementer",
-  "description": "Executes approved code changes under the framework without weakening tests, typing, or config.",
+  "description": "Executes approved code changes under the framework and hands off to the required audit agents before completion.",
   "promptPath": "framework/agents/prompts/implementer.md",
   "claude": {
     "tools": [
