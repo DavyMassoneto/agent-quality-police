@@ -275,7 +275,10 @@ def _render_generated_package_json(distribution_spec: dict[str, Any]) -> str:
         "type": "module",
         "license": distribution_spec["license"],
         "homepage": distribution_spec["homepage"],
-        "repository": distribution_spec["repository"],
+        "repository": {
+            "type": "git",
+            "url": f'git+{distribution_spec["repository"]}',
+        },
         "author": distribution_spec["author"],
         "keywords": distribution_spec["keywords"],
         "engines": {

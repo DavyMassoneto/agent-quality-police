@@ -5,7 +5,10 @@
   "type": "module",
   "license": "MIT",
   "homepage": "https://github.com/DavyMassoneto/agent-quality-police",
-  "repository": "https://github.com/DavyMassoneto/agent-quality-police.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DavyMassoneto/agent-quality-police.git"
+  },
   "author": {
     "name": "Davy Massoneto",
     "url": "https://github.com/DavyMassoneto"
