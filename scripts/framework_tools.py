@@ -523,26 +523,31 @@ def _global_policy_sections() -> dict[str, str]:
             [
                 "- Direct system, developer, and user instructions override this file.",
                 "- Prefer current local code and current official documentation over memory.",
-                "- Load only the smallest relevant skill set for the task.",
+                "- Treat the required skills and auditors in this file as mandatory workflow requirements.",
             ]
         ),
         "startup_sequence_body": "\n".join(
             [
                 "1. Read [quality-definition]({{quality_definition_path}}) when the task needs repository policy context.",
                 "2. Read [workflow]({{workflow_path}}) when the repository defines one.",
-                "3. Load only the relevant skill set from `{{primary_skill_root}}`.",
+                "3. Load the smallest required skill set from `{{primary_skill_root}}` before proposing edits or writing code.",
             ]
         ),
         "skill_routing_body": "\n".join(
             [
-                "- Use [quality-index]({{quality_index_skill_path}}) when the task spans multiple concerns.",
+                "- Use [quality-index]({{quality_index_skill_path}}) when the task spans multiple concerns or when you are unsure which validators apply.",
                 "- Use [typescript-zero-bypass]({{typescript_zero_bypass_skill_path}}) for `.ts` or `.tsx` changes.",
                 "- Use [vite-vitest-tdd]({{vite_vitest_tdd_skill_path}}) for Vite or Vitest TDD.",
                 "- Use [react-public-api-testing]({{react_public_api_testing_skill_path}}) for React behavior tests.",
+                "- Use [anti-bypass-audit]({{anti_bypass_audit_skill_path}}) when reviewing diffs, suspicious helpers, weakened configs, or type/config-heavy changes.",
+                "- Use [refactoring-with-safety]({{refactoring_with_safety_skill_path}}) for refactors that are not pure bug fixes.",
+                "- Use [governance-installation]({{governance_installation_skill_path}}) when installing or updating this governance package.",
             ]
         ),
         "quality_rules_body": "\n".join(
             [
+                "- Load the required skills before proposing edits or writing code.",
+                "- If a required skill is unavailable in the current runtime, stop and report `BLOCKED`.",
                 "- Use behavior-first tests when tests are viable.",
                 "- Avoid type bypasses, comment bypasses, config weakening, and fake greens.",
                 "- Prefer named types and explicit models over inline structural shortcuts.",
@@ -550,10 +555,12 @@ def _global_policy_sections() -> dict[str, str]:
         ),
         "review_flow_body": "\n".join(
             [
-                "- Before final approval, run the relevant auditors for the actual risk surface.",
-                "- Use `bypass-auditor` for typing, config, mocks, helpers, or suspicious diffs.",
-                "- Use `tdd-warden` when behavior or tests changed or should have changed.",
-                "- Use `pr-gatekeeper` only for final approve-or-reject review.",
+                "- For code changes, explicitly invoke the required auditors before final approval.",
+                "- For code changes, do not finalize until the required auditors have run and their results were reviewed.",
+                "- For typing, config, mocks, helpers, or suspicious diffs, run `bypass-auditor`.",
+                "- For behavior changes or bug fixes, run `tdd-warden` and `bypass-auditor`.",
+                "- For final approval, release, or merge decisions, run `pr-gatekeeper` after the other required auditors.",
+                "- If a required skill or auditor cannot run in the current runtime, stop and report `BLOCKED`.",
             ]
         ),
     }
