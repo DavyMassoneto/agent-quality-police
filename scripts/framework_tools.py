@@ -295,6 +295,7 @@ def _render_generated_package_json(distribution_spec: dict[str, Any]) -> str:
             ".opencode",
             ".claude-plugin",
             ".codex-plugin",
+            "framework",
             "bin",
             "lib",
             "README.md",

@@ -1,6 +1,6 @@
 {
   "name": "agent-quality-police",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Strict governance framework for coding agents that blocks testing and typing bypasses.",
   "type": "module",
   "license": "MIT",
@@ -35,6 +35,7 @@
     ".opencode",
     ".claude-plugin",
     ".codex-plugin",
+    "framework",
     "bin",
     "lib",
     "README.md",

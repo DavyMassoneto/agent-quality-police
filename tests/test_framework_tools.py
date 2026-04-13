@@ -612,7 +612,7 @@ class PluginDistributionTests(unittest.TestCase):
 
             self.assertEqual("agent-quality-police", package_manifest["name"])
             self.assertEqual({"aqp": "bin/aqp.mjs"}, package_manifest["bin"])
-            self.assertEqual(["AGENTS.md", "CLAUDE.md", "opencode.json", "docs", ".claude", ".agents", ".codex", ".opencode", ".claude-plugin", ".codex-plugin", "bin", "lib", "README.md", "LICENSE"], package_manifest["files"])
+            self.assertEqual(["AGENTS.md", "CLAUDE.md", "opencode.json", "docs", ".claude", ".agents", ".codex", ".opencode", ".claude-plugin", ".codex-plugin", "framework", "bin", "lib", "README.md", "LICENSE"], package_manifest["files"])
             self.assertEqual({"node": ">=22.14.0"}, package_manifest["engines"])
             self.assertIn("npx agent-quality-police install", package_readme)
             self.assertIn("MIT License", package_license)
@@ -626,6 +626,10 @@ class PluginDistributionTests(unittest.TestCase):
             self.assertEqual(
                 '{\n  "$schema": "https://opencode.ai/config.json",\n  "instructions": [\n    "docs/policy/workflow.md"\n  ]\n}\n',
                 (root / "plugins" / "agent-quality-police" / "opencode.json").read_text(encoding="utf-8"),
+            )
+            self.assertEqual(
+                "## Priority\n\n- Project policy.\n",
+                (root / "plugins" / "agent-quality-police" / "framework" / "entrypoints" / "policy.md").read_text(encoding="utf-8"),
             )
             self.assertIn("npm publish", publish_workflow)
             self.assertIn("plugins/agent-quality-police", publish_workflow)

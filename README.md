@@ -168,6 +168,32 @@ If the user denies root management, the installer still installs skills, agents,
 
 For Claude Code distribution, the repository now also emits `.claude-plugin/marketplace.json`, which follows the official marketplace/plugin model and can later be switched to an npm source when publishing the generated package.
 
+### Release Flow
+
+Before publishing a new version, update the canonical package metadata in `framework/distribution/plugin.json`, then run:
+
+```bash
+python3 scripts/build_framework.py
+python3 scripts/validate_framework.py
+python3 -m unittest tests/test_framework_tools.py
+node --test tests/node/install.test.mjs
+```
+
+Publishing is performed by GitHub Actions through `.github/workflows/publish-package.yml` and publishes the generated package from `plugins/agent-quality-police/`.
+
+To release a new version:
+
+```bash
+git tag plugin-vX.Y.Z
+git push origin plugin-vX.Y.Z
+```
+
+After the workflow completes, the package is available through:
+
+```bash
+npx agent-quality-police install
+```
+
 ### Codex `skills.config`
 
 This repository does not emit `skills.config` in `.codex/agents/*.toml`.
