@@ -11,17 +11,18 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/checkout@v6
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          node-version: "22"
+          python-version: "3.12"
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
           registry-url: "https://registry.npmjs.org"
-      - name: Install test dependencies
-        run: npm install
       - name: Build framework
         run: python3 scripts/build_framework.py
       - name: Validate framework
@@ -31,5 +32,7 @@ jobs:
       - name: Run Node tests
         run: node --test tests/node/install.test.mjs
       - name: Publish package
-        run: npm publish --provenance
+        run: npm publish --provenance --access public
         working-directory: plugins/agent-quality-police
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
