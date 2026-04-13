@@ -30,11 +30,7 @@ async function writeFixture(packageRoot) {
       "",
       "## Review Flow",
       "",
-      "{{review_flow_body}}",
-      "",
-      "## Tool-Specific Notes",
-      "",
-      "{{tool_specific_notes}}"
+      "{{review_flow_body}}"
     ].join("\n"),
     "utf8"
   );

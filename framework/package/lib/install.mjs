@@ -62,8 +62,7 @@ function entrypointReplacements({
   startupSequenceBody,
   skillRoutingBody,
   qualityRulesBody,
-  reviewFlowBody,
-  toolSpecificNotes
+  reviewFlowBody
 }) {
   return {
     quality_definition_path: qualityDefinitionPath,
@@ -81,8 +80,7 @@ function entrypointReplacements({
     startup_sequence_body: startupSequenceBody,
     skill_routing_body: skillRoutingBody,
     quality_rules_body: qualityRulesBody,
-    review_flow_body: reviewFlowBody,
-    tool_specific_notes: toolSpecificNotes
+    review_flow_body: reviewFlowBody
   };
 }
 
@@ -116,19 +114,6 @@ function globalPolicySections() {
       "- Use `pr-gatekeeper` only for final approve-or-reject review."
     ].join("\n")
   };
-}
-
-function toolNotesFor(target, { claudeEntrypointLabel = "CLAUDE.md", claudeRulesRoot = "rules/", codexSkillsRoot = "skills/", codexAgentsRoot = "agents/", opencodeConfigPath = "opencode.json" } = {}) {
-  if (target === "claude") {
-    return `- Claude Code should enter through \`${claudeEntrypointLabel}\` and \`${claudeRulesRoot}\`.`;
-  }
-  if (target === "codex") {
-    return `- Codex should enter through this file and use \`${codexSkillsRoot}\` plus \`${codexAgentsRoot}\`.`;
-  }
-  if (target === "opencode") {
-    return `- OpenCode should enter through this file and load extra instructions from \`${opencodeConfigPath}\`.`;
-  }
-  return "";
 }
 
 function renderAgentsRoot(policy, replacements) {
@@ -192,8 +177,7 @@ function rootReplacements(target) {
       primarySkillRoot: "skills/",
       skillRoot: "skills",
       systemLayoutPath: "docs/policy/system-layout.md",
-      ...globalPolicySections(),
-      toolSpecificNotes: toolNotesFor("claude", { claudeEntrypointLabel: "CLAUDE.md", claudeRulesRoot: "rules/" })
+      ...globalPolicySections()
     });
   }
   if (target === "codex") {
@@ -203,8 +187,7 @@ function rootReplacements(target) {
       primarySkillRoot: "../.agents/skills/",
       skillRoot: "../.agents/skills",
       systemLayoutPath: "docs/policy/system-layout.md",
-      ...globalPolicySections(),
-      toolSpecificNotes: toolNotesFor("codex", { codexSkillsRoot: "../.agents/skills/", codexAgentsRoot: "agents/" })
+      ...globalPolicySections()
     });
   }
   if (target === "opencode") {
@@ -214,8 +197,7 @@ function rootReplacements(target) {
       primarySkillRoot: "skills/",
       skillRoot: "skills",
       systemLayoutPath: "docs/policy/system-layout.md",
-      ...globalPolicySections(),
-      toolSpecificNotes: toolNotesFor("opencode", { opencodeConfigPath: "opencode.json" })
+      ...globalPolicySections()
     });
   }
   throw new Error(`Unsupported target: ${target}`);

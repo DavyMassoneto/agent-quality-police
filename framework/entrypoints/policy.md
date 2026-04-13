@@ -17,7 +17,3 @@
 ## Review Flow
 
 {{review_flow_body}}
-
-## Tool-Specific Notes
-
-{{tool_specific_notes}}

@@ -134,7 +134,7 @@ class BuildEntrypointProjectionTests(unittest.TestCase):
             )
             (root / "framework" / "entrypoints").mkdir(parents=True)
             (root / "framework" / "entrypoints" / "policy.md").write_text(
-                "## Priority\n\n{{priority_body}}\n\n## Startup Sequence\n\n{{startup_sequence_body}}\n\n## Skill Routing\n\n{{skill_routing_body}}\n\n## Quality Rules\n\n{{quality_rules_body}}\n\n## Review Flow\n\n{{review_flow_body}}\n\n## Tool-Specific Notes\n\n{{tool_specific_notes}}\n",
+                "## Priority\n\n{{priority_body}}\n\n## Startup Sequence\n\n{{startup_sequence_body}}\n\n## Skill Routing\n\n{{skill_routing_body}}\n\n## Quality Rules\n\n{{quality_rules_body}}\n\n## Review Flow\n\n{{review_flow_body}}\n",
                 encoding="utf-8",
             )
             (root / "framework" / "entrypoints" / "opencode.json").write_text(
@@ -204,7 +204,7 @@ class BuildEntrypointProjectionTests(unittest.TestCase):
             self.assertEqual(["quality-index"], built_skills)
             self.assertEqual(["implementer"], built_agents)
             self.assertEqual(["agent-quality-police"], built_distributions)
-            self.assertIn("AGENTS-aware tools should load only their local tool-specific skills and agents.", (root / "AGENTS.md").read_text(encoding="utf-8"))
+            self.assertNotIn("Tool-Specific Notes", (root / "AGENTS.md").read_text(encoding="utf-8"))
             self.assertTrue((root / "CLAUDE.md").read_text(encoding="utf-8").startswith("@AGENTS.md\n"))
             self.assertIn("Always-on rules live under `.claude/rules/`.", (root / "CLAUDE.md").read_text(encoding="utf-8"))
             self.assertEqual(
@@ -516,7 +516,7 @@ class PluginDistributionTests(unittest.TestCase):
             )
             (root / "framework" / "entrypoints").mkdir(parents=True)
             (root / "framework" / "entrypoints" / "policy.md").write_text(
-                "## Priority\n\n{{priority_body}}\n\n## Startup Sequence\n\n{{startup_sequence_body}}\n\n## Skill Routing\n\n{{skill_routing_body}}\n\n## Quality Rules\n\n{{quality_rules_body}}\n\n## Review Flow\n\n{{review_flow_body}}\n\n## Tool-Specific Notes\n\n{{tool_specific_notes}}\n",
+                "## Priority\n\n{{priority_body}}\n\n## Startup Sequence\n\n{{startup_sequence_body}}\n\n## Skill Routing\n\n{{skill_routing_body}}\n\n## Quality Rules\n\n{{quality_rules_body}}\n\n## Review Flow\n\n{{review_flow_body}}\n",
                 encoding="utf-8",
             )
             (root / "framework" / "entrypoints" / "opencode.json").write_text(
@@ -632,7 +632,7 @@ class PluginDistributionTests(unittest.TestCase):
                 (root / "plugins" / "agent-quality-police" / "opencode.json").read_text(encoding="utf-8"),
             )
             self.assertEqual(
-                "## Priority\n\n{{priority_body}}\n\n## Startup Sequence\n\n{{startup_sequence_body}}\n\n## Skill Routing\n\n{{skill_routing_body}}\n\n## Quality Rules\n\n{{quality_rules_body}}\n\n## Review Flow\n\n{{review_flow_body}}\n\n## Tool-Specific Notes\n\n{{tool_specific_notes}}\n",
+                "## Priority\n\n{{priority_body}}\n\n## Startup Sequence\n\n{{startup_sequence_body}}\n\n## Skill Routing\n\n{{skill_routing_body}}\n\n## Quality Rules\n\n{{quality_rules_body}}\n\n## Review Flow\n\n{{review_flow_body}}\n",
                 (root / "plugins" / "agent-quality-police" / "framework" / "entrypoints" / "policy.md").read_text(encoding="utf-8"),
             )
             self.assertIn("npm publish", publish_workflow)

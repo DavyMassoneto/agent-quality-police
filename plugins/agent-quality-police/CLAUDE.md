@@ -32,10 +32,6 @@
 - Use `tdd-warden` when behavior or tests changed or should have changed.
 - Use `pr-gatekeeper` only for final approve-or-reject review.
 
-## Tool-Specific Notes
-
-- Claude Code should enter through `CLAUDE.md` and `.claude/rules/`.
-
 ## Claude Code
 
 - Always-on rules live under `.claude/rules/`.

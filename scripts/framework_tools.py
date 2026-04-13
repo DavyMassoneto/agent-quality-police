@@ -436,7 +436,7 @@ def _render_template(content: str, replacements: dict[str, str]) -> str:
         rendered = updated
 
 
-def _entrypoint_replacements(*, quality_definition_path: str, workflow_path: str, primary_skill_root: str, skill_root: str, system_layout_path: str, priority_body: str, startup_sequence_body: str, skill_routing_body: str, quality_rules_body: str, review_flow_body: str, tool_specific_notes: str) -> dict[str, str]:
+def _entrypoint_replacements(*, quality_definition_path: str, workflow_path: str, primary_skill_root: str, skill_root: str, system_layout_path: str, priority_body: str, startup_sequence_body: str, skill_routing_body: str, quality_rules_body: str, review_flow_body: str) -> dict[str, str]:
     return {
         "quality_definition_path": quality_definition_path,
         "workflow_path": workflow_path,
@@ -454,20 +454,7 @@ def _entrypoint_replacements(*, quality_definition_path: str, workflow_path: str
         "skill_routing_body": skill_routing_body,
         "quality_rules_body": quality_rules_body,
         "review_flow_body": review_flow_body,
-        "tool_specific_notes": tool_specific_notes,
     }
-
-
-def _tool_notes_for(target: str, *, claude_entrypoint_label: str = "CLAUDE.md", claude_rules_root: str = ".claude/rules/", codex_skills_root: str = ".agents/skills/", codex_agents_root: str = ".codex/agents/", opencode_config_path: str = "opencode.json") -> str:
-    if target == "claude":
-        return f"- Claude Code should enter through `{claude_entrypoint_label}` and `{claude_rules_root}`."
-    if target == "codex":
-        return f"- Codex should enter through this file and use `{codex_skills_root}` plus `{codex_agents_root}`."
-    if target == "opencode":
-        return f"- OpenCode should enter through this file and load extra instructions from `{opencode_config_path}`."
-    if target == "repo-agents":
-        return "- AGENTS-aware tools should load only their local tool-specific skills and agents."
-    return ""
 
 
 def _repo_policy_sections() -> dict[str, str]:
@@ -633,7 +620,6 @@ def build_entrypoint_projections(root: Path, entrypoint_policy: str | None = Non
         skill_root=".claude/skills",
         system_layout_path="docs/policy/system-layout.md",
         **_repo_policy_sections(),
-        tool_specific_notes=_tool_notes_for("repo-agents"),
     )
 
     _write_text(root / "AGENTS.md", _render_agents_md(resolved_entrypoint_policy, repo_replacements))
@@ -736,7 +722,6 @@ def build_plugin_distribution(root: Path, distribution_spec: dict[str, Any] | No
         skill_root=".claude/skills",
         system_layout_path="docs/policy/system-layout.md",
         **_global_policy_sections(),
-        tool_specific_notes=_tool_notes_for("claude", claude_entrypoint_label="CLAUDE.md", claude_rules_root=".claude/rules/"),
     )
 
     copy_paths = [
@@ -821,7 +806,6 @@ def _expected_entrypoint_projections(root: Path) -> dict[Path, str]:
         skill_root=".claude/skills",
         system_layout_path="docs/policy/system-layout.md",
         **_repo_policy_sections(),
-        tool_specific_notes=_tool_notes_for("repo-agents"),
     )
     return {
         Path("AGENTS.md"): _normalized_output(_render_agents_md(entrypoint_policy, repo_replacements)),
@@ -846,7 +830,6 @@ def _expected_plugin_distribution(root: Path) -> dict[Path, str]:
         skill_root=".claude/skills",
         system_layout_path="docs/policy/system-layout.md",
         **_global_policy_sections(),
-        tool_specific_notes=_tool_notes_for("claude", claude_entrypoint_label="CLAUDE.md", claude_rules_root=".claude/rules/"),
     )
     expected[plugin_root / "package.json"] = _normalized_output(_render_generated_package_json(distribution_spec))
     expected[plugin_root / "README.md"] = _normalized_output(_render_package_readme(distribution_spec))

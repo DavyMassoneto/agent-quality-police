@@ -49,7 +49,3 @@
 - Use `bypass-auditor` for typing, config, mocks, helpers, or suspicious diffs.
 - Use `tdd-warden` when behavior or tests changed or should have changed.
 - Use `pr-gatekeeper` only for final approve-or-reject review.
-
-## Tool-Specific Notes
-
-- AGENTS-aware tools should load only their local tool-specific skills and agents.
