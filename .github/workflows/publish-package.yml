@@ -1,0 +1,35 @@
+name: Publish Package
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "plugin-v*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+      - name: Install test dependencies
+        run: npm install
+      - name: Build framework
+        run: python3 scripts/build_framework.py
+      - name: Validate framework
+        run: python3 scripts/validate_framework.py
+      - name: Run Python tests
+        run: python3 -m unittest tests/test_framework_tools.py
+      - name: Run Node tests
+        run: node --test tests/node/install.test.mjs
+      - name: Publish package
+        run: npm publish --provenance
+        working-directory: plugins/agent-quality-police

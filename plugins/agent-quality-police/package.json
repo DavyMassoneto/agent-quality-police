@@ -18,6 +18,25 @@
     "tdd",
     "typescript"
   ],
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "files": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "opencode.json",
+    "docs",
+    ".claude",
+    ".agents",
+    ".codex",
+    ".opencode",
+    ".claude-plugin",
+    ".codex-plugin",
+    "bin",
+    "lib",
+    "README.md",
+    "LICENSE"
+  ],
   "bin": {
     "aqp": "bin/aqp.mjs"
   }

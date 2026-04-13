@@ -27,6 +27,7 @@ This repository is a reusable governance pack for coding agents. It is designed 
 - `opencode.json`: generated repository OpenCode config.
 - `.claude/agents/`, `.opencode/agents/`, `.codex/agents/`: generated agent projections.
 - `plugins/agent-quality-police/`: package-ready generated distribution.
+- `.github/workflows/publish-package.yml`: generated npm publish workflow for the package distribution.
 - `.claude-plugin/marketplace.json`, `.agents/plugins/marketplace.json`: generated local marketplaces.
 - `scripts/`: build and validation utilities.
 - `tests/`: regression tests for the projection and validation utilities.
@@ -73,6 +74,7 @@ Generated outputs in this repository:
 - `.opencode/agents/`
 - `.codex/agents/`
 - `plugins/agent-quality-police/`
+- `.github/workflows/publish-package.yml`
 - `.claude-plugin/marketplace.json`
 - `.agents/plugins/marketplace.json`
 
@@ -143,6 +145,14 @@ node plugins/agent-quality-police/bin/aqp.mjs install
 ```
 
 This is the intended local installation path for user-level Claude Code, Codex, and OpenCode setup. The installer runs interactively, asks which tools to install for, and asks per tool whether it may manage the global root entrypoint file.
+
+For npm distribution, the generated package also includes:
+
+- `plugins/agent-quality-police/README.md`
+- `plugins/agent-quality-police/LICENSE`
+- `.github/workflows/publish-package.yml`
+
+The workflow publishes from `plugins/agent-quality-police/`, which is the directory intended to back `npx agent-quality-police install` after npm publication.
 
 If the user allows root management, the installer writes:
 

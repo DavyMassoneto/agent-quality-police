@@ -590,6 +590,8 @@ class PluginDistributionTests(unittest.TestCase):
             package_manifest = json.loads(
                 (root / "plugins" / "agent-quality-police" / "package.json").read_text(encoding="utf-8")
             )
+            package_readme = (root / "plugins" / "agent-quality-police" / "README.md").read_text(encoding="utf-8")
+            package_license = (root / "plugins" / "agent-quality-police" / "LICENSE").read_text(encoding="utf-8")
             claude_manifest = json.loads(
                 (root / "plugins" / "agent-quality-police" / ".claude-plugin" / "plugin.json").read_text(
                     encoding="utf-8"
@@ -606,9 +608,14 @@ class PluginDistributionTests(unittest.TestCase):
             codex_marketplace = json.loads(
                 (root / ".agents" / "plugins" / "marketplace.json").read_text(encoding="utf-8")
             )
+            publish_workflow = (root / ".github" / "workflows" / "publish-package.yml").read_text(encoding="utf-8")
 
             self.assertEqual("agent-quality-police", package_manifest["name"])
             self.assertEqual({"aqp": "bin/aqp.mjs"}, package_manifest["bin"])
+            self.assertEqual(["AGENTS.md", "CLAUDE.md", "opencode.json", "docs", ".claude", ".agents", ".codex", ".opencode", ".claude-plugin", ".codex-plugin", "bin", "lib", "README.md", "LICENSE"], package_manifest["files"])
+            self.assertEqual({"node": ">=22.14.0"}, package_manifest["engines"])
+            self.assertIn("npx agent-quality-police install", package_readme)
+            self.assertIn("MIT License", package_license)
             self.assertEqual("./.claude/skills", claude_manifest["skills"])
             self.assertEqual("./.claude/agents", claude_manifest["agents"])
             self.assertIn("Project policy.", (root / "plugins" / "agent-quality-police" / "CLAUDE.md").read_text(encoding="utf-8"))
@@ -620,6 +627,8 @@ class PluginDistributionTests(unittest.TestCase):
                 '{\n  "$schema": "https://opencode.ai/config.json",\n  "instructions": [\n    "docs/policy/workflow.md"\n  ]\n}\n',
                 (root / "plugins" / "agent-quality-police" / "opencode.json").read_text(encoding="utf-8"),
             )
+            self.assertIn("npm publish", publish_workflow)
+            self.assertIn("plugins/agent-quality-police", publish_workflow)
 
 
 if __name__ == "__main__":

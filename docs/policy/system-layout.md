@@ -21,6 +21,7 @@
 - `.opencode/agents/`: OpenCode agents generated from canonical specs
 - `.codex/agents/`: Codex agents generated from canonical specs
 - `plugins/agent-quality-police/`: package-ready distribution generated from canonical sources
+- `.github/workflows/publish-package.yml`: generated npm publish workflow for the package distribution
 - `.claude-plugin/marketplace.json`: Claude marketplace catalog for the generated package
 - `.agents/plugins/marketplace.json`: Codex marketplace catalog for the generated package
 

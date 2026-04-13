@@ -278,11 +278,131 @@ def _render_generated_package_json(distribution_spec: dict[str, Any]) -> str:
         "repository": distribution_spec["repository"],
         "author": distribution_spec["author"],
         "keywords": distribution_spec["keywords"],
+        "engines": {
+            "node": ">=22.14.0",
+        },
+        "files": [
+            "AGENTS.md",
+            "CLAUDE.md",
+            "opencode.json",
+            "docs",
+            ".claude",
+            ".agents",
+            ".codex",
+            ".opencode",
+            ".claude-plugin",
+            ".codex-plugin",
+            "bin",
+            "lib",
+            "README.md",
+            "LICENSE",
+        ],
         "bin": {
             "aqp": "bin/aqp.mjs",
         },
     }
     return json.dumps(package_manifest, indent=2) + "\n"
+
+
+def _render_package_readme(distribution_spec: dict[str, Any]) -> str:
+    package_name = distribution_spec["name"]
+    return "\n".join(
+        [
+            f"# {package_name}",
+            "",
+            distribution_spec["description"],
+            "",
+            "## Install",
+            "",
+            f"```bash\nnpx {package_name} install\n```",
+            "",
+            "The installer asks which supported tools should be configured and whether it may manage each global root entrypoint.",
+            "",
+            "Supported tools:",
+            "",
+            "- Claude Code",
+            "- Codex",
+            "- OpenCode",
+            "",
+            "## Source",
+            "",
+            distribution_spec["homepage"],
+            "",
+        ]
+    )
+
+
+def _render_package_license(distribution_spec: dict[str, Any]) -> str:
+    author_name = distribution_spec["author"]["name"]
+    return "\n".join(
+        [
+            "MIT License",
+            "",
+            f"Copyright (c) {author_name}",
+            "",
+            "Permission is hereby granted, free of charge, to any person obtaining a copy",
+            "of this software and associated documentation files (the \"Software\"), to deal",
+            "in the Software without restriction, including without limitation the rights",
+            "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell",
+            "copies of the Software, and to permit persons to whom the Software is",
+            "furnished to do so, subject to the following conditions:",
+            "",
+            "The above copyright notice and this permission notice shall be included in all",
+            "copies or substantial portions of the Software.",
+            "",
+            "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR",
+            "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,",
+            "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE",
+            "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER",
+            "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,",
+            "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE",
+            "SOFTWARE.",
+            "",
+        ]
+    )
+
+
+def _render_publish_workflow(distribution_spec: dict[str, Any]) -> str:
+    package_name = distribution_spec["name"]
+    return "\n".join(
+        [
+            "name: Publish Package",
+            "",
+            "on:",
+            "  workflow_dispatch:",
+            "  push:",
+            "    tags:",
+            '      - "plugin-v*"',
+            "",
+            "jobs:",
+            "  publish:",
+            "    runs-on: ubuntu-latest",
+            "    permissions:",
+            "      contents: read",
+            "      id-token: write",
+            "    steps:",
+            "      - name: Checkout",
+            "        uses: actions/checkout@v4",
+            "      - name: Setup Node",
+            "        uses: actions/setup-node@v4",
+            "        with:",
+            '          node-version: "22"',
+            '          registry-url: "https://registry.npmjs.org"',
+            "      - name: Install test dependencies",
+            "        run: npm install",
+            "      - name: Build framework",
+            "        run: python3 scripts/build_framework.py",
+            "      - name: Validate framework",
+            "        run: python3 scripts/validate_framework.py",
+            "      - name: Run Python tests",
+            "        run: python3 -m unittest tests/test_framework_tools.py",
+            "      - name: Run Node tests",
+            "        run: node --test tests/node/install.test.mjs",
+            "      - name: Publish package",
+            f"        run: npm publish --provenance\n        working-directory: plugins/{package_name}",
+            "",
+        ]
+    )
 
 
 def _render_template(content: str, replacements: dict[str, str]) -> str:
@@ -508,6 +628,8 @@ def build_plugin_distribution(root: Path, distribution_spec: dict[str, Any] | No
     _copy_path(root / "framework" / "package" / "lib", plugin_root / "lib")
 
     _write_text(plugin_root / "CLAUDE.md", _render_packaged_claude_md(resolved_entrypoint_policy, package_replacements))
+    _write_text(plugin_root / "README.md", _render_package_readme(resolved_distribution_spec))
+    _write_text(plugin_root / "LICENSE", _render_package_license(resolved_distribution_spec))
     _write_text(plugin_root / "package.json", _render_generated_package_json(resolved_distribution_spec))
     _write_text(
         plugin_root / ".claude-plugin" / "plugin.json",
@@ -517,6 +639,7 @@ def build_plugin_distribution(root: Path, distribution_spec: dict[str, Any] | No
         plugin_root / ".codex-plugin" / "plugin.json",
         _render_codex_plugin_manifest(resolved_distribution_spec),
     )
+    _write_text(root / ".github" / "workflows" / "publish-package.yml", _render_publish_workflow(resolved_distribution_spec))
     _write_text(root / ".claude-plugin" / "marketplace.json", _render_claude_marketplace(resolved_distribution_spec))
     _write_text(root / ".agents" / "plugins" / "marketplace.json", _render_codex_marketplace(resolved_distribution_spec))
 
@@ -599,6 +722,8 @@ def _expected_plugin_distribution(root: Path) -> dict[Path, str]:
         opencode_config_path="opencode.json",
     )
     expected[plugin_root / "package.json"] = _normalized_output(_render_generated_package_json(distribution_spec))
+    expected[plugin_root / "README.md"] = _normalized_output(_render_package_readme(distribution_spec))
+    expected[plugin_root / "LICENSE"] = _normalized_output(_render_package_license(distribution_spec))
     expected[plugin_root / ".claude-plugin" / "plugin.json"] = _normalized_output(
         _render_claude_plugin_manifest(distribution_spec)
     )
@@ -607,6 +732,9 @@ def _expected_plugin_distribution(root: Path) -> dict[Path, str]:
     )
     expected[Path(".claude-plugin") / "marketplace.json"] = _normalized_output(
         _render_claude_marketplace(distribution_spec)
+    )
+    expected[Path(".github") / "workflows" / "publish-package.yml"] = _normalized_output(
+        _render_publish_workflow(distribution_spec)
     )
     expected[Path(".agents") / "plugins" / "marketplace.json"] = _normalized_output(
         _render_codex_marketplace(distribution_spec)
