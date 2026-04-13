@@ -15,7 +15,7 @@
 4. Execute with TDD when tests are viable.
 5. Run the matching audit agents before final approval.
 
-## Mandatory Skill Routing
+## Skill Routing
 
 - Use [quality-index](.claude/skills/quality-index/SKILL.md) first when the task spans multiple concerns.
 - Use [typescript-zero-bypass](.claude/skills/typescript-zero-bypass/SKILL.md) for any `.ts` or `.tsx` change.
@@ -25,7 +25,7 @@
 - Use [refactoring-with-safety](.claude/skills/refactoring-with-safety/SKILL.md) for refactors that are not pure bug fixes.
 - Use [governance-installation](.claude/skills/governance-installation/SKILL.md) when installing or updating this framework in another repository.
 
-## Non-Negotiables
+## Quality Rules
 
 - TDD is mandatory when tests are technically viable.
 - A passing test suite without behavior proof is not a green build.
@@ -38,7 +38,7 @@
 - Inline structural types are prohibited.
 - Reviewers must reject suspicious diffs instead of “accepting with caveats.”
 
-## Execution Contract
+## Review Flow
 
 - Fix the root problem, not the symptom.
 - Keep tests direct, short, and behavior-based.
@@ -46,26 +46,10 @@
 - Keep policy text severe and actionable; do not soften language to preserve agent comfort.
 - After any change to canonical framework sources such as `framework/skills/`, `framework/rules/`, `docs/policy/`, or `framework/agents/specs/`, run `python3 scripts/build_framework.py` before claiming the repository is consistent.
 - After the build step, run `python3 scripts/validate_framework.py`. If scripts changed, run `python3 -m unittest tests/test_framework_tools.py` and `node --test tests/node/install.test.mjs`.
-
-## Audit Flow
-
-- `implementer`: execution agent, allowed to write, never allowed to weaken rules.
-- `tdd-warden`: verifies there was a real RED phase and that tests prove behavior.
-- `bypass-auditor`: hunts bypasses, fake narrowing, config weakening, helper noise, and non-probative mocks.
-- `pr-gatekeeper`: final verdict, does not rewrite code.
-
-## Output Expectations
-
-- Implementation output should state what behavior is covered, what tests were run, and what remains blocked.
-- Audit output should list concrete findings with file evidence and required correction.
-- Gate output should end with `APPROVED` or `REJECTED`.
-
-## Repository Layout
-
-- [system-layout](docs/policy/system-layout.md)
+- Use `bypass-auditor` for typing, config, mocks, helpers, or suspicious diffs.
+- Use `tdd-warden` when behavior or tests changed or should have changed.
+- Use `pr-gatekeeper` only for final approve-or-reject review.
 
 ## Tool-Specific Notes
 
-- Claude Code should enter through `CLAUDE.md` and `.claude/rules/`.
-- Codex should enter through this file and use `.agents/skills/` plus `.codex/agents/`.
-- OpenCode should enter through this file and load extra instructions from `opencode.json`.
+- AGENTS-aware tools should load only their local tool-specific skills and agents.

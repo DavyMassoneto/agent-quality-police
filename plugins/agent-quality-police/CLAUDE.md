@@ -6,6 +6,19 @@
 - Prefer current local code and current official documentation over memory.
 - Load only the smallest relevant skill set for the task.
 
+## Startup Sequence
+
+1. Read [quality-definition](docs/policy/quality-definition.md) when the task needs repository policy context.
+2. Read [workflow](docs/policy/workflow.md) when the repository defines one.
+3. Load only the relevant skill set from `.claude/skills/`.
+
+## Skill Routing
+
+- Use [quality-index](.claude/skills/quality-index/SKILL.md) when the task spans multiple concerns.
+- Use [typescript-zero-bypass](.claude/skills/typescript-zero-bypass/SKILL.md) for `.ts` or `.tsx` changes.
+- Use [vite-vitest-tdd](.claude/skills/vite-vitest-tdd/SKILL.md) for Vite or Vitest TDD.
+- Use [react-public-api-testing](.claude/skills/react-public-api-testing/SKILL.md) for React behavior tests.
+
 ## Quality Rules
 
 - Use behavior-first tests when tests are viable.
@@ -22,8 +35,6 @@
 ## Tool-Specific Notes
 
 - Claude Code should enter through `CLAUDE.md` and `.claude/rules/`.
-- Codex should enter through this file and use `.agents/skills/` plus `.codex/agents/`.
-- OpenCode should enter through this file and load extra instructions from `opencode.json`.
 
 ## Claude Code
 

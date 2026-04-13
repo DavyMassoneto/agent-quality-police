@@ -35,15 +35,21 @@ export function supportedTargets() {
 }
 
 async function loadEntrypointPolicy(packageRoot) {
-  return (await readFile(packagePath(packageRoot, "framework", "entrypoints", "global-policy.md"), "utf8")).trimEnd();
+  return (await readFile(packagePath(packageRoot, "framework", "entrypoints", "policy.md"), "utf8")).trimEnd();
 }
 
 function renderTemplate(content, replacements) {
   let rendered = content;
-  for (const [key, value] of Object.entries(replacements)) {
-    rendered = rendered.replaceAll(`{{${key}}}`, value);
+  while (true) {
+    let updated = rendered;
+    for (const [key, value] of Object.entries(replacements)) {
+      updated = updated.replaceAll(`{{${key}}}`, value);
+    }
+    if (updated === rendered) {
+      return updated;
+    }
+    rendered = updated;
   }
-  return rendered;
 }
 
 function entrypointReplacements({
@@ -52,11 +58,12 @@ function entrypointReplacements({
   primarySkillRoot,
   skillRoot,
   systemLayoutPath,
-  claudeEntrypointLabel,
-  claudeRulesRoot,
-  codexSkillsRoot,
-  codexAgentsRoot,
-  opencodeConfigPath
+  priorityBody,
+  startupSequenceBody,
+  skillRoutingBody,
+  qualityRulesBody,
+  reviewFlowBody,
+  toolSpecificNotes
 }) {
   return {
     quality_definition_path: qualityDefinitionPath,
@@ -70,12 +77,58 @@ function entrypointReplacements({
     refactoring_with_safety_skill_path: `${skillRoot}/refactoring-with-safety/SKILL.md`,
     governance_installation_skill_path: `${skillRoot}/governance-installation/SKILL.md`,
     system_layout_path: systemLayoutPath,
-    claude_entrypoint_label: claudeEntrypointLabel,
-    claude_rules_root: claudeRulesRoot,
-    codex_skills_root: codexSkillsRoot,
-    codex_agents_root: codexAgentsRoot,
-    opencode_config_path: opencodeConfigPath
+    priority_body: priorityBody,
+    startup_sequence_body: startupSequenceBody,
+    skill_routing_body: skillRoutingBody,
+    quality_rules_body: qualityRulesBody,
+    review_flow_body: reviewFlowBody,
+    tool_specific_notes: toolSpecificNotes
   };
+}
+
+function globalPolicySections() {
+  return {
+    priorityBody: [
+      "- Direct system, developer, and user instructions override this file.",
+      "- Prefer current local code and current official documentation over memory.",
+      "- Load only the smallest relevant skill set for the task."
+    ].join("\n"),
+    startupSequenceBody: [
+      "1. Read [quality-definition]({{quality_definition_path}}) when the task needs repository policy context.",
+      "2. Read [workflow]({{workflow_path}}) when the repository defines one.",
+      "3. Load only the relevant skill set from `{{primary_skill_root}}`."
+    ].join("\n"),
+    skillRoutingBody: [
+      "- Use [quality-index]({{quality_index_skill_path}}) when the task spans multiple concerns.",
+      "- Use [typescript-zero-bypass]({{typescript_zero_bypass_skill_path}}) for `.ts` or `.tsx` changes.",
+      "- Use [vite-vitest-tdd]({{vite_vitest_tdd_skill_path}}) for Vite or Vitest TDD.",
+      "- Use [react-public-api-testing]({{react_public_api_testing_skill_path}}) for React behavior tests."
+    ].join("\n"),
+    qualityRulesBody: [
+      "- Use behavior-first tests when tests are viable.",
+      "- Avoid type bypasses, comment bypasses, config weakening, and fake greens.",
+      "- Prefer named types and explicit models over inline structural shortcuts."
+    ].join("\n"),
+    reviewFlowBody: [
+      "- Before final approval, run the relevant auditors for the actual risk surface.",
+      "- Use `bypass-auditor` for typing, config, mocks, helpers, or suspicious diffs.",
+      "- Use `tdd-warden` when behavior or tests changed or should have changed.",
+      "- Use `pr-gatekeeper` only for final approve-or-reject review."
+    ].join("\n")
+  };
+}
+
+function toolNotesFor(target, { claudeEntrypointLabel = "CLAUDE.md", claudeRulesRoot = "rules/", codexSkillsRoot = "skills/", codexAgentsRoot = "agents/", opencodeConfigPath = "opencode.json" } = {}) {
+  if (target === "claude") {
+    return `- Claude Code should enter through \`${claudeEntrypointLabel}\` and \`${claudeRulesRoot}\`.`;
+  }
+  if (target === "codex") {
+    return `- Codex should enter through this file and use \`${codexSkillsRoot}\` plus \`${codexAgentsRoot}\`.`;
+  }
+  if (target === "opencode") {
+    return `- OpenCode should enter through this file and load extra instructions from \`${opencodeConfigPath}\`.`;
+  }
+  return "";
 }
 
 function renderAgentsRoot(policy, replacements) {
@@ -139,11 +192,8 @@ function rootReplacements(target) {
       primarySkillRoot: "skills/",
       skillRoot: "skills",
       systemLayoutPath: "docs/policy/system-layout.md",
-      claudeEntrypointLabel: "CLAUDE.md",
-      claudeRulesRoot: "rules/",
-      codexSkillsRoot: "../.agents/skills/",
-      codexAgentsRoot: "../.codex/agents/",
-      opencodeConfigPath: "../.config/opencode/opencode.json"
+      ...globalPolicySections(),
+      toolSpecificNotes: toolNotesFor("claude", { claudeEntrypointLabel: "CLAUDE.md", claudeRulesRoot: "rules/" })
     });
   }
   if (target === "codex") {
@@ -153,11 +203,8 @@ function rootReplacements(target) {
       primarySkillRoot: "../.agents/skills/",
       skillRoot: "../.agents/skills",
       systemLayoutPath: "docs/policy/system-layout.md",
-      claudeEntrypointLabel: "../.claude/CLAUDE.md",
-      claudeRulesRoot: "../.claude/rules/",
-      codexSkillsRoot: "../.agents/skills/",
-      codexAgentsRoot: "agents/",
-      opencodeConfigPath: "../.config/opencode/opencode.json"
+      ...globalPolicySections(),
+      toolSpecificNotes: toolNotesFor("codex", { codexSkillsRoot: "../.agents/skills/", codexAgentsRoot: "agents/" })
     });
   }
   if (target === "opencode") {
@@ -167,11 +214,8 @@ function rootReplacements(target) {
       primarySkillRoot: "skills/",
       skillRoot: "skills",
       systemLayoutPath: "docs/policy/system-layout.md",
-      claudeEntrypointLabel: "../../.claude/CLAUDE.md",
-      claudeRulesRoot: "../../.claude/rules/",
-      codexSkillsRoot: "../../.agents/skills/",
-      codexAgentsRoot: "../../.codex/agents/",
-      opencodeConfigPath: "opencode.json"
+      ...globalPolicySections(),
+      toolSpecificNotes: toolNotesFor("opencode", { opencodeConfigPath: "opencode.json" })
     });
   }
   throw new Error(`Unsupported target: ${target}`);
