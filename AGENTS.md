@@ -44,8 +44,8 @@
 - Keep tests direct, short, and behavior-based.
 - Prefer explicit domain names over generic utilities.
 - Keep policy text severe and actionable; do not soften language to preserve agent comfort.
-- After any change to canonical framework sources such as `.claude/skills/`, `.claude/rules/`, `docs/policy/`, or `framework/agents/specs/`, run `python3 scripts/build_framework.py` before claiming the repository is consistent.
-- After the build step, run `python3 scripts/validate_framework.py`. If scripts changed, run `python3 -m unittest tests/test_framework_tools.py`.
+- After any change to canonical framework sources such as `framework/skills/`, `framework/rules/`, `docs/policy/`, or `framework/agents/specs/`, run `python3 scripts/build_framework.py` before claiming the repository is consistent.
+- After the build step, run `python3 scripts/validate_framework.py`. If scripts changed, run `python3 -m unittest tests/test_framework_tools.py` and `node --test tests/node/install.test.mjs`.
 
 ## Audit Flow
 

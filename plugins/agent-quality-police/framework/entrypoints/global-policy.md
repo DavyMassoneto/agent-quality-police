@@ -1,5 +1,3 @@
-# CLAUDE.md
-
 ## Priority
 
 - Direct system, developer, and user instructions override this file.
@@ -21,14 +19,6 @@
 
 ## Tool-Specific Notes
 
-- Claude Code should enter through `CLAUDE.md` and `.claude/rules/`.
-- Codex should enter through this file and use `.agents/skills/` plus `.codex/agents/`.
-- OpenCode should enter through this file and load extra instructions from `opencode.json`.
-
-## Claude Code
-
-- Always-on rules live under `.claude/rules/`.
-- Skills live under `.claude/skills/`.
-- Claude subagents live under `.claude/agents/`.
-- If a skill and a rule both apply, the stricter instruction wins.
-- Use the repository workflow in `docs/policy/workflow.md` before finalizing any change.
+- Claude Code should enter through `{{claude_entrypoint_label}}` and `{{claude_rules_root}}`.
+- Codex should enter through this file and use `{{codex_skills_root}}` plus `{{codex_agents_root}}`.
+- OpenCode should enter through this file and load extra instructions from `{{opencode_config_path}}`.
