@@ -53,6 +53,7 @@ Fraud includes:
 - adding impossible fallback branches, fake narrowing, or defensive code only to satisfy TypeScript
 - constructor bypass through `Object.create(SomeClass.prototype)` or equivalent prototype fabrication
 - internal field hydration through `Object.assign(...)` or direct assignment to simulate a valid instance without using the real constructor or public factory
+- meaningless abbreviations in identifiers that hide domain meaning
 - using `Map` in public or domain-facing contracts to avoid explicit named input modeling
 - helper layers that hide what the test is proving
 - mocks that replace the exact behavior under test
@@ -67,6 +68,7 @@ Reject immediately when a diff introduces any of the following without an explic
 - config weakening
 - unproven tests
 - suspicious helper noise
+- meaningless abbreviations in newly introduced identifiers, including single-letter callback parameters such as `c`, `x`, or `i` when they do not carry real meaning
 - narrowing that exists only to appease the compiler
 - constructor bypasses, prototype fabrication, or internal field hydration that fabricate class instances without their real invariants
 - branching that changes runtime semantics without product or domain justification
@@ -116,6 +118,7 @@ Acceptable typing:
 - keeps narrowing honest and evidence-based
 - keeps imported types and values coherent
 - lets the compiler confirm the model instead of being tricked into silence
+- uses names that preserve domain meaning instead of meaningless abbreviations
 
 Unacceptable typing:
 

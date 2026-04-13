@@ -43,6 +43,7 @@ Find and report bypasses with short, evidence-based language. This skill is not 
 - constructor bypass
 - prototype fabrication
 - internal field hydration that fakes a valid class instance
+- single-letter callback parameters or other meaningless abbreviations that hide domain meaning
 - helper or factory noise hiding test intent
 - mocks that replace the behavior under test
 

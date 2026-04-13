@@ -564,6 +564,22 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("Object.create(SomeClass.prototype)", implementer_prompt)
         self.assertIn("bypass constructors or public factories", implementer_prompt)
 
+    def test_policy_bans_meaningless_abbreviations_in_identifiers(self) -> None:
+        quality_definition = (PROJECT_ROOT / "docs" / "policy" / "quality-definition.md").read_text(encoding="utf-8")
+        claude_rule = (PROJECT_ROOT / ".claude" / "rules" / "typescript-zero-bypass.md").read_text(encoding="utf-8")
+        anti_bypass_skill = (PROJECT_ROOT / ".claude" / "skills" / "anti-bypass-audit" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        bypass_prompt = (PROJECT_ROOT / "framework" / "agents" / "prompts" / "bypass-auditor.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("meaningless abbreviations", quality_definition)
+        self.assertIn("single-letter callback parameters such as `c`", quality_definition)
+        self.assertIn("meaningless abbreviations", claude_rule)
+        self.assertIn("single-letter callback parameters", anti_bypass_skill)
+        self.assertIn("meaningless abbreviations", bypass_prompt)
+
     def test_readme_distinguishes_generated_only_reuse_from_framework_development(self) -> None:
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
 
