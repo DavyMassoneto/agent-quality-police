@@ -567,6 +567,9 @@ class DocumentationTests(unittest.TestCase):
     def test_policy_bans_meaningless_abbreviations_in_identifiers(self) -> None:
         quality_definition = (PROJECT_ROOT / "docs" / "policy" / "quality-definition.md").read_text(encoding="utf-8")
         claude_rule = (PROJECT_ROOT / ".claude" / "rules" / "typescript-zero-bypass.md").read_text(encoding="utf-8")
+        zero_bypass_skill = (PROJECT_ROOT / ".claude" / "skills" / "typescript-zero-bypass" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
         anti_bypass_skill = (PROJECT_ROOT / ".claude" / "skills" / "anti-bypass-audit" / "SKILL.md").read_text(
             encoding="utf-8"
         )
@@ -577,6 +580,9 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("meaningless abbreviations", quality_definition)
         self.assertIn("single-letter callback parameters such as `c`", quality_definition)
         self.assertIn("meaningless abbreviations", claude_rule)
+        self.assertIn("meaningless abbreviations", zero_bypass_skill)
+        self.assertIn("Object.create(SomeClass.prototype)", zero_bypass_skill)
+        self.assertIn("inline structural object return types", zero_bypass_skill)
         self.assertIn("single-letter callback parameters", anti_bypass_skill)
         self.assertIn("meaningless abbreviations", bypass_prompt)
 
