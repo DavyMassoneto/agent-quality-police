@@ -133,12 +133,8 @@ class BuildEntrypointProjectionTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (root / "framework" / "entrypoints").mkdir(parents=True)
-            (root / "framework" / "entrypoints" / "repo-policy.md").write_text(
-                "## Priority\n\n- Shared policy.\n",
-                encoding="utf-8",
-            )
-            (root / "framework" / "entrypoints" / "global-policy.md").write_text(
-                "## Priority\n\n- Global policy.\n",
+            (root / "framework" / "entrypoints" / "policy.md").write_text(
+                "## Priority\n\n{{priority_body}}\n\n## Startup Sequence\n\n{{startup_sequence_body}}\n\n## Skill Routing\n\n{{skill_routing_body}}\n\n## Quality Rules\n\n{{quality_rules_body}}\n\n## Review Flow\n\n{{review_flow_body}}\n\n## Tool-Specific Notes\n\n{{tool_specific_notes}}\n",
                 encoding="utf-8",
             )
             (root / "framework" / "entrypoints" / "opencode.json").write_text(
@@ -208,7 +204,7 @@ class BuildEntrypointProjectionTests(unittest.TestCase):
             self.assertEqual(["quality-index"], built_skills)
             self.assertEqual(["implementer"], built_agents)
             self.assertEqual(["agent-quality-police"], built_distributions)
-            self.assertEqual("# AGENTS.md\n\n## Priority\n\n- Shared policy.\n", (root / "AGENTS.md").read_text(encoding="utf-8"))
+            self.assertIn("AGENTS-aware tools should load only their local tool-specific skills and agents.", (root / "AGENTS.md").read_text(encoding="utf-8"))
             self.assertTrue((root / "CLAUDE.md").read_text(encoding="utf-8").startswith("@AGENTS.md\n"))
             self.assertIn("Always-on rules live under `.claude/rules/`.", (root / "CLAUDE.md").read_text(encoding="utf-8"))
             self.assertEqual(
@@ -519,12 +515,8 @@ class PluginDistributionTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (root / "framework" / "entrypoints").mkdir(parents=True)
-            (root / "framework" / "entrypoints" / "repo-policy.md").write_text(
-                "## Priority\n\n- Project policy.\n",
-                encoding="utf-8",
-            )
-            (root / "framework" / "entrypoints" / "global-policy.md").write_text(
-                "## Priority\n\n- Global install policy.\n",
+            (root / "framework" / "entrypoints" / "policy.md").write_text(
+                "## Priority\n\n{{priority_body}}\n\n## Startup Sequence\n\n{{startup_sequence_body}}\n\n## Skill Routing\n\n{{skill_routing_body}}\n\n## Quality Rules\n\n{{quality_rules_body}}\n\n## Review Flow\n\n{{review_flow_body}}\n\n## Tool-Specific Notes\n\n{{tool_specific_notes}}\n",
                 encoding="utf-8",
             )
             (root / "framework" / "entrypoints" / "opencode.json").write_text(
@@ -626,8 +618,11 @@ class PluginDistributionTests(unittest.TestCase):
             self.assertIn("MIT License", package_license)
             self.assertEqual("./.claude/skills", claude_manifest["skills"])
             self.assertEqual("./.claude/agents", claude_manifest["agents"])
-            self.assertIn("Global install policy.", (root / "plugins" / "agent-quality-police" / "CLAUDE.md").read_text(encoding="utf-8"))
-            self.assertNotIn("python3 scripts/build_framework.py", (root / "plugins" / "agent-quality-police" / "CLAUDE.md").read_text(encoding="utf-8"))
+            packaged_claude = (root / "plugins" / "agent-quality-police" / "CLAUDE.md").read_text(encoding="utf-8")
+            self.assertIn("Prefer current local code and current official documentation over memory.", packaged_claude)
+            self.assertNotIn("python3 scripts/build_framework.py", packaged_claude)
+            self.assertNotIn("Codex should enter", packaged_claude)
+            self.assertNotIn("OpenCode should enter", packaged_claude)
             self.assertEqual("./.agents/skills", codex_manifest["skills"])
             self.assertEqual("Agent Quality Police", codex_manifest["interface"]["displayName"])
             self.assertEqual("./plugins/agent-quality-police", claude_marketplace["plugins"][0]["source"])
@@ -637,8 +632,8 @@ class PluginDistributionTests(unittest.TestCase):
                 (root / "plugins" / "agent-quality-police" / "opencode.json").read_text(encoding="utf-8"),
             )
             self.assertEqual(
-                "## Priority\n\n- Global install policy.\n",
-                (root / "plugins" / "agent-quality-police" / "framework" / "entrypoints" / "global-policy.md").read_text(encoding="utf-8"),
+                "## Priority\n\n{{priority_body}}\n\n## Startup Sequence\n\n{{startup_sequence_body}}\n\n## Skill Routing\n\n{{skill_routing_body}}\n\n## Quality Rules\n\n{{quality_rules_body}}\n\n## Review Flow\n\n{{review_flow_body}}\n\n## Tool-Specific Notes\n\n{{tool_specific_notes}}\n",
+                (root / "plugins" / "agent-quality-police" / "framework" / "entrypoints" / "policy.md").read_text(encoding="utf-8"),
             )
             self.assertIn("npm publish", publish_workflow)
             self.assertIn("plugins/agent-quality-police", publish_workflow)

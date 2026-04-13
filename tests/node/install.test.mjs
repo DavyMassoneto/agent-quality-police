@@ -10,36 +10,32 @@ import { installGlobal, resolveCleanupPlan, resolveInstallPlan } from "../../fra
 async function writeFixture(packageRoot) {
   await mkdir(path.join(packageRoot, "framework", "entrypoints"), { recursive: true });
   await writeFile(
-    path.join(packageRoot, "framework", "entrypoints", "global-policy.md"),
+    path.join(packageRoot, "framework", "entrypoints", "policy.md"),
     [
       "## Priority",
       "",
-      "- Policy file: [quality]({{quality_definition_path}})",
+      "{{priority_body}}",
       "",
       "## Startup Sequence",
       "",
-      "1. Read [workflow]({{workflow_path}}).",
-      "2. Load the smallest relevant skill set from `{{primary_skill_root}}`.",
+      "{{startup_sequence_body}}",
       "",
-      "## Mandatory Skill Routing",
+      "## Skill Routing",
       "",
-      "- Use [quality-index]({{quality_index_skill_path}}).",
+      "{{skill_routing_body}}",
       "",
-      "## Repository Layout",
+      "## Quality Rules",
       "",
-      "- [system-layout]({{system_layout_path}})",
+      "{{quality_rules_body}}",
+      "",
+      "## Review Flow",
+      "",
+      "{{review_flow_body}}",
       "",
       "## Tool-Specific Notes",
       "",
-      "- Claude Code should enter through `{{claude_entrypoint_label}}` and `{{claude_rules_root}}`.",
-      "- Codex should enter through this file and use `{{codex_skills_root}}` plus `{{codex_agents_root}}`.",
-      "- OpenCode should enter through this file and load extra instructions from `{{opencode_config_path}}`."
+      "{{tool_specific_notes}}"
     ].join("\n"),
-    "utf8"
-  );
-  await writeFile(
-    path.join(packageRoot, "framework", "entrypoints", "repo-policy.md"),
-    "## Priority\n\n- Repo policy.\n\n## Execution Contract\n\n- After any change, run `python3 scripts/build_framework.py`.\n",
     "utf8"
   );
   await writeFile(
@@ -134,10 +130,10 @@ test("installGlobal manages Claude, Codex, and OpenCode roots when allowed", asy
     homeDir
   );
 
-  assert.equal((await readFile(path.join(homeDir, ".claude", "CLAUDE.md"), "utf8")).includes("Policy file: [quality](docs/policy/quality-definition.md)"), true);
+  assert.equal((await readFile(path.join(homeDir, ".claude", "CLAUDE.md"), "utf8")).includes("Prefer current local code and current official documentation over memory."), true);
   await assert.rejects(readFile(path.join(homeDir, ".claude", "AGENTS.md"), "utf8"));
-  assert.equal((await readFile(path.join(homeDir, ".codex", "AGENTS.md"), "utf8")).includes("Policy file: [quality](docs/policy/quality-definition.md)"), true);
-  assert.equal((await readFile(path.join(homeDir, ".config", "opencode", "AGENTS.md"), "utf8")).includes("Policy file: [quality](docs/policy/quality-definition.md)"), true);
+  assert.equal((await readFile(path.join(homeDir, ".codex", "AGENTS.md"), "utf8")).includes("Prefer current local code and current official documentation over memory."), true);
+  assert.equal((await readFile(path.join(homeDir, ".config", "opencode", "AGENTS.md"), "utf8")).includes("Prefer current local code and current official documentation over memory."), true);
   assert.equal(await readFile(path.join(homeDir, ".config", "opencode", "skills", "quality-index", "SKILL.md"), "utf8"), "---\nname: quality-index\ndescription: skill\n---\n");
   assert.equal(result.manualSteps.length, 0);
   assert.equal(await readFile(path.join(result.backupRoot, ".codex", "AGENTS.md"), "utf8"), "old-codex-agents\n");
@@ -162,13 +158,19 @@ test("installGlobal emits manual steps when root management is denied", async ()
   assert.equal(result.manualSteps.length, 3);
   await assert.rejects(readFile(path.join(homeDir, ".claude", "agent-quality-police", "CLAUDE.md"), "utf8"));
   await assert.rejects(readFile(path.join(homeDir, ".config", "opencode", "agent-quality-police", "AGENTS.md"), "utf8"));
-  assert.equal(result.manualSteps[0].snippet.includes("Load the smallest relevant skill set from `skills/`."), true);
-  assert.equal(result.manualSteps[0].snippet.includes("Use [quality-index](skills/quality-index/SKILL.md)."), true);
+  assert.equal(result.manualSteps[0].snippet.includes("Load only the relevant skill set from `skills/`."), true);
+  assert.equal(result.manualSteps[0].snippet.includes("Use [quality-index](skills/quality-index/SKILL.md)"), true);
   assert.equal(result.manualSteps[0].snippet.includes("## Claude Code"), true);
   assert.equal(result.manualSteps[0].snippet.startsWith("## Priority"), true);
   assert.equal(result.manualSteps[0].snippet.includes("python3 scripts/build_framework.py"), false);
+  assert.equal(result.manualSteps[0].snippet.includes("Codex should enter"), false);
+  assert.equal(result.manualSteps[0].snippet.includes("OpenCode should enter"), false);
   assert.equal(result.manualSteps[1].snippet.includes("python3 scripts/build_framework.py"), false);
+  assert.equal(result.manualSteps[1].snippet.includes("Claude Code should enter"), false);
+  assert.equal(result.manualSteps[1].snippet.includes("OpenCode should enter"), false);
   assert.equal(result.manualSteps[2].snippet.includes("python3 scripts/build_framework.py"), false);
+  assert.equal(result.manualSteps[2].snippet.includes("Claude Code should enter"), false);
+  assert.equal(result.manualSteps[2].snippet.includes("Codex should enter"), false);
   assert.equal(result.manualSteps[1].destination, path.join(homeDir, ".codex", "AGENTS.md"));
   assert.equal(result.manualSteps[1].snippet.startsWith("## Priority"), true);
   assert.equal(result.manualSteps[2].destination, path.join(homeDir, ".config", "opencode", "AGENTS.md"));

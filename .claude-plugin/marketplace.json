@@ -5,14 +5,14 @@
   },
   "metadata": {
     "description": "Strict governance plugins for Claude Code.",
-    "version": "0.2.5"
+    "version": "0.2.6"
   },
   "plugins": [
     {
       "name": "agent-quality-police",
       "source": "./plugins/agent-quality-police",
       "description": "Strict governance framework for coding agents that blocks testing and typing bypasses.",
-      "version": "0.2.5",
+      "version": "0.2.6",
       "author": {
         "name": "Davy Massoneto",
         "url": "https://github.com/DavyMassoneto"

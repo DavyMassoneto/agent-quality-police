@@ -30,12 +30,12 @@ def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _load_entrypoint_policy(root: Path, *, filename: str, required: bool) -> str | None:
-    policy_path = root / "framework" / "entrypoints" / filename
+def _load_entrypoint_policy(root: Path, *, required: bool) -> str | None:
+    policy_path = root / "framework" / "entrypoints" / "policy.md"
     if not policy_path.exists():
         if required:
             raise BuildError(
-                f"Missing canonical entrypoint policy: framework/entrypoints/{filename}. "
+                "Missing canonical entrypoint policy: framework/entrypoints/policy.md. "
                 "Build requires canonical entrypoint sources before generated projections are reset."
             )
         return None
@@ -427,12 +427,16 @@ def _render_publish_workflow(distribution_spec: dict[str, Any]) -> str:
 
 def _render_template(content: str, replacements: dict[str, str]) -> str:
     rendered = content
-    for key, value in replacements.items():
-        rendered = rendered.replace(f"{{{{{key}}}}}", value)
-    return rendered
+    while True:
+        updated = rendered
+        for key, value in replacements.items():
+            updated = updated.replace(f"{{{{{key}}}}}", value)
+        if updated == rendered:
+            return updated
+        rendered = updated
 
 
-def _entrypoint_replacements(*, quality_definition_path: str, workflow_path: str, primary_skill_root: str, skill_root: str, system_layout_path: str, claude_entrypoint_label: str, claude_rules_root: str, codex_skills_root: str, codex_agents_root: str, opencode_config_path: str) -> dict[str, str]:
+def _entrypoint_replacements(*, quality_definition_path: str, workflow_path: str, primary_skill_root: str, skill_root: str, system_layout_path: str, priority_body: str, startup_sequence_body: str, skill_routing_body: str, quality_rules_body: str, review_flow_body: str, tool_specific_notes: str) -> dict[str, str]:
     return {
         "quality_definition_path": quality_definition_path,
         "workflow_path": workflow_path,
@@ -445,11 +449,126 @@ def _entrypoint_replacements(*, quality_definition_path: str, workflow_path: str
         "refactoring_with_safety_skill_path": f"{skill_root}/refactoring-with-safety/SKILL.md",
         "governance_installation_skill_path": f"{skill_root}/governance-installation/SKILL.md",
         "system_layout_path": system_layout_path,
-        "claude_entrypoint_label": claude_entrypoint_label,
-        "claude_rules_root": claude_rules_root,
-        "codex_skills_root": codex_skills_root,
-        "codex_agents_root": codex_agents_root,
-        "opencode_config_path": opencode_config_path,
+        "priority_body": priority_body,
+        "startup_sequence_body": startup_sequence_body,
+        "skill_routing_body": skill_routing_body,
+        "quality_rules_body": quality_rules_body,
+        "review_flow_body": review_flow_body,
+        "tool_specific_notes": tool_specific_notes,
+    }
+
+
+def _tool_notes_for(target: str, *, claude_entrypoint_label: str = "CLAUDE.md", claude_rules_root: str = ".claude/rules/", codex_skills_root: str = ".agents/skills/", codex_agents_root: str = ".codex/agents/", opencode_config_path: str = "opencode.json") -> str:
+    if target == "claude":
+        return f"- Claude Code should enter through `{claude_entrypoint_label}` and `{claude_rules_root}`."
+    if target == "codex":
+        return f"- Codex should enter through this file and use `{codex_skills_root}` plus `{codex_agents_root}`."
+    if target == "opencode":
+        return f"- OpenCode should enter through this file and load extra instructions from `{opencode_config_path}`."
+    if target == "repo-agents":
+        return "- AGENTS-aware tools should load only their local tool-specific skills and agents."
+    return ""
+
+
+def _repo_policy_sections() -> dict[str, str]:
+    return {
+        "priority_body": "\n".join(
+            [
+                "- Direct system, developer, and user instructions override this file.",
+                "- [`docs/policy/quality-definition.md`]({{quality_definition_path}}) is the canonical definition of quality in this repository.",
+                "- If any skill, rule, example, or agent prompt contradicts the quality definition, the quality definition wins.",
+                "- Generated projections must not become the source of truth.",
+            ]
+        ),
+        "startup_sequence_body": "\n".join(
+            [
+                "1. Read [quality-definition]({{quality_definition_path}}).",
+                "2. Read [workflow]({{workflow_path}}).",
+                "3. Load the smallest relevant skill set from `{{primary_skill_root}}`.",
+                "4. Execute with TDD when tests are viable.",
+                "5. Run the matching audit agents before final approval.",
+            ]
+        ),
+        "skill_routing_body": "\n".join(
+            [
+                "- Use [quality-index]({{quality_index_skill_path}}) first when the task spans multiple concerns.",
+                "- Use [typescript-zero-bypass]({{typescript_zero_bypass_skill_path}}) for any `.ts` or `.tsx` change.",
+                "- Use [vite-vitest-tdd]({{vite_vitest_tdd_skill_path}}) when working with Vite, Vitest, or unit/component TDD.",
+                "- Use [react-public-api-testing]({{react_public_api_testing_skill_path}}) for React component behavior tests.",
+                "- Use [anti-bypass-audit]({{anti_bypass_audit_skill_path}}) when reviewing diffs, suspicious helpers, or weakened configs.",
+                "- Use [refactoring-with-safety]({{refactoring_with_safety_skill_path}}) for refactors that are not pure bug fixes.",
+                "- Use [governance-installation]({{governance_installation_skill_path}}) when installing or updating this framework in another repository.",
+            ]
+        ),
+        "quality_rules_body": "\n".join(
+            [
+                "- TDD is mandatory when tests are technically viable.",
+                "- A passing test suite without behavior proof is not a green build.",
+                "- `any`, type assertions, non-null assertions, ts-comment bypasses, and lint/config weakening are automatic failures.",
+                "- `Map` in public or domain-facing contracts is suspicious by default and must be treated as a modeling bypass unless a stronger repository rule explicitly allows it.",
+                "- Helpers, factories, mocks, branches, or narrowing added only to silence the type system or to make tests easier are automatic failures.",
+                "- Zod is allowed only at external input boundaries.",
+                "- Joi is allowed only for environment validation when it is genuinely needed.",
+                "- Strong named types are required.",
+                "- Inline structural types are prohibited.",
+                "- Reviewers must reject suspicious diffs instead of “accepting with caveats.”",
+            ]
+        ),
+        "review_flow_body": "\n".join(
+            [
+                "- Fix the root problem, not the symptom.",
+                "- Keep tests direct, short, and behavior-based.",
+                "- Prefer explicit domain names over generic utilities.",
+                "- Keep policy text severe and actionable; do not soften language to preserve agent comfort.",
+                "- After any change to canonical framework sources such as `framework/skills/`, `framework/rules/`, `docs/policy/`, or `framework/agents/specs/`, run `python3 scripts/build_framework.py` before claiming the repository is consistent.",
+                "- After the build step, run `python3 scripts/validate_framework.py`. If scripts changed, run `python3 -m unittest tests/test_framework_tools.py` and `node --test tests/node/install.test.mjs`.",
+                "- Use `bypass-auditor` for typing, config, mocks, helpers, or suspicious diffs.",
+                "- Use `tdd-warden` when behavior or tests changed or should have changed.",
+                "- Use `pr-gatekeeper` only for final approve-or-reject review.",
+            ]
+        ),
+    }
+
+
+def _global_policy_sections() -> dict[str, str]:
+    return {
+        "priority_body": "\n".join(
+            [
+                "- Direct system, developer, and user instructions override this file.",
+                "- Prefer current local code and current official documentation over memory.",
+                "- Load only the smallest relevant skill set for the task.",
+            ]
+        ),
+        "startup_sequence_body": "\n".join(
+            [
+                "1. Read [quality-definition]({{quality_definition_path}}) when the task needs repository policy context.",
+                "2. Read [workflow]({{workflow_path}}) when the repository defines one.",
+                "3. Load only the relevant skill set from `{{primary_skill_root}}`.",
+            ]
+        ),
+        "skill_routing_body": "\n".join(
+            [
+                "- Use [quality-index]({{quality_index_skill_path}}) when the task spans multiple concerns.",
+                "- Use [typescript-zero-bypass]({{typescript_zero_bypass_skill_path}}) for `.ts` or `.tsx` changes.",
+                "- Use [vite-vitest-tdd]({{vite_vitest_tdd_skill_path}}) for Vite or Vitest TDD.",
+                "- Use [react-public-api-testing]({{react_public_api_testing_skill_path}}) for React behavior tests.",
+            ]
+        ),
+        "quality_rules_body": "\n".join(
+            [
+                "- Use behavior-first tests when tests are viable.",
+                "- Avoid type bypasses, comment bypasses, config weakening, and fake greens.",
+                "- Prefer named types and explicit models over inline structural shortcuts.",
+            ]
+        ),
+        "review_flow_body": "\n".join(
+            [
+                "- Before final approval, run the relevant auditors for the actual risk surface.",
+                "- Use `bypass-auditor` for typing, config, mocks, helpers, or suspicious diffs.",
+                "- Use `tdd-warden` when behavior or tests changed or should have changed.",
+                "- Use `pr-gatekeeper` only for final approve-or-reject review.",
+            ]
+        ),
     }
 
 
@@ -500,7 +619,7 @@ def _render_opencode_config(opencode_config: dict[str, Any]) -> str:
 
 def build_entrypoint_projections(root: Path, entrypoint_policy: str | None = None, opencode_config: dict[str, Any] | None = None) -> list[str]:
     resolved_entrypoint_policy = (
-        entrypoint_policy if entrypoint_policy is not None else _load_entrypoint_policy(root, filename="repo-policy.md", required=True)
+        entrypoint_policy if entrypoint_policy is not None else _load_entrypoint_policy(root, required=True)
     )
     resolved_opencode_config = (
         opencode_config if opencode_config is not None else _load_entrypoint_opencode_config(root, required=True)
@@ -513,11 +632,8 @@ def build_entrypoint_projections(root: Path, entrypoint_policy: str | None = Non
         primary_skill_root=".claude/skills/",
         skill_root=".claude/skills",
         system_layout_path="docs/policy/system-layout.md",
-        claude_entrypoint_label="CLAUDE.md",
-        claude_rules_root=".claude/rules/",
-        codex_skills_root=".agents/skills/",
-        codex_agents_root=".codex/agents/",
-        opencode_config_path="opencode.json",
+        **_repo_policy_sections(),
+        tool_specific_notes=_tool_notes_for("repo-agents"),
     )
 
     _write_text(root / "AGENTS.md", _render_agents_md(resolved_entrypoint_policy, repo_replacements))
@@ -605,7 +721,7 @@ def build_plugin_distribution(root: Path, distribution_spec: dict[str, Any] | No
         distribution_spec if distribution_spec is not None else _load_distribution_spec(root, required=True)
     )
     assert resolved_distribution_spec is not None
-    resolved_entrypoint_policy = _load_entrypoint_policy(root, filename="global-policy.md", required=True)
+    resolved_entrypoint_policy = _load_entrypoint_policy(root, required=True)
     resolved_opencode_config = _load_entrypoint_opencode_config(root, required=True)
     assert resolved_entrypoint_policy is not None
     assert resolved_opencode_config is not None
@@ -619,11 +735,8 @@ def build_plugin_distribution(root: Path, distribution_spec: dict[str, Any] | No
         primary_skill_root=".claude/skills/",
         skill_root=".claude/skills",
         system_layout_path="docs/policy/system-layout.md",
-        claude_entrypoint_label="CLAUDE.md",
-        claude_rules_root=".claude/rules/",
-        codex_skills_root=".agents/skills/",
-        codex_agents_root=".codex/agents/",
-        opencode_config_path="opencode.json",
+        **_global_policy_sections(),
+        tool_specific_notes=_tool_notes_for("claude", claude_entrypoint_label="CLAUDE.md", claude_rules_root=".claude/rules/"),
     )
 
     copy_paths = [
@@ -697,7 +810,7 @@ def _expected_agent_projections(root: Path) -> dict[Path, str]:
 
 
 def _expected_entrypoint_projections(root: Path) -> dict[Path, str]:
-    entrypoint_policy = _load_entrypoint_policy(root, filename="repo-policy.md", required=False)
+    entrypoint_policy = _load_entrypoint_policy(root, required=False)
     opencode_config = _load_entrypoint_opencode_config(root, required=False)
     if entrypoint_policy is None or opencode_config is None:
         return {}
@@ -707,11 +820,8 @@ def _expected_entrypoint_projections(root: Path) -> dict[Path, str]:
         primary_skill_root=".claude/skills/",
         skill_root=".claude/skills",
         system_layout_path="docs/policy/system-layout.md",
-        claude_entrypoint_label="CLAUDE.md",
-        claude_rules_root=".claude/rules/",
-        codex_skills_root=".agents/skills/",
-        codex_agents_root=".codex/agents/",
-        opencode_config_path="opencode.json",
+        **_repo_policy_sections(),
+        tool_specific_notes=_tool_notes_for("repo-agents"),
     )
     return {
         Path("AGENTS.md"): _normalized_output(_render_agents_md(entrypoint_policy, repo_replacements)),
@@ -722,7 +832,7 @@ def _expected_entrypoint_projections(root: Path) -> dict[Path, str]:
 
 def _expected_plugin_distribution(root: Path) -> dict[Path, str]:
     distribution_spec = _load_distribution_spec(root, required=False)
-    entrypoint_policy = _load_entrypoint_policy(root, filename="global-policy.md", required=False)
+    entrypoint_policy = _load_entrypoint_policy(root, required=False)
     opencode_config = _load_entrypoint_opencode_config(root, required=False)
     if distribution_spec is None or entrypoint_policy is None or opencode_config is None:
         return {}
@@ -735,11 +845,8 @@ def _expected_plugin_distribution(root: Path) -> dict[Path, str]:
         primary_skill_root=".claude/skills/",
         skill_root=".claude/skills",
         system_layout_path="docs/policy/system-layout.md",
-        claude_entrypoint_label="CLAUDE.md",
-        claude_rules_root=".claude/rules/",
-        codex_skills_root=".agents/skills/",
-        codex_agents_root=".codex/agents/",
-        opencode_config_path="opencode.json",
+        **_global_policy_sections(),
+        tool_specific_notes=_tool_notes_for("claude", claude_entrypoint_label="CLAUDE.md", claude_rules_root=".claude/rules/"),
     )
     expected[plugin_root / "package.json"] = _normalized_output(_render_generated_package_json(distribution_spec))
     expected[plugin_root / "README.md"] = _normalized_output(_render_package_readme(distribution_spec))
@@ -958,7 +1065,7 @@ def validate_repository(root: Path) -> ValidationResult:
 
 
 def build_all(root: Path) -> tuple[list[str], list[str], list[str], list[str]]:
-    entrypoint_policy = _load_entrypoint_policy(root, filename="repo-policy.md", required=True)
+    entrypoint_policy = _load_entrypoint_policy(root, required=True)
     assert entrypoint_policy is not None
     source_skills = _load_skill_sources(root, required=True)
     specs = _load_agent_specs(root, required=True)
