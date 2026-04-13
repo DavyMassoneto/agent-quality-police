@@ -6,6 +6,7 @@ import readline from "node:readline/promises";
 import { fileURLToPath } from "node:url";
 
 import { installGlobal, supportedTargets } from "../lib/install.mjs";
+import { formatInstallResult } from "../lib/cli-output.mjs";
 
 function usage() {
   console.log(
@@ -52,16 +53,7 @@ function renderResult(result, useJson) {
     return;
   }
 
-  console.log(`Backup: ${result.backupRoot}`);
-  for (const entry of result.installed) {
-    console.log(`${entry.action}: ${entry.relativeDestination}`);
-  }
-  if (result.manualSteps.length > 0) {
-    console.log("Manual steps:");
-    for (const step of result.manualSteps) {
-      console.log(JSON.stringify(step, null, 2));
-    }
-  }
+  console.log(formatInstallResult(result));
 }
 
 async function main(argv) {

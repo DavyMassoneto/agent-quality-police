@@ -4,6 +4,7 @@ import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
+import { formatInstallResult } from "../../framework/package/lib/cli-output.mjs";
 import { installGlobal, resolveCleanupPlan, resolveInstallPlan } from "../../framework/package/lib/install.mjs";
 
 async function writeFixture(packageRoot) {
@@ -164,4 +165,27 @@ test("installGlobal emits manual steps when root management is denied", async ()
   assert.equal(result.manualSteps[1].snippet.startsWith("## Priority"), true);
   assert.equal(result.manualSteps[2].destination, path.join(homeDir, ".config", "opencode", "AGENTS.md"));
   assert.equal(result.manualSteps[2].snippet.startsWith("## Priority"), true);
+});
+
+test("formatInstallResult renders human-readable manual steps instead of JSON blobs", async () => {
+  const rendered = formatInstallResult({
+    backupRoot: "/tmp/backup",
+    installed: [
+      { target: "codex", action: "install", relativeDestination: ".codex/docs/policy" }
+    ],
+    manualSteps: [
+      {
+        target: "codex",
+        kind: "append_to_agents_md",
+        destination: "/Users/davy/.codex/AGENTS.md",
+        snippet: "## Priority\n\n- Example policy.\n"
+      }
+    ]
+  });
+
+  assert.equal(rendered.includes("Manual steps:"), true);
+  assert.equal(rendered.includes('{\n  "target"'), false);
+  assert.equal(rendered.includes("Destination: /Users/davy/.codex/AGENTS.md"), true);
+  assert.equal(rendered.includes("```md"), true);
+  assert.equal(rendered.includes("## Priority"), true);
 });
