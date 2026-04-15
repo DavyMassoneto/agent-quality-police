@@ -1,18 +1,20 @@
-# Good Routing
+# Roteamento Bom
 
-Task: fix a React bug in a Vite app where the disabled button label is wrong.
+Tarefa: corrigir um bug React em um app Vite onde o label do botão desabilitado está errado.
 
-Routing:
+Roteamento:
 
 1. `quality-index`
-2. `typescript-zero-bypass`
-3. `vite-vitest-tdd`
-4. `react-public-api-testing`
-5. Run `tdd-warden`
-6. Run `bypass-auditor`
-7. Run `pr-gatekeeper`
+2. `grounding-first`
+3. `typescript-zero-bypass`
+4. `vite-vitest-tdd`
+5. `react-public-api-testing`
+6. Rodar `tdd-warden`
+7. Rodar `bypass-auditor`
+8. Rodar `pr-gatekeeper`
 
-Why this is good:
+Por que isso é bom:
 
-- It covers typing, behavior testing, and audit.
-- It avoids unrelated skills.
+- Cobre tipagem, teste de comportamento e auditoria.
+- Evita skills não relacionadas.
+- Inicia pelo grounding: garante que o entendimento do bug foi verificado contra o código real antes de implementar.

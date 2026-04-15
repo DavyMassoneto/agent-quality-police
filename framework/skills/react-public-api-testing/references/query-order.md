@@ -1,6 +1,6 @@
-# Query Order
+# Ordem de Query
 
-Prefer, in order:
+Prefira, em ordem:
 
 1. `getByRole`
 2. `getByLabelText`
@@ -8,4 +8,4 @@ Prefer, in order:
 4. `getByText`
 5. `getByDisplayValue`
 
-Avoid `querySelector` and class selectors when an accessible query can express the same contract.
+Evite `querySelector` e seletores de classe quando uma query acessível pode expressar o mesmo contrato.

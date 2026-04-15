@@ -1,6 +1,6 @@
-# Install Steps
+# Passos de Instalação
 
-Copy these paths into the target repository:
+Copie estes caminhos para o repositório alvo:
 
 - `docs/policy/`
 - `.claude/`
@@ -13,7 +13,7 @@ Copy these paths into the target repository:
 - `scripts/`
 - `tests/`
 
-Canonical source paths that must be present before build:
+Caminhos de fonte canônica que precisam estar presentes antes do build:
 
 - `framework/entrypoints/`
 - `framework/agents/specs/`
@@ -21,8 +21,8 @@ Canonical source paths that must be present before build:
 - `framework/distribution/`
 - `framework/package/`
 
-Then run the build and validation commands from the repository root.
+Depois rode os comandos de build e validação a partir da raiz do repositório.
 
-For package-style global installation after build, use the generated package entrypoint:
+Para instalação global no estilo pacote depois do build, use o entrypoint gerado do pacote:
 
 - `node plugins/agent-quality-police/bin/aqp.mjs install all`

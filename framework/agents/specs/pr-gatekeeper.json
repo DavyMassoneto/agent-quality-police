@@ -1,6 +1,6 @@
 {
   "name": "pr-gatekeeper",
-  "description": "Use proactively as the final approve-or-reject gate after the other required auditors complete.",
+  "description": "Use proativamente como porta final de aprovação ou rejeição após os demais auditores exigidos concluírem.",
   "promptPath": "framework/agents/prompts/pr-gatekeeper.md",
   "claude": {
     "tools": [
@@ -12,6 +12,7 @@
     "model": "opus",
     "skills": [
       "quality-index",
+      "grounding-first",
       "anti-bypass-audit",
       "vite-vitest-tdd"
     ]

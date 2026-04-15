@@ -1,149 +1,198 @@
-# Quality Definition
+# Definição de Qualidade
 
-## What Counts as Quality
+## O Que Conta Como Qualidade
 
-Quality in this framework is not “the build passed.” Quality means the change is behaviorally proven, type-safe without lies, narrow in scope, and reviewable without detective work.
+Qualidade neste framework não é "o build passou". Qualidade significa que a mudança é provada em comportamento, tem tipagem honesta, escopo estreito, organização em que cada arquivo tem uma razão para mudar, e é revisável sem trabalho de investigação.
 
-## Valid Test
+Qualidade também exige grounding: cada afirmação e decisão precisa estar ancorada em instrução explícita do usuário, em código ou documentação do repositório, ou em documentação oficial consultada no momento da tarefa. Dados de treinamento não são fonte de verdade.
 
-A valid test:
+## Teste Válido
 
-- proves behavior that a user, caller, or public contract can observe
-- fails for the right reason before implementation
-- passes after the smallest responsible change
-- stays readable without helper indirection that hides the claim
-- does not assert internal implementation details unless the public contract is exactly that detail
+Um teste válido:
 
-A test is invalid if it:
+- prova comportamento que um usuário, consumidor ou contrato público possa observar
+- falha pela razão certa antes da implementação
+- passa após a menor mudança responsável
+- permanece legível sem indireção de helper que esconda a afirmação
+- não afirma detalhes internos de implementação a menos que o contrato público seja exatamente esse detalhe
 
-- only mirrors the implementation
-- mocks away the behavior that should have been proven
-- asserts internal state, hook calls, private methods, or class internals when the public API was available
-- passes because the fixture, helper, or environment swallowed the real condition
+Um teste é inválido se:
 
-## Proof of Behavior
+- apenas espelha a implementação
+- mocka justamente o comportamento que deveria ser provado
+- afirma estado interno, chamadas de hook, métodos privados ou internas da classe quando a API pública está disponível
+- passa porque a fixture, o helper ou o ambiente engoliram a condição real
 
-Proof of behavior means the evidence survives refactoring that preserves the public contract.
+## Prova de Comportamento
 
-Acceptable proof:
+Prova de comportamento significa que a evidência sobrevive a refactors que preservem o contrato público.
 
-- returned values from a pure function
-- rendered output, accessibility tree, and callback effects visible through a component API
-- thrown domain errors or documented failure states
-- persisted or emitted output that the contract explicitly promises
+Prova aceitável:
 
-Weak proof:
+- valor retornado por função pura
+- output renderizado, árvore de acessibilidade e efeito de callback visíveis através da API de componente
+- erros de domínio ou estados de falha documentados
+- saída persistida ou emitida que o contrato explicitamente promete
 
-- spy counts with no user-visible consequence
-- asserting which helper was called
-- asserting transient local state when the rendered output already proves the same fact
-- broad snapshots that hide the real claim
+Prova fraca:
 
-## Fraud
+- contagem de spies sem consequência visível ao usuário
+- afirmar qual helper foi chamado
+- afirmar estado local transiente quando o output renderizado já prova o mesmo fato
+- snapshots amplos que escondem a afirmação real
 
-Fraud is any change that makes tooling quieter without making the system more correct.
+## Fraude
 
-Fraud includes:
+Fraude é qualquer mudança que silencia ferramentas sem deixar o sistema mais correto.
+
+Fraude inclui:
 
 - `any`
-- `as`, `as const`, angle-bracket assertions, chained assertions, and non-null assertions
+- `as`, `as const`, angle-bracket assertions, chained assertions e non-null assertions
 - `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`, `@ts-check`
-- disabling ESLint to suppress a local violation
-- weakening `tsconfig`, `eslint`, `vite`, `vitest`, or equivalent config to silence a problem
-- adding impossible fallback branches, fake narrowing, or defensive code only to satisfy TypeScript
-- constructor bypass through `Object.create(SomeClass.prototype)` or equivalent prototype fabrication
-- internal field hydration through `Object.assign(...)` or direct assignment to simulate a valid instance without using the real constructor or public factory
-- meaningless abbreviations in identifiers that hide domain meaning
-- plumbing or persistence names in APIs and helpers when the behavior can be named in domain terms
-- heterogeneous unions of unrelated models in a single parameter or return contract when a named domain concept should exist
-- unreadable inline comparator callbacks that compress fallback logic, ordering logic, and weak names into one expression
-- using `Map` in public or domain-facing contracts to avoid explicit named input modeling
-- helper layers that hide what the test is proving
-- mocks that replace the exact behavior under test
-- “green” tests that would still pass after breaking the actual contract
+- desligar ESLint para suprimir violação local
+- enfraquecer `tsconfig`, `eslint`, `vite`, `vitest` ou configuração equivalente para silenciar problema
+- adicionar branches impossíveis, fake narrowing ou código defensivo apenas para satisfazer TypeScript
+- constructor bypass através de `Object.create(SomeClass.prototype)` ou fabricação de protótipo equivalente
+- hidratação de campos internos via `Object.assign(...)` ou atribuição direta para simular instância válida sem usar o constructor real ou factory público
+- abreviações sem significado em identificadores que escondem significado de domínio
+- nomes de plumbing ou persistência em APIs e helpers quando o comportamento pode ser nomeado em termos de domínio
+- uniões heterogêneas de modelos não relacionados em um mesmo parâmetro ou contrato de retorno quando deveria existir um conceito nomeado de domínio
+- uniões de contrato de retorno que mudam a forma de topo, como `IProductionAssetDashboard[] | { data: IProductionAssetDashboard[]; total: number }`
+- callbacks comparadores inline ilegíveis que comprimem lógica de fallback, ordenação e nomes fracos em uma expressão só
+- usar `Map` em contratos públicos ou de domínio para evitar modelagem explícita de entrada nomeada
+- escrever `T | undefined` em assinaturas de parâmetro ou propriedade omitíveis quando `?` é o contrato real
+- esconder responsabilidades não relacionadas atrás de nomes de arquivo genéricos como `helpers.ts`, `utils.ts`, `common.ts` ou `shared.ts`
+- camadas de helper que escondem o que o teste está provando
+- mocks que substituem exatamente o comportamento sob teste
+- testes "verdes" que continuariam passando mesmo que o contrato real fosse quebrado
 
-## Automatic Rejection
+## Fraude de Inferência
 
-Reject immediately when a diff introduces any of the following without an explicit, documented framework-level exception:
+Fraude de inferência é qualquer afirmação confiante, código ou decisão produzida sem grounding no repositório atual, na instrução explícita da tarefa corrente ou em documentação oficial consultada no momento da tarefa.
 
-- type bypasses
-- comment bypasses
-- config weakening
-- unproven tests
-- suspicious helper noise
-- meaningless abbreviations in newly introduced identifiers, including single-letter callback parameters such as `c`, `x`, or `i` when they do not carry real meaning
-- plumbing or persistence names such as `Join`, `Model`, `Type`, or `listOfAll...` when they leak storage or implementation structure instead of behavior
-- heterogeneous unions of unrelated models used as a convenience parameter type instead of a named domain contract
-- unreadable inline comparator callbacks such as `sort((sortA, sortB) => (sortA.description || '').localeCompare(sortB.description || ''))`
-- narrowing that exists only to appease the compiler
-- constructor bypasses, prototype fabrication, or internal field hydration that fabricate class instances without their real invariants
-- branching that changes runtime semantics without product or domain justification
+Fraude de inferência inclui:
 
-## Safe Refactor
+- imports, APIs, métodos, funções, tipos ou caminhos de arquivo inventados que não foram verificados com uma ferramenta
+- uso de biblioteca ou framework copiado de memória de treinamento quando a versão instalada no repositório pode diferir
+- chaves de configuração, variáveis de ambiente ou flags de CLI que não foram confirmadas contra a documentação real ou o código-fonte da ferramenta
+- convenções do projeto assumidas sem leitura do código atual
+- intenção do usuário assumida além do que o usuário de fato disse
+- raciocínio do tipo "acho que X funciona assim" que não foi verificado antes de gerar código
+- citações ou quotes atribuídos a documentos que não foram realmente lidos
+- raciocínio em cascata em que o passo N depende de um chute não verificado no passo N-1
+- qualquer afirmação factual sobre estado do repositório, comportamento de biblioteca ou intenção do usuário apresentada sem citação, resultado de ferramenta ou quote do usuário
 
-A refactor is safe when:
+## Rejeição Automática
 
-- current behavior is characterized before structural change
-- the change preserves public behavior
-- any new abstractions remove duplication or clarify boundaries instead of hiding uncertainty
-- tests remain behavior-first and minimal
+Rejeitar imediatamente quando um diff introduz qualquer um dos itens abaixo, a menos que o usuário autorize explicitamente a exceção na tarefa corrente:
 
-A refactor is unsafe when:
+- bypasses de tipo
+- bypasses por comentário
+- enfraquecimento de config
+- testes sem prova
+- helper ruído suspeito
+- abreviações sem significado em identificadores recém-introduzidos, incluindo parâmetros de callback de letra única como `c`, `x` ou `i` quando não carregam significado real
+- nomes de plumbing ou persistência como `Join`, `Model`, `Type` ou `listOfAll...` quando vazam estrutura de armazenamento ou implementação em vez de comportamento
+- uniões heterogêneas de modelos não relacionados usadas como tipo de parâmetro por conveniência em vez de contrato de domínio nomeado
+- contratos de retorno que não mantêm uma única forma estável no topo
+- callbacks comparadores inline ilegíveis como `sort((sortA, sortB) => (sortA.description || '').localeCompare(sortB.description || ''))`
+- narrowing que existe apenas para acalmar o compilador
+- constructor bypass, fabricação de protótipo ou hidratação de campos internos que simulam instâncias sem seus invariantes reais
+- múltiplas classes em um arquivo
+- `T | undefined` em assinaturas de parâmetro ou propriedade omitíveis
+- nomes de arquivo genéricos como `helpers.ts`, `utils.ts`, `common.ts` ou `shared.ts` que escondem a razão real para mudança
+- arquivos cujos exports não compartilham uma responsabilidade nomeada
+- branching que altera semântica de runtime sem justificativa de produto ou domínio
+- qualquer código cuja correção dependa de inferência não verificada (comportamento de biblioteca, formato de API, layout de arquivo, intenção do usuário) sem citação
+- qualquer afirmação sobre o repositório, biblioteca ou usuário apresentada sem citação, resultado de ferramenta ou quote literal
 
-- characterization is skipped
-- structural cleanup is mixed with behavior change without clear isolation
-- the change introduces generic helpers that centralize confusion instead of meaning
+## Refactor Seguro
 
-## Acceptable Modeling
+Um refactor é seguro quando:
 
-Acceptable modeling favors:
+- o comportamento atual é caracterizado antes da mudança estrutural
+- a mudança preserva o comportamento público
+- novas abstrações removem duplicação ou clarificam fronteiras em vez de esconder incerteza
+- os testes permanecem behavior-first e mínimos
 
-- named interfaces for object shapes
-- named union types for state and result variants
-- explicit nullability instead of implicit missing cases
-- domain vocabulary over generic containers
-- behavior-oriented names over plumbing or persistence terminology
-- Zod only for external input boundaries
-- Joi only for environment validation when that boundary exists and matters
+Um refactor é inseguro quando:
 
-Inline structural types are prohibited, including private methods, local helpers, and return types.
+- a caracterização é pulada
+- limpeza estrutural é misturada com mudança de comportamento sem isolamento claro
+- a mudança introduz helpers genéricos que centralizam confusão em vez de significado
 
-Unacceptable modeling includes:
+## Responsabilidade de Arquivo
 
-- anonymous structural types in signatures
-- inline structural types in local declarations when a named concept exists
-- inline structural object return types such as `(): { completed: number; total: number }`
-- `Record` or index signatures as generic escape hatches
-- `Map` used as a lookup-bag escape hatch in a public or domain-facing contract
-- generic “utils” that absorb domain meaning
-- function names that leak plumbing or persistence details such as `listOfAllChecklistJoinCategory`
-- heterogeneous unions of unrelated models such as `CategoryJoinChecklists | CategoryTypeModel | EconnectInformationModel['category']` when a named domain input should exist
+Um arquivo é aceitável quando:
 
-## Acceptable Typing
+- tem uma única razão para mudar
+- um arquivo que define uma classe define uma classe e não exporta também funções de topo irmãs
+- um módulo apenas de funções só pode exportar várias funções quando o nome do arquivo nomeia uma responsabilidade compartilhada e todas as exports servem àquela responsabilidade
 
-Acceptable typing:
+Um arquivo é inaceitável quando:
 
-- makes invalid states hard or impossible to express
-- keeps narrowing honest and evidence-based
-- keeps imported types and values coherent
-- lets the compiler confirm the model instead of being tricked into silence
-- uses names that preserve domain meaning instead of meaningless abbreviations
-- keeps callbacks and comparators readable instead of compressing fallback-heavy logic into one opaque expression
+- vira balde para lógica não relacionada
+- o nome do arquivo é genérico em vez de nomear a responsabilidade
+- mistura classe com funções de topo no mesmo módulo
 
-Unacceptable typing:
+## Modelagem Aceitável
 
-- trusts runtime luck over explicit modeling
-- forces the compiler with assertions
-- broadens types to avoid thinking
+Modelagem aceitável favorece:
 
-## Reviewer Contract
+- interfaces nomeadas para formatos de objeto
+- uniões nomeadas para variantes de estado e resultado
+- anulabilidade explícita em vez de casos faltantes implícitos
+- `?` para parâmetros e propriedades omitíveis
+- uma única forma estável no topo para cada contrato público de retorno
+- vocabulário de domínio em vez de containers genéricos
+- nomes orientados a comportamento em vez de terminologia de plumbing ou persistência
+- Zod apenas em fronteiras de entrada externa
+- Joi apenas para validação de ambiente quando essa fronteira existe e é relevante
 
-Reviewers in this framework must:
+Tipos estruturais inline são proibidos, incluindo em métodos privados, helpers locais e tipos de retorno.
 
-- assume suspicious diffs are wrong until they are proven safe
-- cite concrete evidence, not vibes
-- demand the smallest correction that removes the risk
-- reject softened justifications like “it works locally” or “tests pass now”
-- separate factual findings from optional refinements
+Modelagem inaceitável inclui:
 
-The required reviewer stance is severe, precise, and unemotional.
+- tipos estruturais anônimos em assinaturas
+- tipos estruturais inline em declarações locais quando existe um conceito nomeado
+- tipos de retorno estruturais inline como `(): { completed: number; total: number }`
+- assinaturas como `result: User | undefined` quando `result?: User` expressa o contrato pretendido
+- uniões de retorno como `IProductionAssetDashboard[] | { data: IProductionAssetDashboard[]; total: number }` que forçam o consumidor a ramificar entre containers não relacionados
+- `Record` ou index signatures como escape hatches genéricas
+- `Map` usado como lookup-bag escape hatch em contrato público ou de domínio
+- "utils" genéricos que absorvem significado de domínio
+- nomes de arquivo genéricos como `helpers.ts`, `utils.ts`, `common.ts` ou `shared.ts`
+- nomes de função que vazam detalhes de plumbing ou persistência como `listOfAllChecklistJoinCategory`
+- uniões heterogêneas de modelos não relacionados como `CategoryJoinChecklists | CategoryTypeModel | EconnectInformationModel['category']` quando deveria existir uma entrada de domínio nomeada
+
+## Tipagem Aceitável
+
+Tipagem aceitável:
+
+- torna estados inválidos difíceis ou impossíveis de expressar
+- mantém o narrowing honesto e baseado em evidência
+- mantém tipos e valores importados coerentes
+- deixa o compilador confirmar o modelo em vez de ser enganado para silêncio
+- usa nomes que preservam significado de domínio em vez de abreviações sem sentido
+- mantém callbacks e comparadores legíveis em vez de comprimir lógica cheia de fallback em uma expressão opaca
+
+Tipagem inaceitável:
+
+- confia em sorte de runtime em vez de modelagem explícita
+- força o compilador com assertions
+- alarga tipos para evitar pensar
+
+## Contrato do Revisor
+
+Revisores neste framework devem:
+
+- assumir diffs suspeitos como errados até provarem estar seguros
+- citar evidência concreta, não vibrações
+- exigir a menor correção que remove o risco
+- nunca inventar uma exceção em nome do usuário; exigir autorização explícita do usuário antes de permitir qualquer uma
+- rejeitar justificativas amolecidas como "funciona localmente" ou "os testes passam agora"
+- separar achados factuais de refinamentos opcionais
+- rejeitar mudanças cuja correção dependa de inferência sem fonte verificável
+
+A postura exigida do revisor é severa, precisa e sem emoção.

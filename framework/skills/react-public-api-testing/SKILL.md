@@ -1,65 +1,65 @@
 ---
 name: react-public-api-testing
-description: Behavior-focused React component testing through the public API. Use when testing components, hooks through components, or rendered output in a way that must survive refactoring.
+description: Teste de componentes React focado em comportamento através da API pública. Use ao testar componentes, hooks via componentes ou output renderizado de forma que sobreviva a refactor.
 ---
 
-# Objective
+# Objetivo
 
-Test React through what the user can perceive: roles, names, text, states, and callbacks exposed by the component contract.
+Testar React pelo que o usuário pode perceber: roles, nomes acessíveis, texto, estados e callbacks expostos pelo contrato do componente.
 
-## When To Use
+## Quando Usar
 
-- Component tests in React or Vite projects
-- Review of suspicious Testing Library queries
-- Replacing brittle DOM-detail assertions
+- Testes de componente em projetos React ou Vite
+- Revisão de queries suspeitas da Testing Library
+- Substituição de afirmações quebradiças baseadas em detalhes de DOM
 
-## When Not To Use
+## Quando Não Usar
 
-- Pure domain functions without UI behavior
-- Low-level rendering details that are not part of the contract
+- Funções de domínio puras sem comportamento de UI
+- Detalhes de renderização de baixo nível que não fazem parte do contrato
 
 ## Workflow
 
-1. Identify the component’s public contract.
-2. Render through the same props a caller would use.
-3. Query by role, accessible name, label text, visible text, or user-visible state.
-4. Assert the observable result.
-5. Reject container selectors and implementation-specific details unless the contract truly exposes them.
+1. Identifique o contrato público do componente.
+2. Renderize através das mesmas props que um caller usaria.
+3. Query por role, nome acessível, texto de label, texto visível ou estado visível ao usuário.
+4. Afirme o resultado observável.
+5. Rejeite seletores de container e detalhes específicos de implementação a menos que o contrato realmente os exponha.
 
-## Quality Criteria
+## Critérios de Qualidade
 
-- Queries follow the Testing Library priority order.
-- Assertions describe visible outcomes.
-- The test would stay meaningful after a structural refactor that preserves the UI contract.
-- Component examples should prefer inferred return types instead of explicit `JSX.Element`.
-- Optional UI props should use `?` when absence is the intended caller experience.
+- Queries seguem a ordem de prioridade da Testing Library.
+- Afirmações descrevem resultados visíveis.
+- O teste continua significativo após um refactor estrutural que preserva o contrato de UI.
+- Exemplos de componente devem preferir tipos de retorno inferidos em vez de `JSX.Element` explícito.
+- Props opcionais de UI devem usar `?` quando ausência é a experiência pretendida do caller.
 
-## Anti-Patterns
+## Anti-Padrões
 
-- `container.querySelector` for elements that already have an accessible role
-- asserting hook state directly
-- asserting CSS class names when a semantic state is available
-- clicking internal nodes instead of the public control
-- declaring component types in the same file when the example should keep types and implementation separate
-- explicit `JSX.Element` return annotations in React component examples
-- duplicating nearly identical JSX through an early-return branch
-- deriving render state through temporary setup variables when the component contract can express it directly
-- forcing callers to pass `null` when an optional prop expresses absence more clearly
-- unnecessary ternaries in TSX when an explicit branch is clearer
-- building conditional prop-spread objects when direct rendering is simpler
+- `container.querySelector` para elementos que já têm role acessível
+- afirmar estado de hook diretamente
+- afirmar nome de classe CSS quando um estado semântico está disponível
+- clicar em nós internos em vez do controle público
+- declarar tipos do componente no mesmo arquivo quando o exemplo deveria separar tipos da implementação
+- anotações de retorno `JSX.Element` explícitas em exemplos de componente React
+- duplicar JSX quase idêntico através de uma branch de early-return
+- derivar estado de render através de variáveis temporárias de setup quando o contrato do componente pode expressar diretamente
+- forçar callers a passar `null` quando uma prop opcional expressa ausência mais claramente
+- ternários desnecessários em TSX quando uma branch explícita é mais clara
+- construir objetos de prop-spread condicional quando render direto é mais simples
 
-## Examples
+## Exemplos
 
-- Good component and test: `examples/good/primary-button.types.ts`, `examples/good/primary-button.tsx`, `examples/good/primary-button.test.tsx`
-- Bad component example: `examples/bad/primary-button.component-antipattern.tsx`
-- Bad conditional-setup example: `examples/bad/primary-button.conditional-setup-bloat.tsx`
-- Bad duplicated-branch example: `examples/bad/primary-button.duplicated-branch.tsx`
-- Bad implementation-detail test: `examples/bad/primary-button.internal.test.tsx`
+- Componente e teste bons: `examples/good/primary-button.types.ts`, `examples/good/primary-button.tsx`, `examples/good/primary-button.test.tsx`
+- Componente ruim: `examples/bad/primary-button.component-antipattern.tsx`
+- Setup condicional ruim: `examples/bad/primary-button.conditional-setup-bloat.tsx`
+- Branch duplicada ruim: `examples/bad/primary-button.duplicated-branch.tsx`
+- Teste de detalhe de implementação ruim: `examples/bad/primary-button.internal.test.tsx`
 
 ## Checklist
 
-- See `checklists/query-checklist.md`
+- Ver `checklists/query-checklist.md`
 
-## References
+## Referências
 
 - `references/query-order.md`

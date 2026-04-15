@@ -1,17 +1,17 @@
-# Modeling Patterns
+# Padrões de Modelagem
 
-## Preferred Shapes
+## Formas Preferidas
 
-- Use `interface` for object contracts.
-- Use named union types for state transitions.
-- Keep parsing at the external boundary.
-- Turn uncertain input into explicit success or failure results.
+- Use `interface` para contratos de objeto.
+- Use uniões nomeadas para transições de estado.
+- Mantenha parsing na borda externa.
+- Transforme input incerto em resultado explícito de sucesso ou falha.
 
-## Forbidden Shortcuts
+## Atalhos Proibidos
 
 - `any`
 - assertions
 - non-null assertions
-- ts-comment bypasses
-- generic records standing in for domain design
-- `Map` standing in for a named lookup input at the contract boundary
+- bypasses por ts-comment
+- records genéricos fazendo papel de design de domínio
+- `Map` fazendo papel de entrada nomeada de lookup na borda de contrato

@@ -1,6 +1,6 @@
 {
   "name": "bypass-auditor",
-  "description": "Use proactively before final approval for any typing, config, mock, helper, or suspicious diff review.",
+  "description": "Use proativamente antes da aprovação final para qualquer revisão de tipagem, config, mock, helper ou diff suspeito. Também caça fraude de inferência.",
   "promptPath": "framework/agents/prompts/bypass-auditor.md",
   "claude": {
     "tools": [
@@ -12,6 +12,7 @@
     "model": "sonnet",
     "skills": [
       "anti-bypass-audit",
+      "grounding-first",
       "typescript-zero-bypass"
     ]
   },

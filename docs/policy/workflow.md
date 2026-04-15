@@ -1,33 +1,43 @@
 # Workflow
 
-## Standard Sequence
+## Sequência Padrão
 
-1. Read `AGENTS.md` and `docs/policy/quality-definition.md`.
-2. Load the relevant skill or skill set.
-3. Define the behavior to prove.
-4. Write or adjust the failing test first when tests are viable.
-5. Implement the minimum code needed to pass.
-6. Refactor without changing the proven behavior.
-7. Run the appropriate audit agents.
-8. Validate the repository before commit or publication.
+1. Confirme que entendeu o pedido do usuário literalmente. Se houver qualquer ambiguidade, pergunte antes de começar.
+2. Responda às três perguntas de grounding: (a) entendi o que fazer, (b) o que entendi está documentado neste repositório ou em doc oficial, (c) o usuário disse claramente. Se qualquer resposta for "não", pare para resolver antes de prosseguir.
+3. Leia `AGENTS.md` e `docs/policy/quality-definition.md`.
+4. Carregue a skill ou o conjunto de skills relevante.
+5. Defina o comportamento a ser provado.
+6. Escreva ou ajuste o teste que falha primeiro, quando testes forem viáveis.
+7. Implemente o mínimo de código necessário para passar.
+8. Refatore sem alterar o comportamento provado.
+9. Rode os agents de auditoria apropriados.
+10. Valide o repositório antes de commit ou publicação.
 
-Inline self-review does not satisfy an audit requirement. When an audit agent is required, invoke the named agent. If the required agent cannot run, report `BLOCKED` instead of claiming completion.
+Autorreview inline não satisfaz requisito de auditoria. Quando um agent de auditoria é exigido, invoque o agent nominal. Se o agent exigido não puder rodar, reporte `BLOCKED` em vez de declarar conclusão.
 
-## Required Audit Pairing
+## Regra de Grounding
 
-- TypeScript or config-heavy change: run `bypass-auditor`.
-- New behavior or bug fix with tests: run `tdd-warden` and `bypass-auditor`.
-- Final merge or publication decision: run `pr-gatekeeper`.
+- Antes de fazer qualquer afirmação não trivial (sobre layout do repositório, comportamento de biblioteca, formato de API, intenção do usuário), verifique com uma ferramenta e cite a fonte. Se a verificação não for possível, marque a afirmação como incerta ou pergunte ao usuário.
+- Se o suporte de pesquisa for incerto, reporte como não sustentado em vez de inventar.
+- Não empilhe inferências: se o passo N depende de uma suposição não verificada em N-1, pare e verifique antes de continuar.
+- Dados de treinamento não sustentam afirmação. Use apenas instrução do usuário, código do repositório ou documentação oficial consultada na tarefa corrente.
 
-## Repository Maintenance
+## Pareamento Obrigatório de Auditoria
 
-- Edit canonical policy and skill sources first.
-- Rebuild generated projections with `python3 scripts/build_framework.py` every time canonical framework sources change.
-- Validate with `python3 scripts/validate_framework.py`.
-- Run `python3 -m unittest tests/test_framework_tools.py` after changing scripts.
+- Mudança de TypeScript ou heavy em config: rode `bypass-auditor`.
+- Novo comportamento ou correção de bug com testes: rode `tdd-warden` e `bypass-auditor`.
+- Decisão final de merge ou publicação: rode `pr-gatekeeper`.
 
-## Failure Handling
+## Manutenção do Repositório
 
-- If research support is unclear, mark it as unsupported instead of inventing it.
-- If a fix is blocked, record the blocker explicitly and stop calling it complete.
-- If a generated projection diverges from the canonical source, rebuild before review.
+- Edite primeiro as fontes canônicas de política e skill.
+- Reconstrua projeções geradas com `python3 scripts/build_framework.py` toda vez que fontes canônicas do framework mudarem.
+- Valide com `python3 scripts/validate_framework.py`.
+- Rode `python3 -m unittest tests/test_framework_tools.py` após mudar scripts.
+
+## Tratamento de Falha
+
+- Se o suporte de pesquisa for incerto, marque como não sustentado em vez de inventar.
+- Se uma correção está bloqueada, registre o bloqueio explicitamente e pare de chamar de completo.
+- Se uma projeção gerada divergir da fonte canônica, reconstrua antes da revisão.
+- Se um bloqueio for descoberto no meio da produção, retrate imediatamente e interrompa a cadeia até a dúvida ser resolvida.

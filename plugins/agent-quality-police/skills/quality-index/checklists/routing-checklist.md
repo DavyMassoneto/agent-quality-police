@@ -1,6 +1,7 @@
-# Routing Checklist
+# Checklist de Roteamento
 
-- Did you read the quality definition first?
-- Did you load the minimum skill set instead of everything?
-- Did you identify which auditor must run?
-- Did you avoid treating generated projections as canonical?
+- Você leu primeiro a definição de qualidade?
+- Você carregou o conjunto mínimo de skills em vez de tudo?
+- Você identificou qual auditor deve rodar?
+- Você evitou tratar projeções geradas como canônicas?
+- Você respondeu às três perguntas de grounding antes de carregar skill?

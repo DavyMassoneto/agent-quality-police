@@ -1,19 +1,19 @@
-## Priority
+## Prioridade
 
 {{priority_body}}
 
-## Startup Sequence
+## Sequência de Inicialização
 
 {{startup_sequence_body}}
 
-## Skill Routing
+## Roteamento de Skills
 
 {{skill_routing_body}}
 
-## Quality Rules
+## Regras de Qualidade
 
 {{quality_rules_body}}
 
-## Review Flow
+## Fluxo de Revisão
 
 {{review_flow_body}}

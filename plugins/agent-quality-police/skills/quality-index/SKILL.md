@@ -1,68 +1,73 @@
 ---
 name: quality-index
-description: Navigate this governance framework. Use when the task spans multiple concerns, when you need to choose the right policy skill, or when you need to decide which audit agent must run.
+description: Navegar este framework de governança. Use quando a tarefa cruza múltiplas áreas, quando você precisa escolher a skill de política correta, ou quando precisa decidir qual agent de auditoria deve rodar.
 ---
 
-# Objective
+# Objetivo
 
-Use this skill as the entry point to the framework. It maps task types to the right quality policy, examples, and police agents.
+Use esta skill como ponto de entrada do framework. Ela mapeia tipos de tarefa para a política correta, exemplos e agents de polícia.
 
-## When To Use
+## Quando Usar
 
-- The task touches more than one policy area.
-- You are unsure which skill to load first.
-- You need to decide which auditor or gatekeeper must run.
+- A tarefa toca mais de uma área de política.
+- Você está em dúvida sobre qual skill carregar primeiro.
+- Você precisa decidir qual auditor ou gatekeeper deve rodar.
 
-## When Not To Use
+## Quando Não Usar
 
-- The task is already clearly scoped to a single skill and the choice is obvious.
+- A tarefa já está claramente escopada para uma skill única e a escolha é óbvia.
 
 ## Workflow
 
-1. Read `docs/policy/quality-definition.md`.
-2. Read `docs/policy/workflow.md`.
-3. Classify the task.
-4. Load only the skills required by that task.
-5. Decide which audit agents are mandatory before implementation is considered complete.
-6. Require the named audit agents to run before final approval.
+1. Leia `docs/policy/quality-definition.md`.
+2. Leia `docs/policy/workflow.md`.
+3. Classifique a tarefa.
+4. Responda às três perguntas de grounding antes de carregar qualquer skill: (a) entendi o que fazer, (b) o que entendi está documentado no repositório ou em doc oficial, (c) o usuário disse claramente.
+5. Carregue apenas as skills exigidas por aquela tarefa.
+6. Decida quais agents de auditoria são obrigatórios antes que a implementação seja considerada completa.
+7. Exija que os agents de auditoria nominados rodem antes da aprovação final.
 
-## Routing
+## Roteamento
 
-- TypeScript modeling or type repair:
-  read `../typescript-zero-bypass/SKILL.md`
-- Vite or Vitest TDD:
-  read `../vite-vitest-tdd/SKILL.md`
-- React behavior tests:
-  read `../react-public-api-testing/SKILL.md`
-- Suspicious diff review:
-  read `../anti-bypass-audit/SKILL.md`
-- Refactor with legacy uncertainty:
-  read `../refactoring-with-safety/SKILL.md`
-- Installing or updating this framework:
-  read `../governance-installation/SKILL.md`
+- Qualquer tarefa que envolva afirmação factual sobre repositório, biblioteca ou intenção do usuário:
+  leia `../grounding-first/SKILL.md`
+- Modelagem TypeScript ou reparo de tipo:
+  leia `../typescript-zero-bypass/SKILL.md`
+- TDD em Vite ou Vitest:
+  leia `../vite-vitest-tdd/SKILL.md`
+- Testes de comportamento em React:
+  leia `../react-public-api-testing/SKILL.md`
+- Revisão de diff suspeito:
+  leia `../anti-bypass-audit/SKILL.md`
+- Refactor com incerteza legada:
+  leia `../refactoring-with-safety/SKILL.md`
+- Instalar ou atualizar este framework:
+  leia `../governance-installation/SKILL.md`
 
-## Quality Criteria
+## Critérios de Qualidade
 
-- The chosen skill set is the smallest set that covers the task.
-- The chosen auditors match the actual risk surface.
-- Canonical policy stays in `docs/policy/`, not in generated projections.
+- O conjunto escolhido de skills é o mínimo que cobre a tarefa.
+- Os auditores escolhidos correspondem à superfície real de risco.
+- Política canônica permanece em `docs/policy/`, não em projeções geradas.
+- Grounding foi resolvido antes da escolha de skill, não depois.
 
-## Anti-Patterns
+## Anti-Padrões
 
-- Loading every skill by default.
-- Starting implementation before deciding what behavior must be proven.
-- Skipping the auditors because the change “looks small.”
-- Treating inline self-review as a substitute for invoking the named audit agents.
+- Carregar todas as skills por padrão.
+- Começar implementação antes de decidir qual comportamento precisa ser provado.
+- Pular os auditores porque a mudança "parece pequena".
+- Tratar autorreview inline como substituto para invocar os agents de auditoria nominais.
+- Escolher skill antes de confirmar o entendimento do pedido do usuário.
 
-## Examples
+## Exemplos
 
-- Good routing: `examples/good/task-routing.md`
-- Bad routing: `examples/bad/task-routing.md`
+- Roteamento bom: `examples/good/task-routing.md`
+- Roteamento ruim: `examples/bad/task-routing.md`
 
 ## Checklist
 
-- See `checklists/routing-checklist.md`
+- Ver `checklists/routing-checklist.md`
 
-## References
+## Referências
 
 - `references/system-entrypoints.md`

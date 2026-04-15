@@ -1,15 +1,15 @@
-# Bad Routing
+# Roteamento Ruim
 
-Task: rename a private helper and add a feature.
+Tarefa: renomear um helper privado e adicionar uma feature.
 
-Routing mistake:
+Erro de roteamento:
 
-1. load every skill in the repository
-2. skip tests because the rename is “minor”
-3. ship without `bypass-auditor`
+1. carregar todas as skills do repositório
+2. pular testes porque o rename é "menor"
+3. entregar sem `bypass-auditor`
 
-Why this is bad:
+Por que isso é ruim:
 
-- It hides the real feature risk under irrelevant context.
-- It assumes rename and behavior change can share a shortcut.
-- It skips the mandatory audit flow.
+- Esconde o risco real da feature sob contexto irrelevante.
+- Assume que rename e mudança de comportamento podem compartilhar atalho.
+- Pula o fluxo obrigatório de auditoria.

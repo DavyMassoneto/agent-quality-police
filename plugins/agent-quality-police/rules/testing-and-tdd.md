@@ -4,10 +4,11 @@ paths:
   - "**/*.{ts,tsx,js,jsx}"
 ---
 
-# Testing And TDD
+# Testes e TDD
 
-- Write the failing test first when tests are viable.
-- Assert behavior through the public contract.
-- Keep tests short enough that the claim is obvious without helper archaeology.
-- Use mocks only when the real collaborator would make the test less probative, slower beyond reason, or impossible to control.
-- Reject tests that only assert calls, implementation details, or internals when a public behavior assertion exists.
+- Escreva o teste que falha primeiro quando testes forem viáveis.
+- Afirme comportamento através do contrato público.
+- Mantenha os testes curtos o suficiente para que a afirmação fique óbvia sem arqueologia de helper.
+- Use mocks apenas quando o colaborador real tornaria o teste menos probativo, mais lento além do razoável ou impossível de controlar.
+- Rejeite testes que apenas afirmam chamadas, detalhes de implementação ou internas quando existe afirmação de comportamento público.
+- Valores esperados precisam vir do contrato público, da fixture confirmada ou de instrução do usuário. Nunca inferidos.

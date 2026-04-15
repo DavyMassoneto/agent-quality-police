@@ -1,6 +1,6 @@
-# TDD Checklist
+# Checklist TDD
 
-- Did the test fail before the implementation change?
-- Does the test assert public behavior instead of internal calls?
-- Are mocks limited to collaborators?
-- Is the setup visible without jumping through helper files?
+- O teste falhou antes da mudança de implementação?
+- O teste afirma comportamento público em vez de chamadas internas?
+- Mocks estão limitados a colaboradores?
+- O setup está visível sem pular entre arquivos de helper?

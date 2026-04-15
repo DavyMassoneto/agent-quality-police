@@ -1,53 +1,63 @@
 # AGENTS.md
 
-## Priority
+## Prioridade
 
-- Direct system, developer, and user instructions override this file.
-- [`docs/policy/quality-definition.md`](docs/policy/quality-definition.md) is the canonical definition of quality in this repository.
-- If any skill, rule, example, or agent prompt contradicts the quality definition, the quality definition wins.
-- Generated projections must not become the source of truth.
-- Do not modify machine-level global configuration, home-directory state, accounts, or tools outside this repository without explicit user permission.
-- Do not publish releases, tags, packages, or other external side effects without explicit user permission.
+- Instruções diretas de sistema, desenvolvedor e usuário sobrepõem este arquivo.
+- [`docs/policy/quality-definition.md`](docs/policy/quality-definition.md) é a definição canônica de qualidade neste repositório.
+- Se qualquer skill, rule, exemplo ou prompt de agent contradiz a definição de qualidade, a definição de qualidade vence.
+- Projeções geradas não devem virar fonte de verdade.
+- Dados de treinamento não são fonte de verdade. Verifique cada afirmação não trivial com ferramenta antes de agir.
+- Não modifique configuração global, estado de diretório home, contas ou ferramentas fora deste repositório sem permissão explícita do usuário.
+- Não publique releases, tags, pacotes ou outros efeitos externos sem permissão explícita do usuário.
 
-## Startup Sequence
+## Sequência de Inicialização
 
-1. Read [quality-definition](docs/policy/quality-definition.md).
-2. Read [workflow](docs/policy/workflow.md).
-3. Load the smallest relevant skill set from `framework/skills/`.
-4. Execute with TDD when tests are viable.
-5. Run the matching audit agents before final approval.
+1. Confirme literalmente o pedido do usuário; se ambíguo, pergunte antes de começar.
+2. Leia [quality-definition](docs/policy/quality-definition.md).
+3. Leia [workflow](docs/policy/workflow.md).
+4. Carregue o menor conjunto relevante de skills a partir de `framework/skills/`.
+5. Execute com TDD quando testes forem viáveis.
+6. Rode os agents de auditoria correspondentes antes da aprovação final.
 
-## Skill Routing
+## Roteamento de Skills
 
-- Use [quality-index](framework/skills/quality-index/SKILL.md) first when the task spans multiple concerns.
-- Use [typescript-zero-bypass](framework/skills/typescript-zero-bypass/SKILL.md) for any `.ts` or `.tsx` change.
-- Use [vite-vitest-tdd](framework/skills/vite-vitest-tdd/SKILL.md) when working with Vite, Vitest, or unit/component TDD.
-- Use [react-public-api-testing](framework/skills/react-public-api-testing/SKILL.md) for React component behavior tests.
-- Use [anti-bypass-audit](framework/skills/anti-bypass-audit/SKILL.md) when reviewing diffs, suspicious helpers, or weakened configs.
-- Use [refactoring-with-safety](framework/skills/refactoring-with-safety/SKILL.md) for refactors that are not pure bug fixes.
-- Use [governance-installation](framework/skills/governance-installation/SKILL.md) when installing or updating this framework in another repository.
+- Use [grounding-first](framework/skills/grounding-first/SKILL.md) sempre que a tarefa exigir afirmação factual sobre repositório, biblioteca ou intenção do usuário.
+- Use [quality-index](framework/skills/quality-index/SKILL.md) primeiro quando a tarefa cruza múltiplas áreas.
+- Use [typescript-zero-bypass](framework/skills/typescript-zero-bypass/SKILL.md) para qualquer mudança em `.ts` ou `.tsx`.
+- Use [vite-vitest-tdd](framework/skills/vite-vitest-tdd/SKILL.md) ao trabalhar com Vite, Vitest ou TDD unitário/componente.
+- Use [react-public-api-testing](framework/skills/react-public-api-testing/SKILL.md) para testes de comportamento de componente React.
+- Use [anti-bypass-audit](framework/skills/anti-bypass-audit/SKILL.md) ao revisar diffs, helpers suspeitos ou configs enfraquecidas.
+- Use [refactoring-with-safety](framework/skills/refactoring-with-safety/SKILL.md) para refactors que não são bug fix puro.
+- Use [governance-installation](framework/skills/governance-installation/SKILL.md) ao instalar ou atualizar este framework em outro repositório.
 
-## Quality Rules
+## Regras de Qualidade
 
-- TDD is mandatory when tests are technically viable.
-- A passing test suite without behavior proof is not a green build.
-- `any`, type assertions, non-null assertions, ts-comment bypasses, and lint/config weakening are automatic failures.
-- `Map` in public or domain-facing contracts is suspicious by default and must be treated as a modeling bypass unless a stronger repository rule explicitly allows it.
-- Helpers, factories, mocks, branches, or narrowing added only to silence the type system or to make tests easier are automatic failures.
-- Zod is allowed only at external input boundaries.
-- Joi is allowed only for environment validation when it is genuinely needed.
-- Strong named types are required.
-- Inline structural types are prohibited.
-- Reviewers must reject suspicious diffs instead of “accepting with caveats.”
+- TDD é obrigatório quando testes são tecnicamente viáveis.
+- Suíte verde sem prova de comportamento não é build verde.
+- `any`, type assertions, non-null assertions, bypasses por ts-comment e enfraquecimento de lint/config são falhas automáticas.
+- Use `?` para parâmetros e propriedades omitíveis; não escreva `T | undefined` em assinaturas de parâmetro ou propriedade omitíveis.
+- Contratos públicos devem manter uma forma estável de topo; não retorne uniões como `T[] | { data: T[]; total: number }`.
+- Arquivos de responsabilidade única são exigidos: uma classe por arquivo sem funções de topo irmãs, ou múltiplas funções exportadas apenas quando o nome do arquivo nomeia uma responsabilidade compartilhada.
+- Nomes genéricos como `helpers.ts`, `utils.ts`, `common.ts` ou `shared.ts` são falhas automáticas quando escondem a razão para mudar.
+- `Map` em contratos públicos ou de domínio é suspeito por padrão e deve ser tratado como bypass de modelagem a menos que uma regra mais forte do repositório permita explicitamente.
+- Helpers, factories, mocks, branches ou narrowing adicionados apenas para silenciar o sistema de tipos ou facilitar testes são falhas automáticas.
+- Zod é permitido apenas em fronteiras de input externo.
+- Joi é permitido apenas para validação de ambiente quando realmente necessário.
+- Tipos nomeados fortes são exigidos.
+- Tipos estruturais inline são proibidos.
+- Não invente arquivos, APIs, imports, chaves de config ou comportamento de biblioteca; verifique com ferramenta primeiro.
+- Quando incerto, pare e pergunte ao usuário em vez de adivinhar.
+- Cite a fonte (`arquivo:linha`, URL oficial ou quote literal do usuário) para cada escolha não trivial de implementação.
+- Revisores devem rejeitar diffs suspeitos em vez de "aceitar com ressalvas".
 
-## Review Flow
+## Fluxo de Revisão
 
-- Fix the root problem, not the symptom.
-- Keep tests direct, short, and behavior-based.
-- Prefer explicit domain names over generic utilities.
-- Keep policy text severe and actionable; do not soften language to preserve agent comfort.
-- After any change to canonical framework sources such as `framework/skills/`, `framework/rules/`, `docs/policy/`, or `framework/agents/specs/`, run `python3 scripts/build_framework.py` before claiming the repository is consistent.
-- After the build step, run `python3 scripts/validate_framework.py`. If scripts changed, run `python3 -m unittest tests/test_framework_tools.py` and `node --test tests/node/install.test.mjs`.
-- Use `bypass-auditor` for typing, config, mocks, helpers, or suspicious diffs.
-- Use `tdd-warden` when behavior or tests changed or should have changed.
-- Use `pr-gatekeeper` only for final approve-or-reject review.
+- Corrija o problema raiz, não o sintoma.
+- Mantenha testes diretos, curtos e baseados em comportamento.
+- Prefira nomes de domínio explícitos em vez de utils genéricos.
+- Mantenha o texto da política severo e acionável; não amoleça a linguagem para preservar conforto do agent.
+- Após qualquer mudança em fontes canônicas como `framework/skills/`, `framework/rules/`, `docs/policy/` ou `framework/agents/specs/`, rode `python3 scripts/build_framework.py` antes de declarar o repositório consistente.
+- Depois do build, rode `python3 scripts/validate_framework.py`. Se scripts mudaram, rode `python3 -m unittest tests/test_framework_tools.py` e `node --test tests/node/install.test.mjs`.
+- Use `bypass-auditor` para tipagem, config, mocks, helpers ou diffs suspeitos.
+- Use `tdd-warden` quando comportamento ou testes mudaram ou deveriam ter mudado.
+- Use `pr-gatekeeper` apenas para revisão final de aprovar ou rejeitar.

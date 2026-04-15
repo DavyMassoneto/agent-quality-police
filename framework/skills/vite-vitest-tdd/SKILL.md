@@ -1,58 +1,58 @@
 ---
 name: vite-vitest-tdd
-description: TDD workflow for Vite and Vitest. Use when adding or fixing behavior in projects that rely on Vitest, especially when you need to distinguish a real green from a fake one.
+description: Workflow TDD para Vite e Vitest. Use ao adicionar ou corrigir comportamento em projetos que dependem de Vitest, especialmente quando precisa distinguir um verde real de um falso.
 ---
 
-# Objective
+# Objetivo
 
-Enforce Red -> Green -> Refactor in Vite and Vitest projects without mock fraud, helper noise, or implementation-detail assertions.
+Aplicar Red → Green → Refactor em projetos Vite e Vitest sem fraude de mock, ruído de helper ou afirmações de detalhe de implementação.
 
-## When To Use
+## Quando Usar
 
-- Bug fixes in Vitest projects
-- New behavior in Vite applications
-- Unit or component tests that should prove public behavior
+- Correção de bug em projetos Vitest
+- Novo comportamento em aplicações Vite
+- Testes unitários ou de componente que devem provar comportamento público
 
-## When Not To Use
+## Quando Não Usar
 
-- The repository has no viable automated tests for the surface being changed
-- The task is purely documentation with no executable surface
+- O repositório não tem testes automáticos viáveis para a superfície sendo alterada
+- A tarefa é puramente documental sem superfície executável
 
 ## Workflow
 
-1. Name the behavior to prove.
-2. Write the failing test first.
-3. Implement the minimum change.
-4. Refactor only after the test is green.
-5. Reject any helper or mock that weakens the claim.
+1. Nomeie o comportamento a ser provado.
+2. Escreva o teste que falha primeiro.
+3. Implemente a mudança mínima.
+4. Refatore apenas depois do teste ficar verde.
+5. Rejeite qualquer helper ou mock que enfraqueça a afirmação.
 
-## Quality Criteria
+## Critérios de Qualidade
 
-- Tests read like contract statements.
-- Each assertion proves public behavior.
-- Mocks exist only to control collaborators, never to replace the core behavior under test.
-- Factories stay local and obvious.
+- Testes leem como declarações de contrato.
+- Cada afirmação prova comportamento público.
+- Mocks existem apenas para controlar colaboradores, nunca para substituir o comportamento sob teste.
+- Factories permanecem locais e óbvios.
 
-## Anti-Patterns
+## Anti-Padrões
 
-- Writing implementation first and backfilling a confirming test
-- Snapshotting everything because the assertion was unclear
-- Hiding data setup behind a generic helper with a dozen defaults
-- Mocking the exact function whose behavior you claim to prove
+- Escrever implementação primeiro e fabricar um teste confirmatório depois
+- Snapshotar tudo porque a afirmação ficou pouco clara
+- Esconder setup de dado atrás de um helper genérico com uma dúzia de defaults
+- Mockar exatamente a função cujo comportamento você alega provar
 
-## Examples
+## Exemplos
 
-- Good pure function test: `examples/good/discount.test.ts`
-- Good probative mock: `examples/good/checkout-service.test.ts`
-- Good direct factory: `examples/good/direct-factory.test.ts`
-- Bad implementation-detail test: `examples/bad/implementation-detail.test.ts`
-- Bad fraudulent mock: `examples/bad/fraudulent-mock.test.ts`
-- Bad helper noise: `examples/bad/helper-noise.test.ts`
+- Teste bom de função pura: `examples/good/discount.test.ts`
+- Mock probativo bom: `examples/good/checkout-service.test.ts`
+- Factory direto bom: `examples/good/direct-factory.test.ts`
+- Teste de detalhe de implementação ruim: `examples/bad/implementation-detail.test.ts`
+- Mock fraudulento ruim: `examples/bad/fraudulent-mock.test.ts`
+- Ruído de helper ruim: `examples/bad/helper-noise.test.ts`
 
 ## Checklist
 
-- See `checklists/tdd-checklist.md`
+- Ver `checklists/tdd-checklist.md`
 
-## References
+## Referências
 
 - `references/mock-policy.md`

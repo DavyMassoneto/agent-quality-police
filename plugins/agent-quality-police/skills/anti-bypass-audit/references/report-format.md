@@ -1,9 +1,9 @@
-# Report Format
+# Formato de Relatório
 
-## Required Shape
+## Forma Exigida
 
-Finding: short label describing the failure
+Finding: rótulo curto descrevendo a falha
 
-Evidence: file path and the concrete construct that proves the issue
+Evidence: caminho do arquivo e o construct concreto que prova a questão
 
-Required correction: the smallest change that removes the bypass without softening the policy
+Required correction: a menor mudança que remove o bypass sem amolecer a política

@@ -1,6 +1,6 @@
 {
   "name": "implementer",
-  "description": "Executes approved code changes under the framework and hands off to the required audit agents before completion.",
+  "description": "Executa mudanças de código aprovadas sob o framework e aciona os agents de auditoria exigidos antes de concluir.",
   "promptPath": "framework/agents/prompts/implementer.md",
   "claude": {
     "tools": [
@@ -16,6 +16,7 @@
     "model": "sonnet",
     "skills": [
       "quality-index",
+      "grounding-first",
       "typescript-zero-bypass",
       "vite-vitest-tdd"
     ]

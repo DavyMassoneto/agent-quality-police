@@ -1,12 +1,12 @@
-# Good Sequence
+# Sequência Boa
 
-1. Add a characterization test that captures current invoice rounding behavior.
-2. Keep the old implementation untouched until that test is green.
-3. Extract the calculator into a named module.
-4. Re-run the characterization test.
-5. Remove duplication only after the behavior remains proven.
+1. Adicionar um teste de caracterização que captura o comportamento atual de arredondamento de fatura.
+2. Manter a implementação antiga intocada até que o teste esteja verde.
+3. Extrair o calculador para um módulo nomeado.
+4. Re-rodar o teste de caracterização.
+5. Remover duplicação só depois que o comportamento continua provado.
 
-Why this is good:
+Por que isso é bom:
 
-- The behavior was frozen before structure changed.
-- Each step had a clear proof boundary.
+- O comportamento foi congelado antes da estrutura mudar.
+- Cada passo teve fronteira clara de prova.

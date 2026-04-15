@@ -14,23 +14,23 @@ async function writeFixture(packageRoot) {
   await writeFile(
     path.join(packageRoot, "framework", "entrypoints", "policy.md"),
     [
-      "## Priority",
+      "## Prioridade",
       "",
       "{{priority_body}}",
       "",
-      "## Startup Sequence",
+      "## Sequência de Inicialização",
       "",
       "{{startup_sequence_body}}",
       "",
-      "## Skill Routing",
+      "## Roteamento de Skills",
       "",
       "{{skill_routing_body}}",
       "",
-      "## Quality Rules",
+      "## Regras de Qualidade",
       "",
       "{{quality_rules_body}}",
       "",
-      "## Review Flow",
+      "## Fluxo de Revisão",
       "",
       "{{review_flow_body}}"
     ].join("\n"),
@@ -124,10 +124,10 @@ test("installGlobal manages Claude, Codex, and OpenCode roots when allowed", asy
   const installedCodexRoot = await readFile(path.join(homeDir, ".codex", "AGENTS.md"), "utf8");
   const installedOpenCodeRoot = await readFile(path.join(homeDir, ".config", "opencode", "AGENTS.md"), "utf8");
 
-  assert.equal(installedClaudeRoot.includes("Prefer current local code and current official documentation over memory."), true);
+  assert.equal(installedClaudeRoot.includes("Prefira código local atual e documentação oficial atual sobre memória."), true);
   await assert.rejects(readFile(path.join(homeDir, ".claude", "AGENTS.md"), "utf8"));
-  assert.equal(installedCodexRoot.includes("Prefer current local code and current official documentation over memory."), true);
-  assert.equal(installedOpenCodeRoot.includes("Prefer current local code and current official documentation over memory."), true);
+  assert.equal(installedCodexRoot.includes("Prefira código local atual e documentação oficial atual sobre memória."), true);
+  assert.equal(installedOpenCodeRoot.includes("Prefira código local atual e documentação oficial atual sobre memória."), true);
   assert.equal(installedClaudeRoot.includes("Keep this Claude rule."), true);
   assert.equal(installedCodexRoot.includes("Keep this Codex rule."), true);
   assert.equal(installedOpenCodeRoot.includes("Keep this OpenCode rule."), true);
@@ -137,24 +137,24 @@ test("installGlobal manages Claude, Codex, and OpenCode roots when allowed", asy
   assert.equal(installedClaudeRoot.split("<!-- agent-quality-police:start -->").length - 1, 1);
   assert.equal(installedCodexRoot.split("<!-- agent-quality-police:start -->").length - 1, 1);
   assert.equal(installedOpenCodeRoot.split("<!-- agent-quality-police:start -->").length - 1, 1);
-  assert.equal(installedClaudeRoot.includes("Load the required skills before proposing edits or writing code."), true);
-  assert.equal(installedCodexRoot.includes("Load the required skills before proposing edits or writing code."), true);
-  assert.equal(installedOpenCodeRoot.includes("Load the required skills before proposing edits or writing code."), true);
-  assert.equal(installedClaudeRoot.includes("If a required skill or auditor cannot run in the current runtime, stop and report `BLOCKED`.") || installedClaudeRoot.includes("If a required skill or auditor cannot run in the current runtime, stop and report `BLOCKED`."), true);
-  assert.equal(installedCodexRoot.includes("If a required skill or auditor cannot run in the current runtime, stop and report `BLOCKED`.") || installedCodexRoot.includes("If a required skill or auditor cannot run in the current runtime, stop and report `BLOCKED`."), true);
-  assert.equal(installedOpenCodeRoot.includes("If a required skill or auditor cannot run in the current runtime, stop and report `BLOCKED`.") || installedOpenCodeRoot.includes("If a required skill or auditor cannot run in the current runtime, stop and report `BLOCKED`."), true);
-  assert.equal(installedClaudeRoot.includes("For code changes, do not finalize until the required auditors have run and their results were reviewed."), true);
-  assert.equal(installedCodexRoot.includes("For code changes, do not finalize until the required auditors have run and their results were reviewed."), true);
-  assert.equal(installedOpenCodeRoot.includes("For code changes, do not finalize until the required auditors have run and their results were reviewed."), true);
-  assert.equal(installedClaudeRoot.includes("Do not substitute inline self-review for a required audit agent invocation."), true);
-  assert.equal(installedCodexRoot.includes("Do not substitute inline self-review for a required audit agent invocation."), true);
-  assert.equal(installedOpenCodeRoot.includes("Do not substitute inline self-review for a required audit agent invocation."), true);
-  assert.equal(installedClaudeRoot.includes("For behavior changes or bug fixes, run `tdd-warden` and `bypass-auditor`."), true);
-  assert.equal(installedCodexRoot.includes("For behavior changes or bug fixes, run `tdd-warden` and `bypass-auditor`."), true);
-  assert.equal(installedOpenCodeRoot.includes("For behavior changes or bug fixes, run `tdd-warden` and `bypass-auditor`."), true);
-  assert.equal(installedClaudeRoot.includes("For final approval, release, or merge decisions, run `pr-gatekeeper` after the other required auditors."), true);
-  assert.equal(installedCodexRoot.includes("For final approval, release, or merge decisions, run `pr-gatekeeper` after the other required auditors."), true);
-  assert.equal(installedOpenCodeRoot.includes("For final approval, release, or merge decisions, run `pr-gatekeeper` after the other required auditors."), true);
+  assert.equal(installedClaudeRoot.includes("Carregue as skills exigidas antes de propor edits ou escrever código."), true);
+  assert.equal(installedCodexRoot.includes("Carregue as skills exigidas antes de propor edits ou escrever código."), true);
+  assert.equal(installedOpenCodeRoot.includes("Carregue as skills exigidas antes de propor edits ou escrever código."), true);
+  assert.equal(installedClaudeRoot.includes("Se uma skill ou auditor exigido não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
+  assert.equal(installedCodexRoot.includes("Se uma skill ou auditor exigido não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
+  assert.equal(installedOpenCodeRoot.includes("Se uma skill ou auditor exigido não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
+  assert.equal(installedClaudeRoot.includes("Para mudanças de código, não finalize até que os auditores exigidos tenham rodado e seus resultados tenham sido revisados."), true);
+  assert.equal(installedCodexRoot.includes("Para mudanças de código, não finalize até que os auditores exigidos tenham rodado e seus resultados tenham sido revisados."), true);
+  assert.equal(installedOpenCodeRoot.includes("Para mudanças de código, não finalize até que os auditores exigidos tenham rodado e seus resultados tenham sido revisados."), true);
+  assert.equal(installedClaudeRoot.includes("Não substitua invocação de agent de auditoria nominal por autorreview inline."), true);
+  assert.equal(installedCodexRoot.includes("Não substitua invocação de agent de auditoria nominal por autorreview inline."), true);
+  assert.equal(installedOpenCodeRoot.includes("Não substitua invocação de agent de auditoria nominal por autorreview inline."), true);
+  assert.equal(installedClaudeRoot.includes("Para mudanças de comportamento ou bug fixes, rode `tdd-warden` e `bypass-auditor`."), true);
+  assert.equal(installedCodexRoot.includes("Para mudanças de comportamento ou bug fixes, rode `tdd-warden` e `bypass-auditor`."), true);
+  assert.equal(installedOpenCodeRoot.includes("Para mudanças de comportamento ou bug fixes, rode `tdd-warden` e `bypass-auditor`."), true);
+  assert.equal(installedClaudeRoot.includes("Para aprovação final, release ou decisão de merge, rode `pr-gatekeeper` após os demais auditores exigidos."), true);
+  assert.equal(installedCodexRoot.includes("Para aprovação final, release ou decisão de merge, rode `pr-gatekeeper` após os demais auditores exigidos."), true);
+  assert.equal(installedOpenCodeRoot.includes("Para aprovação final, release ou decisão de merge, rode `pr-gatekeeper` após os demais auditores exigidos."), true);
   assert.equal(await readFile(path.join(homeDir, ".config", "opencode", "skills", "quality-index", "SKILL.md"), "utf8"), "---\nname: quality-index\ndescription: skill\n---\n");
   assert.equal((await readFile(path.join(homeDir, ".claude", "agents", "implementer.md"), "utf8")).includes("Follow the governance skill stack."), true);
   assert.equal((await readFile(path.join(homeDir, ".codex", "agents", "implementer.toml"), "utf8")).includes('name = "implementer"'), true);
@@ -200,37 +200,52 @@ test("installGlobal emits manual steps when root management is denied", async ()
   assert.equal(result.manualSteps.length, 3);
   await assert.rejects(readFile(path.join(homeDir, ".claude", "agent-quality-police", "CLAUDE.md"), "utf8"));
   await assert.rejects(readFile(path.join(homeDir, ".config", "opencode", "agent-quality-police", "AGENTS.md"), "utf8"));
-  assert.equal(result.manualSteps[0].snippet.includes("Load the smallest required skill set from `skills/` before proposing edits or writing code."), true);
+  assert.equal(result.manualSteps[0].snippet.includes("Carregue o menor conjunto de skills exigido a partir de `skills/` antes de propor edits ou escrever código."), true);
   assert.equal(result.manualSteps[0].snippet.includes("Use [quality-index](skills/quality-index/SKILL.md)"), true);
-  assert.equal(result.manualSteps[0].snippet.includes("## Claude Code"), true);
-  assert.equal(result.manualSteps[0].snippet.startsWith("## Priority"), true);
-  assert.equal(result.manualSteps[0].snippet.includes("Load the required skills before proposing edits or writing code."), true);
-  assert.equal(result.manualSteps[0].snippet.includes("For code changes, do not finalize until the required auditors have run and their results were reviewed."), true);
-  assert.equal(result.manualSteps[0].snippet.includes("Do not substitute inline self-review for a required audit agent invocation."), true);
-  assert.equal(result.manualSteps[0].snippet.includes("If a required skill or auditor cannot run in the current runtime, stop and report `BLOCKED`."), true);
+  assert.equal(result.manualSteps[0].snippet.includes("Use [grounding-first](skills/grounding-first/SKILL.md)"), true);
+  assert.equal(result.manualSteps[0].snippet.includes("## Claude Code"), false);
+  assert.equal(result.manualSteps[0].snippet.startsWith("## Prioridade"), true);
+  assert.equal(result.manualSteps[0].snippet.includes("Carregue as skills exigidas antes de propor edits ou escrever código."), true);
+  assert.equal(result.manualSteps[0].snippet.includes("Arquivos de responsabilidade única são exigidos"), true);
+  assert.equal(result.manualSteps[0].snippet.includes("`helpers.ts`"), true);
+  assert.equal(result.manualSteps[0].snippet.includes("parâmetros e propriedades omitíveis"), true);
+  assert.equal(result.manualSteps[0].snippet.includes("`T | undefined`"), true);
+  assert.equal(result.manualSteps[0].snippet.includes("forma estável de topo"), true);
+  assert.equal(result.manualSteps[0].snippet.includes("`T[] | { data: T[]; total: number }`"), true);
+  assert.equal(result.manualSteps[0].snippet.includes("Dados de treinamento não são fonte de verdade"), true);
+  assert.equal(result.manualSteps[0].snippet.includes("Não invente arquivos, APIs, imports, chaves de config ou comportamento de biblioteca"), true);
+  assert.equal(result.manualSteps[0].snippet.includes("Para mudanças de código, não finalize até que os auditores exigidos tenham rodado e seus resultados tenham sido revisados."), true);
+  assert.equal(result.manualSteps[0].snippet.includes("Não substitua invocação de agent de auditoria nominal por autorreview inline."), true);
+  assert.equal(result.manualSteps[0].snippet.includes("Se uma skill ou auditor exigido não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
   assert.equal(result.manualSteps[0].snippet.includes("python3 scripts/build_framework.py"), false);
   assert.equal(result.manualSteps[0].snippet.includes("Codex should enter"), false);
   assert.equal(result.manualSteps[0].snippet.includes("OpenCode should enter"), false);
-  assert.equal(result.manualSteps[1].snippet.includes("Load the required skills before proposing edits or writing code."), true);
-  assert.equal(result.manualSteps[1].snippet.includes("For behavior changes or bug fixes, run `tdd-warden` and `bypass-auditor`."), true);
-  assert.equal(result.manualSteps[1].snippet.includes("For final approval, release, or merge decisions, run `pr-gatekeeper` after the other required auditors."), true);
-  assert.equal(result.manualSteps[1].snippet.includes("Do not substitute inline self-review for a required audit agent invocation."), true);
-  assert.equal(result.manualSteps[1].snippet.includes("If a required skill or auditor cannot run in the current runtime, stop and report `BLOCKED`."), true);
+  assert.equal(result.manualSteps[1].snippet.includes("Carregue as skills exigidas antes de propor edits ou escrever código."), true);
+  assert.equal(result.manualSteps[1].snippet.includes("Arquivos de responsabilidade única são exigidos"), true);
+  assert.equal(result.manualSteps[1].snippet.includes("parâmetros e propriedades omitíveis"), true);
+  assert.equal(result.manualSteps[1].snippet.includes("forma estável de topo"), true);
+  assert.equal(result.manualSteps[1].snippet.includes("Para mudanças de comportamento ou bug fixes, rode `tdd-warden` e `bypass-auditor`."), true);
+  assert.equal(result.manualSteps[1].snippet.includes("Para aprovação final, release ou decisão de merge, rode `pr-gatekeeper` após os demais auditores exigidos."), true);
+  assert.equal(result.manualSteps[1].snippet.includes("Não substitua invocação de agent de auditoria nominal por autorreview inline."), true);
+  assert.equal(result.manualSteps[1].snippet.includes("Se uma skill ou auditor exigido não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
   assert.equal(result.manualSteps[1].snippet.includes("python3 scripts/build_framework.py"), false);
   assert.equal(result.manualSteps[1].snippet.includes("Claude Code should enter"), false);
   assert.equal(result.manualSteps[1].snippet.includes("OpenCode should enter"), false);
-  assert.equal(result.manualSteps[2].snippet.includes("Load the required skills before proposing edits or writing code."), true);
-  assert.equal(result.manualSteps[2].snippet.includes("For behavior changes or bug fixes, run `tdd-warden` and `bypass-auditor`."), true);
-  assert.equal(result.manualSteps[2].snippet.includes("For final approval, release, or merge decisions, run `pr-gatekeeper` after the other required auditors."), true);
-  assert.equal(result.manualSteps[2].snippet.includes("Do not substitute inline self-review for a required audit agent invocation."), true);
-  assert.equal(result.manualSteps[2].snippet.includes("If a required skill or auditor cannot run in the current runtime, stop and report `BLOCKED`."), true);
+  assert.equal(result.manualSteps[2].snippet.includes("Carregue as skills exigidas antes de propor edits ou escrever código."), true);
+  assert.equal(result.manualSteps[2].snippet.includes("Arquivos de responsabilidade única são exigidos"), true);
+  assert.equal(result.manualSteps[2].snippet.includes("parâmetros e propriedades omitíveis"), true);
+  assert.equal(result.manualSteps[2].snippet.includes("forma estável de topo"), true);
+  assert.equal(result.manualSteps[2].snippet.includes("Para mudanças de comportamento ou bug fixes, rode `tdd-warden` e `bypass-auditor`."), true);
+  assert.equal(result.manualSteps[2].snippet.includes("Para aprovação final, release ou decisão de merge, rode `pr-gatekeeper` após os demais auditores exigidos."), true);
+  assert.equal(result.manualSteps[2].snippet.includes("Não substitua invocação de agent de auditoria nominal por autorreview inline."), true);
+  assert.equal(result.manualSteps[2].snippet.includes("Se uma skill ou auditor exigido não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
   assert.equal(result.manualSteps[2].snippet.includes("python3 scripts/build_framework.py"), false);
   assert.equal(result.manualSteps[2].snippet.includes("Claude Code should enter"), false);
   assert.equal(result.manualSteps[2].snippet.includes("Codex should enter"), false);
   assert.equal(result.manualSteps[1].destination, path.join(homeDir, ".codex", "AGENTS.md"));
-  assert.equal(result.manualSteps[1].snippet.startsWith("## Priority"), true);
+  assert.equal(result.manualSteps[1].snippet.startsWith("## Prioridade"), true);
   assert.equal(result.manualSteps[2].destination, path.join(homeDir, ".config", "opencode", "AGENTS.md"));
-  assert.equal(result.manualSteps[2].snippet.startsWith("## Priority"), true);
+  assert.equal(result.manualSteps[2].snippet.startsWith("## Prioridade"), true);
 });
 
 test("formatInstallResult renders human-readable manual steps instead of JSON blobs", async () => {

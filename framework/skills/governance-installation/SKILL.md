@@ -1,55 +1,55 @@
 ---
 name: governance-installation
-description: Install or update this governance framework in another repository. Use when copying the pack, regenerating projections, or validating that a target repository is aligned with the canonical policy.
+description: Instalar ou atualizar este framework de governança em outro repositório. Use ao copiar o pack, regenerar projeções ou validar que um repositório alvo está alinhado com a política canônica.
 ---
 
-# Objective
+# Objetivo
 
-Install or refresh the framework without letting generated projections drift away from the canonical policy.
+Instalar ou atualizar o framework sem permitir que projeções geradas divirjam da política canônica.
 
-## When To Use
+## Quando Usar
 
-- Copying the framework into another repository
-- Updating skills, rules, or agent specs and rebuilding projections
-- Verifying that generated files were refreshed after a policy change
+- Copiar o framework para outro repositório
+- Atualizar skills, rules ou specs de agent e reconstruir projeções
+- Verificar se arquivos gerados foram atualizados após mudança de política
 
-## When Not To Use
+## Quando Não Usar
 
-- Day-to-day feature work inside a repository that already has the framework installed
+- Trabalho feature do dia a dia em um repositório que já tem o framework instalado
 
 ## Workflow
 
-1. Copy the canonical files first.
-2. Run `python3 scripts/build_framework.py`.
-3. Run `python3 scripts/validate_framework.py`.
-4. If scripts or package installer sources changed, run `python3 -m unittest tests/test_framework_tools.py` and `node --test tests/node/install.test.mjs`.
-5. Commit only after projections and validation are green.
+1. Copie primeiro os arquivos canônicos.
+2. Rode `python3 scripts/build_framework.py`.
+3. Rode `python3 scripts/validate_framework.py`.
+4. Se fontes de scripts ou do installer mudaram, rode `python3 -m unittest tests/test_framework_tools.py` e `node --test tests/node/install.test.mjs`.
+5. Só faça commit após as projeções e a validação estarem verdes.
 
-## Quality Criteria
+## Critérios de Qualidade
 
-- Repository entrypoints are generated from the canonical entrypoint source instead of being hand-authored per tool.
-- Canonical and generated layers are both present.
-- `.agents/skills/` matches `.claude/skills/`.
-- Agent projections exist for Claude, OpenCode, and Codex.
-- Package-ready plugin distribution and marketplace metadata exist for Claude and Codex.
-- No placeholders, missing links, or stale projections remain.
+- Entrypoints do repositório são gerados a partir da fonte canônica de entrypoint em vez de serem escritos à mão por ferramenta.
+- As camadas canônica e gerada estão ambas presentes.
+- `.agents/skills/` bate com `.claude/skills/`.
+- Projeções de agent existem para Claude, OpenCode e Codex.
+- A distribuição de plugin empacotável e os metadados de marketplace existem para Claude e Codex.
+- Nenhum placeholder, link faltante ou projeção desatualizada permanece.
 
-## Anti-Patterns
+## Anti-Padrões
 
-- Hand-maintaining separate root entrypoints for Claude, Codex, and OpenCode
-- Editing generated files by hand
-- Copying only the generated layers and skipping the canonical source
-- Publishing without running build and validation
+- Manter à mão entrypoints separados para Claude, Codex e OpenCode
+- Editar arquivos gerados à mão
+- Copiar apenas as camadas geradas e pular a fonte canônica
+- Publicar sem rodar build e validação
 
-## Examples
+## Exemplos
 
-- Good install flow: `examples/good/install-sequence.md`
-- Bad install flow: `examples/bad/stale-projection.md`
+- Fluxo bom de instalação: `examples/good/install-sequence.md`
+- Fluxo ruim de instalação: `examples/bad/stale-projection.md`
 
 ## Checklist
 
-- See `checklists/install-checklist.md`
+- Ver `checklists/install-checklist.md`
 
-## References
+## Referências
 
 - `references/install-steps.md`

@@ -1,7 +1,7 @@
-# Good Install Sequence
+# Sequência Boa de Instalação
 
-1. Copy the framework files into the target repository.
-2. Run `python3 scripts/build_framework.py`.
-3. Run `python3 scripts/validate_framework.py`.
-4. Review the diff.
-5. Commit once projections and validation are green.
+1. Copie os arquivos do framework para o repositório alvo.
+2. Rode `python3 scripts/build_framework.py`.
+3. Rode `python3 scripts/validate_framework.py`.
+4. Revise o diff.
+5. Faça commit depois que projeções e validação estão verdes.

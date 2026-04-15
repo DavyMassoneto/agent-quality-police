@@ -1,52 +1,52 @@
 ---
 name: refactoring-with-safety
-description: Refactor without masking risk. Use when changing structure, names, extraction boundaries, or flow while claiming to preserve behavior.
+description: Refatorar sem mascarar risco. Use ao mudar estrutura, nomes, fronteiras de extração ou fluxo enquanto declara preservar comportamento.
 ---
 
-# Objective
+# Objetivo
 
-Make refactors prove preservation instead of assuming it.
+Fazer com que refactors provem preservação em vez de assumi-la.
 
-## When To Use
+## Quando Usar
 
-- Structural cleanup without intended behavior change
-- Extracting modules or moving responsibilities
-- Legacy code improvements where current behavior is unclear
+- Limpeza estrutural sem mudança de comportamento pretendida
+- Extração de módulos ou movimento de responsabilidades
+- Melhoria de código legado onde o comportamento atual é incerto
 
-## When Not To Use
+## Quando Não Usar
 
-- Straightforward feature work with a clear new behavior target
-- Changes that are purely formatting
+- Trabalho feature direto com alvo de novo comportamento claro
+- Mudanças puramente de formatação
 
 ## Workflow
 
-1. Characterize the current behavior first.
-2. Freeze the public contract with tests.
-3. Change structure in small slices.
-4. Re-run the characterization after each slice.
-5. Stop calling it a refactor if behavior changes.
+1. Caracterize o comportamento atual primeiro.
+2. Congele o contrato público com testes.
+3. Altere estrutura em fatias pequenas.
+4. Re-rode a caracterização após cada fatia.
+5. Pare de chamar de refactor se comportamento mudar.
 
-## Quality Criteria
+## Critérios de Qualidade
 
-- Existing behavior is documented by tests or explicit evidence.
-- Structural change and behavior change are not smuggled together.
-- New abstractions clarify responsibility instead of centralizing uncertainty.
+- Comportamento existente é documentado por testes ou evidência explícita.
+- Mudança estrutural e mudança de comportamento não são contrabandeadas juntas.
+- Novas abstrações clarificam responsabilidade em vez de centralizar incerteza.
 
-## Anti-Patterns
+## Anti-Padrões
 
-- “Refactor” commits that also alter business rules
-- mass renames plus logic change plus config edits in one step
-- extracting helpers before the current behavior is pinned down
+- Commits de "refactor" que também alteram regras de negócio
+- renames em massa mais mudança de lógica mais edits de config em um passo
+- extrair helpers antes do comportamento atual estar fixado
 
-## Examples
+## Exemplos
 
-- Good sequence: `examples/good/characterization-sequence.md`
-- Bad sequence: `examples/bad/behavior-change-masquerading.md`
+- Sequência boa: `examples/good/characterization-sequence.md`
+- Sequência ruim: `examples/bad/behavior-change-masquerading.md`
 
 ## Checklist
 
-- See `checklists/refactor-checklist.md`
+- Ver `checklists/refactor-checklist.md`
 
-## References
+## Referências
 
 - `references/refactor-sequence.md`

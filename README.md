@@ -1,40 +1,41 @@
 # agent-quality-police
 
-Strict governance framework for Claude Code, Codex, and OpenCode with rules, skills, and audit agents that block testing and typing bypasses.
+Framework estrito de governança para Claude Code, Codex e OpenCode, com rules, skills e agents de auditoria que bloqueiam bypass de testes, tipagem e inferência.
 
-## Purpose
+## Propósito
 
-This repository is a reusable governance pack for coding agents. It is designed to be copied into a project or used as the source for a stricter house style. The framework assumes:
+Este repositório é um pacote de governança reutilizável para agents de codificação. Foi feito para ser copiado para um projeto ou usado como fonte de um house style mais estrito. O framework assume:
 
-- TDD is mandatory when tests are viable.
-- Tests must prove observable behavior, not internal implementation.
-- TypeScript must stay strongly typed without `any`, assertions, non-null assertions, comment-based bypasses, or inline structural types.
-- Review must be hostile to fake greens, config weakening, and abstraction noise.
+- TDD é obrigatório quando testes são viáveis.
+- Testes devem provar comportamento observável, não implementação interna.
+- TypeScript deve permanecer fortemente tipado sem `any`, assertions, non-null assertions, bypasses por comentário ou tipos estruturais inline.
+- Revisão deve ser hostil a verdes falsos, enfraquecimento de config e ruído de abstração.
+- Nenhum agent pode afirmar fato sobre repositório, biblioteca ou intenção do usuário sem fonte verificável; dados de treinamento não são fonte.
 
-## Canonical Structure
+## Estrutura Canônica
 
-- `framework/entrypoints/`: canonical source for generated prompts and package entrypoints.
-- `docs/policy/`: canonical quality definition and workflow.
-- `framework/rules/`: canonical always-on rules.
-- `framework/skills/`: canonical skill source.
-- `framework/agents/specs/`: canonical agent specs.
-- `framework/agents/prompts/`: canonical agent prompts.
-- `framework/distribution/plugin.json`: canonical package/plugin metadata.
-- `framework/package/`: canonical package installer source.
-- `AGENTS.md`: generated repository routing contract.
-- `plugins/agent-quality-police/`: package-ready generated distribution.
-- `.github/workflows/publish-package.yml`: generated npm publish workflow for the package distribution.
-- `scripts/`: build and validation utilities.
-- `tests/`: regression tests for the projection and validation utilities.
+- `framework/entrypoints/`: fonte canônica para prompts gerados e entrypoints do pacote.
+- `docs/policy/`: definição canônica de qualidade, workflow e notas de runtime.
+- `framework/rules/`: regras always-on canônicas.
+- `framework/skills/`: fonte canônica das skills.
+- `framework/agents/specs/`: specs canônicos dos agents.
+- `framework/agents/prompts/`: prompts canônicos dos agents.
+- `framework/distribution/plugin.json`: metadados canônicos de pacote e plugin.
+- `framework/package/`: fonte canônica do installer do pacote.
+- `AGENTS.md`: contrato de roteamento do repositório gerado.
+- `plugins/agent-quality-police/`: distribuição empacotada gerada.
+- `.github/workflows/publish-package.yml`: workflow npm publish gerado para a distribuição do pacote.
+- `scripts/`: utilidades de build e validação.
+- `tests/`: testes de regressão para projeção e validação.
 
-## Working Model
+## Modelo de Trabalho
 
-1. Update canonical content first.
-2. Rebuild projections.
-3. Validate the repository.
-4. Only then commit or publish.
+1. Atualize o conteúdo canônico primeiro.
+2. Reconstrua projeções.
+3. Valide o repositório.
+4. Só então faça commit ou publique.
 
-Commands:
+Comandos:
 
 ```bash
 python3 scripts/build_framework.py
@@ -43,9 +44,9 @@ python3 -m unittest tests/test_framework_tools.py
 node --test tests/node/install.test.mjs
 ```
 
-## Installation and Reuse
+## Instalação e Reuso
 
-Canonical sources in this repository:
+Fontes canônicas neste repositório:
 
 - `framework/entrypoints/`
 - `docs/policy/`
@@ -58,27 +59,27 @@ Canonical sources in this repository:
 - `scripts/`
 - `tests/`
 
-Generated outputs in this repository:
+Saídas geradas neste repositório:
 
 - `AGENTS.md`
 - `plugins/agent-quality-police/`
 - `.github/workflows/publish-package.yml`
 
-Never hand-edit generated outputs.
+Nunca edite à mão saídas geradas.
 
-### Generated-only reuse
+### Reuso só com arquivos gerados
 
-Copy these files if you want to consume the framework in another repository without rebuilding it:
+Copie estes arquivos se quiser consumir o framework em outro repositório sem reconstruir:
 
 - `AGENTS.md`
 - `docs/policy/`
 - `plugins/agent-quality-police/`
 
-Do not run `python3 scripts/build_framework.py` in this mode. The build step is for framework development and requires canonical sources such as `framework/agents/specs/` and `framework/agents/prompts/`. Running build without those sources would be incorrect, and the builder now fails explicitly instead of silently deleting agent projections.
+Não rode `python3 scripts/build_framework.py` nesse modo. O passo de build é para desenvolvimento do framework e exige fontes canônicas como `framework/agents/specs/` e `framework/agents/prompts/`. Rodar build sem essas fontes estaria errado; o builder agora falha explicitamente em vez de apagar projeções de agent em silêncio.
 
-### Framework development
+### Desenvolvimento do framework
 
-Copy or clone the full framework development set before running build:
+Copie ou clone o conjunto completo de desenvolvimento do framework antes de rodar build:
 
 - `framework/entrypoints/`
 - `docs/policy/`
@@ -92,7 +93,7 @@ Copy or clone the full framework development set before running build:
 - `scripts/`
 - `tests/`
 
-After the canonical sources are present, run:
+Depois que as fontes canônicas estiverem presentes, rode:
 
 ```bash
 python3 scripts/build_framework.py
@@ -101,41 +102,41 @@ python3 -m unittest tests/test_framework_tools.py
 node --test tests/node/install.test.mjs
 ```
 
-The build step refreshes the repository contract plus the package-ready distribution generated from the canonical framework sources.
+O passo de build atualiza o contrato do repositório mais a distribuição empacotável gerada a partir das fontes canônicas do framework.
 
-### Package-style installation
+### Instalação no estilo pacote
 
-The generated package lives at `plugins/agent-quality-police/` and includes a Node entrypoint:
+O pacote gerado vive em `plugins/agent-quality-police/` e inclui um entrypoint Node:
 
 ```bash
 node plugins/agent-quality-police/bin/aqp.mjs install
 ```
 
-This is the intended local installation path for user-level Claude Code, Codex, and OpenCode setup. The installer runs interactively, asks which tools to install for, and asks per tool whether it may manage the global root entrypoint file.
+Esse é o caminho pretendido de instalação local para setup de usuário de Claude Code, Codex e OpenCode. O installer roda interativamente, pergunta para quais ferramentas instalar e pergunta, por ferramenta, se pode gerenciar o arquivo de entrypoint global.
 
-For npm distribution, the generated package also includes:
+Para distribuição npm, o pacote gerado também inclui:
 
 - `plugins/agent-quality-police/README.md`
 - `plugins/agent-quality-police/LICENSE`
 - `.github/workflows/publish-package.yml`
 
-The workflow publishes from `plugins/agent-quality-police/`, which is the directory intended to back `npx agent-quality-police install` after npm publication.
+O workflow publica a partir de `plugins/agent-quality-police/`, que é o diretório que deve servir de backing de `npx agent-quality-police install` após publicação npm.
 
-If the user allows root management, the installer writes:
+Se o usuário permite gerenciamento do root, o installer escreve:
 
 - Claude Code: `~/.claude/CLAUDE.md`
 - Codex: `~/.codex/AGENTS.md`
 - OpenCode: `~/.config/opencode/AGENTS.md`
 
-If the user denies root management, the installer still installs skills, agents, docs, and optional commands, then prints the exact fallback content to paste into the global root file so the LLM can still load the policy autonomously:
+Se o usuário nega o gerenciamento do root, o installer ainda instala skills, agents, docs e commands opcionais, e imprime o conteúdo exato de fallback para colar no arquivo de entrypoint global, para que o LLM ainda carregue a política autonomamente:
 
-- Claude Code: append the generated `CLAUDE.md` prompt body manually
-- Codex: append the generated `AGENTS.md` prompt body manually
-- OpenCode: append the generated `AGENTS.md` prompt body manually
+- Claude Code: anexar manualmente o corpo de prompt gerado em `CLAUDE.md`
+- Codex: anexar manualmente o corpo de prompt gerado em `AGENTS.md`
+- OpenCode: anexar manualmente o corpo de prompt gerado em `AGENTS.md`
 
-### Release Flow
+### Fluxo de Release
 
-Before publishing a new version, update the canonical package metadata in `framework/distribution/plugin.json`, then run:
+Antes de publicar uma nova versão, atualize os metadados canônicos do pacote em `framework/distribution/plugin.json`, depois rode:
 
 ```bash
 python3 scripts/build_framework.py
@@ -144,36 +145,36 @@ python3 -m unittest tests/test_framework_tools.py
 node --test tests/node/install.test.mjs
 ```
 
-Publishing is performed by GitHub Actions through `.github/workflows/publish-package.yml` and publishes the generated package from `plugins/agent-quality-police/`.
+A publicação é feita via GitHub Actions por `.github/workflows/publish-package.yml` e publica o pacote gerado a partir de `plugins/agent-quality-police/`.
 
-To release a new version:
+Para lançar uma nova versão:
 
 ```bash
 git tag plugin-vX.Y.Z
 git push origin plugin-vX.Y.Z
 ```
 
-After the workflow completes, the package is available through:
+Após o workflow concluir, o pacote fica disponível via:
 
 ```bash
 npx agent-quality-police install
 ```
 
-### Codex `skills.config`
+### `skills.config` do Codex
 
-This repository does not emit `skills.config` in `plugins/agent-quality-police/.codex/agents/*.toml`.
+Este repositório não emite `skills.config` em `plugins/agent-quality-police/.codex/agents/*.toml`.
 
-Reason:
+Motivo:
 
-- Codex already discovers packaged skills from `.agents/skills`.
-- The current official `skills.config` examples for custom agents use an absolute path.
-- This repository does not bake absolute path values into versioned files.
+- O Codex já descobre skills empacotadas a partir de `.agents/skills`.
+- Os exemplos oficiais atuais de `skills.config` para custom agents usam caminho absoluto.
+- Este repositório não grava valores de caminho absoluto em arquivos versionados.
 
-If OpenAI documents a safe relative-path form for versioned repositories, the projection can be revisited.
+Se a OpenAI documentar uma forma segura de caminho relativo para repositórios versionados, a projeção pode ser revisitada.
 
-## Evolution Rules
+## Regras de Evolução
 
-- Update `docs/policy/quality-definition.md` first when changing the meaning of quality.
-- Add new reusable workflows as skills under `framework/skills/`.
-- Add new agents by creating a spec under `framework/agents/specs/` and rebuilding.
-- Do not hand-edit generated files under `AGENTS.md`, `plugins/agent-quality-police/`, or `.github/workflows/publish-package.yml`.
+- Atualize `docs/policy/quality-definition.md` primeiro ao mudar o significado de qualidade.
+- Adicione novos workflows reutilizáveis como skills em `framework/skills/`.
+- Adicione novos agents criando um spec em `framework/agents/specs/` e reconstruindo.
+- Não edite à mão arquivos gerados em `AGENTS.md`, `plugins/agent-quality-police/` ou `.github/workflows/publish-package.yml`.

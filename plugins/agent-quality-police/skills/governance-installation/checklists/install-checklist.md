@@ -1,6 +1,6 @@
-# Install Checklist
+# Checklist de Instalação
 
-- Did you copy both canonical and generated layers?
-- Did you rebuild projections after copying?
-- Did you validate structure and links?
-- Did you avoid hand-editing generated outputs?
+- Você copiou as camadas canônica e gerada?
+- Você reconstruiu projeções após copiar?
+- Você validou estrutura e links?
+- Você evitou editar à mão saídas geradas?

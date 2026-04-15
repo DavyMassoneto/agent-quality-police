@@ -1,12 +1,12 @@
-# Bad Sequence
+# Sequência Ruim
 
-1. Rename files.
-2. Replace branching logic.
-3. Simplify tests by deleting “old edge cases.”
-4. Claim it was only a refactor because the UI still loads.
+1. Renomear arquivos.
+2. Substituir lógica de branching.
+3. Simplificar testes deletando "edge cases antigos".
+4. Declarar que foi apenas refactor porque a UI ainda carrega.
 
-Why this is bad:
+Por que isso é ruim:
 
-- The old behavior was never characterized.
-- Logic change was hidden inside a structural narrative.
-- Test deletion removed the only proof.
+- O comportamento antigo nunca foi caracterizado.
+- Mudança de lógica foi escondida dentro de narrativa estrutural.
+- Deletar teste removeu a única prova.

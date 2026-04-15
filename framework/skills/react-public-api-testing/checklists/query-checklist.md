@@ -1,5 +1,5 @@
-# Query Checklist
+# Checklist de Query
 
-- Does the test use an accessible query first?
-- Does it assert a public state the caller or user can observe?
-- Would the test still pass after a markup refactor that preserves behavior?
+- O teste usa primeiro uma query acessível?
+- Ele afirma um estado público que o caller ou usuário pode observar?
+- O teste continuaria passando após um refactor de markup que preserva comportamento?

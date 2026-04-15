@@ -1,9 +1,9 @@
-# Mock Policy
+# Política de Mock
 
-## Acceptable Mock
+## Mock Aceitável
 
-Use a mock when the collaborator is outside the unit under test and the behavior claim still depends on the unit’s public result.
+Use mock quando o colaborador está fora da unidade sob teste e a afirmação de comportamento ainda depende do resultado público da unidade.
 
-## Fraudulent Mock
+## Mock Fraudulento
 
-Reject a mock when it returns the exact answer that the unit under test was supposed to compute, or when the test only asserts call counts without user-visible consequence.
+Rejeite mock quando ele retorna exatamente a resposta que a unidade sob teste deveria computar, ou quando o teste apenas afirma contagem de chamadas sem consequência visível ao usuário.

@@ -1,7 +1,7 @@
-# Refactor Sequence
+# Sequência de Refactor
 
-1. Characterize current behavior.
-2. Get the baseline green.
-3. Change one boundary at a time.
-4. Re-run proof after each slice.
-5. If behavior changes intentionally, split into a separate behavior change.
+1. Caracterize o comportamento atual.
+2. Deixe o baseline verde.
+3. Altere uma fronteira por vez.
+4. Re-rode a prova após cada fatia.
+5. Se o comportamento muda intencionalmente, divida em uma mudança de comportamento separada.

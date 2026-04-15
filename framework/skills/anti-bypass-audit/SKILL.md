@@ -1,70 +1,88 @@
 ---
 name: anti-bypass-audit
-description: Audit a diff for type, test, config, and review fraud. Use when a change looks suspicious, when an LLM-generated diff may have hidden bypasses, or before any final approval.
+description: Auditar um diff em busca de fraude de tipo, teste, config, revisão e inferência. Use quando uma mudança parece suspeita, quando um diff gerado por LLM pode ter bypasses escondidos, ou antes de qualquer aprovação final.
 ---
 
-# Objective
+# Objetivo
 
-Find and report bypasses with short, evidence-based language. This skill is not for rewriting code. It is for blocking unsafe diffs.
+Encontrar e reportar bypasses com linguagem curta e baseada em evidência. Esta skill não reescreve código; serve para bloquear diffs inseguros.
 
-## When To Use
+## Quando Usar
 
-- Reviewing TypeScript changes
-- Reviewing tests, helpers, mocks, or config
-- Checking a diff before merge or publication
+- Revisão de mudanças em TypeScript
+- Revisão de testes, helpers, mocks ou config
+- Verificação de um diff antes do merge ou publicação
 
-## When Not To Use
+## Quando Não Usar
 
-- Greenfield implementation before any diff exists
+- Implementação greenfield antes de existir qualquer diff
 
 ## Workflow
 
-1. Scan the diff for banned tokens and suspicious structure.
-2. Check whether tests prove behavior or merely confirm implementation.
-3. Check whether config was weakened.
-4. Produce a terse report with findings, evidence, and required correction.
+1. Escaneie o diff procurando tokens proibidos e estrutura suspeita.
+2. Verifique se os testes provam comportamento ou apenas confirmam implementação.
+3. Verifique se a config foi enfraquecida.
+4. Verifique se há fraude de inferência: imports, APIs, métodos, tipos ou caminhos inventados sem fonte no repositório ou em doc oficial citada.
+5. Produza um relatório conciso com findings, evidência e correção exigida.
 
-## Quality Criteria
+## Critérios de Qualidade
 
-- Findings cite file evidence.
-- Reports separate blockers from optional cleanup.
-- The audit stays hostile to bypasses and calm in tone.
+- Findings citam evidência de arquivo.
+- Relatórios separam bloqueios de limpeza opcional.
+- A auditoria permanece hostil a bypasses e de tom calmo.
 
-## Banned Diff Signals
+## Sinais Banidos no Diff
 
 - `any`
+- tipos estruturais inline
+- tipos estruturais anônimos em assinaturas ou variantes de resultado
+- `T | undefined` em assinaturas de parâmetro ou propriedade omitíveis
+- uniões de contrato de retorno que mudam a forma de topo
+- múltiplas classes em um arquivo
+- mistura de classe com funções de topo em um arquivo
+- nomes de arquivo genéricos como `helpers.ts`, `utils.ts`, `common.ts` ou `shared.ts`
+- arquivos cujos exports não compartilham uma responsabilidade nomeada
 - assertions
 - non-null assertions
-- `Map` used as a lookup-bag in public or domain-facing contracts
-- ts-comments
+- `Map` usado como lookup-bag em contratos públicos ou de domínio
+- bypasses por ts-comment
 - `eslint-disable`
-- lowered strictness in config
-- fake narrowing branches
+- strictness rebaixada em config
+- branches de fake narrowing
 - constructor bypass
-- prototype fabrication
-- internal field hydration that fakes a valid class instance
-- single-letter callback parameters or other meaningless abbreviations that hide domain meaning
-- plumbing names that leak implementation structure instead of behavior
-- heterogeneous unions of unrelated models used as convenience typing
-- inline comparator callbacks that compress unreadable fallback-heavy sorting logic
-- helper or factory noise hiding test intent
-- mocks that replace the behavior under test
+- fabricação de protótipo
+- hidratação de campos internos fingindo instância válida
+- parâmetros de callback de letra única ou abreviações sem significado
+- nomes de plumbing que vazam estrutura de implementação em vez de comportamento
+- uniões heterogêneas de modelos não relacionados usadas como tipagem de conveniência
+- callbacks comparadores inline com lógica de sort cheia de fallback e ilegível
+- ruído de helper ou factory escondendo intenção do teste
+- mocks que substituem o comportamento sob teste
 
-## Report Format
+## Sinais de Fraude de Inferência
+
+- imports ou chamadas de API que não aparecem no repositório nem em doc oficial citada
+- métodos de biblioteca usados em versão diferente da instalada
+- chaves de config, variáveis de ambiente ou flags de CLI sem fonte
+- strings de comando inventadas
+- lógica que só faz sentido sob uma suposição não verificada sobre intenção do usuário
+- citações a documentação sem referência concreta
+
+## Formato de Relatório
 
 - `Finding:`
 - `Evidence:`
 - `Required correction:`
 
-## Examples
+## Exemplos
 
-- Good correction: `examples/good/fixed-bypass.types.ts`, `examples/good/fixed-bypass.ts`
-- Bad diff: `examples/bad/explicit-bypass.ts`
+- Boa correção: `examples/good/fixed-bypass.types.ts`, `examples/good/fixed-bypass.ts`
+- Diff ruim: `examples/bad/explicit-bypass.ts`
 
 ## Checklist
 
-- See `checklists/audit-checklist.md`
+- Ver `checklists/audit-checklist.md`
 
-## References
+## Referências
 
 - `references/report-format.md`

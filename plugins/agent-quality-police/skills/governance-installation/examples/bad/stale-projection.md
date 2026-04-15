@@ -1,12 +1,12 @@
-# Bad Install Sequence
+# Sequência Ruim de Instalação
 
-1. Copy only `.agents/skills/` because it “already works in Codex.”
-2. Skip `.claude/skills/` and `framework/agents/specs/`.
-3. Edit generated agent files directly.
-4. Publish without rebuilding.
+1. Copiar apenas `.agents/skills/` porque "já funciona no Codex".
+2. Pular `.claude/skills/` e `framework/agents/specs/`.
+3. Editar arquivos gerados de agent diretamente.
+4. Publicar sem reconstruir.
 
-Why this is bad:
+Por que isso é ruim:
 
-- The canonical source is gone.
-- The next update cannot be regenerated safely.
-- Different tools will drift apart.
+- A fonte canônica sumiu.
+- A próxima atualização não pode ser regerada com segurança.
+- As ferramentas vão divergir.

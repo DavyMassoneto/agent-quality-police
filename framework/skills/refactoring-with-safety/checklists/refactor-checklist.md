@@ -1,6 +1,6 @@
-# Refactor Checklist
+# Checklist de Refactor
 
-- Did you pin existing behavior before moving structure?
-- Is the diff free of accidental behavior changes?
-- Are new abstractions justified by responsibility, not discomfort?
-- Is each slice small enough to review?
+- Você fixou o comportamento existente antes de mover estrutura?
+- O diff está livre de mudanças acidentais de comportamento?
+- Novas abstrações são justificadas por responsabilidade, não por desconforto?
+- Cada fatia é pequena o suficiente para revisar?

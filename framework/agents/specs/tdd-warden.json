@@ -1,6 +1,6 @@
 {
   "name": "tdd-warden",
-  "description": "Use proactively before final approval whenever behavior changed, tests changed, or tests should have changed.",
+  "description": "Use proativamente antes da aprovação final sempre que comportamento mudou, testes mudaram ou testes deveriam ter mudado.",
   "promptPath": "framework/agents/prompts/tdd-warden.md",
   "claude": {
     "tools": [
@@ -12,6 +12,7 @@
     "model": "sonnet",
     "skills": [
       "vite-vitest-tdd",
+      "grounding-first",
       "react-public-api-testing"
     ]
   },

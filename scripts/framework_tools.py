@@ -421,6 +421,7 @@ def _entrypoint_replacements(*, quality_definition_path: str, workflow_path: str
         "workflow_path": workflow_path,
         "primary_skill_root": primary_skill_root,
         "quality_index_skill_path": f"{skill_root}/quality-index/SKILL.md",
+        "grounding_first_skill_path": f"{skill_root}/grounding-first/SKILL.md",
         "typescript_zero_bypass_skill_path": f"{skill_root}/typescript-zero-bypass/SKILL.md",
         "vite_vitest_tdd_skill_path": f"{skill_root}/vite-vitest-tdd/SKILL.md",
         "react_public_api_testing_skill_path": f"{skill_root}/react-public-api-testing/SKILL.md",
@@ -440,59 +441,69 @@ def _repo_policy_sections() -> dict[str, str]:
     return {
         "priority_body": "\n".join(
             [
-                "- Direct system, developer, and user instructions override this file.",
-                "- [`docs/policy/quality-definition.md`]({{quality_definition_path}}) is the canonical definition of quality in this repository.",
-                "- If any skill, rule, example, or agent prompt contradicts the quality definition, the quality definition wins.",
-                "- Generated projections must not become the source of truth.",
-                "- Do not modify machine-level global configuration, home-directory state, accounts, or tools outside this repository without explicit user permission.",
-                "- Do not publish releases, tags, packages, or other external side effects without explicit user permission.",
+                "- Instruções diretas de sistema, desenvolvedor e usuário sobrepõem este arquivo.",
+                "- [`docs/policy/quality-definition.md`]({{quality_definition_path}}) é a definição canônica de qualidade neste repositório.",
+                "- Se qualquer skill, rule, exemplo ou prompt de agent contradiz a definição de qualidade, a definição de qualidade vence.",
+                "- Projeções geradas não devem virar fonte de verdade.",
+                "- Dados de treinamento não são fonte de verdade. Verifique cada afirmação não trivial com ferramenta antes de agir.",
+                "- Não modifique configuração global, estado de diretório home, contas ou ferramentas fora deste repositório sem permissão explícita do usuário.",
+                "- Não publique releases, tags, pacotes ou outros efeitos externos sem permissão explícita do usuário.",
             ]
         ),
         "startup_sequence_body": "\n".join(
             [
-                "1. Read [quality-definition]({{quality_definition_path}}).",
-                "2. Read [workflow]({{workflow_path}}).",
-                "3. Load the smallest relevant skill set from `{{primary_skill_root}}`.",
-                "4. Execute with TDD when tests are viable.",
-                "5. Run the matching audit agents before final approval.",
+                "1. Confirme literalmente o pedido do usuário; se ambíguo, pergunte antes de começar.",
+                "2. Leia [quality-definition]({{quality_definition_path}}).",
+                "3. Leia [workflow]({{workflow_path}}).",
+                "4. Carregue o menor conjunto relevante de skills a partir de `{{primary_skill_root}}`.",
+                "5. Execute com TDD quando testes forem viáveis.",
+                "6. Rode os agents de auditoria correspondentes antes da aprovação final.",
             ]
         ),
         "skill_routing_body": "\n".join(
             [
-                "- Use [quality-index]({{quality_index_skill_path}}) first when the task spans multiple concerns.",
-                "- Use [typescript-zero-bypass]({{typescript_zero_bypass_skill_path}}) for any `.ts` or `.tsx` change.",
-                "- Use [vite-vitest-tdd]({{vite_vitest_tdd_skill_path}}) when working with Vite, Vitest, or unit/component TDD.",
-                "- Use [react-public-api-testing]({{react_public_api_testing_skill_path}}) for React component behavior tests.",
-                "- Use [anti-bypass-audit]({{anti_bypass_audit_skill_path}}) when reviewing diffs, suspicious helpers, or weakened configs.",
-                "- Use [refactoring-with-safety]({{refactoring_with_safety_skill_path}}) for refactors that are not pure bug fixes.",
-                "- Use [governance-installation]({{governance_installation_skill_path}}) when installing or updating this framework in another repository.",
+                "- Use [grounding-first]({{grounding_first_skill_path}}) sempre que a tarefa exigir afirmação factual sobre repositório, biblioteca ou intenção do usuário.",
+                "- Use [quality-index]({{quality_index_skill_path}}) primeiro quando a tarefa cruza múltiplas áreas.",
+                "- Use [typescript-zero-bypass]({{typescript_zero_bypass_skill_path}}) para qualquer mudança em `.ts` ou `.tsx`.",
+                "- Use [vite-vitest-tdd]({{vite_vitest_tdd_skill_path}}) ao trabalhar com Vite, Vitest ou TDD unitário/componente.",
+                "- Use [react-public-api-testing]({{react_public_api_testing_skill_path}}) para testes de comportamento de componente React.",
+                "- Use [anti-bypass-audit]({{anti_bypass_audit_skill_path}}) ao revisar diffs, helpers suspeitos ou configs enfraquecidas.",
+                "- Use [refactoring-with-safety]({{refactoring_with_safety_skill_path}}) para refactors que não são bug fix puro.",
+                "- Use [governance-installation]({{governance_installation_skill_path}}) ao instalar ou atualizar este framework em outro repositório.",
             ]
         ),
         "quality_rules_body": "\n".join(
             [
-                "- TDD is mandatory when tests are technically viable.",
-                "- A passing test suite without behavior proof is not a green build.",
-                "- `any`, type assertions, non-null assertions, ts-comment bypasses, and lint/config weakening are automatic failures.",
-                "- `Map` in public or domain-facing contracts is suspicious by default and must be treated as a modeling bypass unless a stronger repository rule explicitly allows it.",
-                "- Helpers, factories, mocks, branches, or narrowing added only to silence the type system or to make tests easier are automatic failures.",
-                "- Zod is allowed only at external input boundaries.",
-                "- Joi is allowed only for environment validation when it is genuinely needed.",
-                "- Strong named types are required.",
-                "- Inline structural types are prohibited.",
-                "- Reviewers must reject suspicious diffs instead of “accepting with caveats.”",
+                "- TDD é obrigatório quando testes são tecnicamente viáveis.",
+                "- Suíte verde sem prova de comportamento não é build verde.",
+                "- `any`, type assertions, non-null assertions, bypasses por ts-comment e enfraquecimento de lint/config são falhas automáticas.",
+                "- Use `?` para parâmetros e propriedades omitíveis; não escreva `T | undefined` em assinaturas de parâmetro ou propriedade omitíveis.",
+                "- Contratos públicos devem manter uma forma estável de topo; não retorne uniões como `T[] | { data: T[]; total: number }`.",
+                "- Arquivos de responsabilidade única são exigidos: uma classe por arquivo sem funções de topo irmãs, ou múltiplas funções exportadas apenas quando o nome do arquivo nomeia uma responsabilidade compartilhada.",
+                "- Nomes genéricos como `helpers.ts`, `utils.ts`, `common.ts` ou `shared.ts` são falhas automáticas quando escondem a razão para mudar.",
+                "- `Map` em contratos públicos ou de domínio é suspeito por padrão e deve ser tratado como bypass de modelagem a menos que uma regra mais forte do repositório permita explicitamente.",
+                "- Helpers, factories, mocks, branches ou narrowing adicionados apenas para silenciar o sistema de tipos ou facilitar testes são falhas automáticas.",
+                "- Zod é permitido apenas em fronteiras de input externo.",
+                "- Joi é permitido apenas para validação de ambiente quando realmente necessário.",
+                "- Tipos nomeados fortes são exigidos.",
+                "- Tipos estruturais inline são proibidos.",
+                "- Não invente arquivos, APIs, imports, chaves de config ou comportamento de biblioteca; verifique com ferramenta primeiro.",
+                "- Quando incerto, pare e pergunte ao usuário em vez de adivinhar.",
+                "- Cite a fonte (`arquivo:linha`, URL oficial ou quote literal do usuário) para cada escolha não trivial de implementação.",
+                "- Revisores devem rejeitar diffs suspeitos em vez de \"aceitar com ressalvas\".",
             ]
         ),
         "review_flow_body": "\n".join(
             [
-                "- Fix the root problem, not the symptom.",
-                "- Keep tests direct, short, and behavior-based.",
-                "- Prefer explicit domain names over generic utilities.",
-                "- Keep policy text severe and actionable; do not soften language to preserve agent comfort.",
-                "- After any change to canonical framework sources such as `framework/skills/`, `framework/rules/`, `docs/policy/`, or `framework/agents/specs/`, run `python3 scripts/build_framework.py` before claiming the repository is consistent.",
-                "- After the build step, run `python3 scripts/validate_framework.py`. If scripts changed, run `python3 -m unittest tests/test_framework_tools.py` and `node --test tests/node/install.test.mjs`.",
-                "- Use `bypass-auditor` for typing, config, mocks, helpers, or suspicious diffs.",
-                "- Use `tdd-warden` when behavior or tests changed or should have changed.",
-                "- Use `pr-gatekeeper` only for final approve-or-reject review.",
+                "- Corrija o problema raiz, não o sintoma.",
+                "- Mantenha testes diretos, curtos e baseados em comportamento.",
+                "- Prefira nomes de domínio explícitos em vez de utils genéricos.",
+                "- Mantenha o texto da política severo e acionável; não amoleça a linguagem para preservar conforto do agent.",
+                "- Após qualquer mudança em fontes canônicas como `framework/skills/`, `framework/rules/`, `docs/policy/` ou `framework/agents/specs/`, rode `python3 scripts/build_framework.py` antes de declarar o repositório consistente.",
+                "- Depois do build, rode `python3 scripts/validate_framework.py`. Se scripts mudaram, rode `python3 -m unittest tests/test_framework_tools.py` e `node --test tests/node/install.test.mjs`.",
+                "- Use `bypass-auditor` para tipagem, config, mocks, helpers ou diffs suspeitos.",
+                "- Use `tdd-warden` quando comportamento ou testes mudaram ou deveriam ter mudado.",
+                "- Use `pr-gatekeeper` apenas para revisão final de aprovar ou rejeitar.",
             ]
         ),
     }
@@ -502,47 +513,57 @@ def _global_policy_sections() -> dict[str, str]:
     return {
         "priority_body": "\n".join(
             [
-                "- Direct system, developer, and user instructions override this file.",
-                "- Prefer current local code and current official documentation over memory.",
-                "- Treat the required skills and auditors in this file as mandatory workflow requirements.",
+                "- Instruções diretas de sistema, desenvolvedor e usuário sobrepõem este arquivo.",
+                "- Prefira código local atual e documentação oficial atual sobre memória.",
+                "- Dados de treinamento não são fonte de verdade; verifique cada afirmação não trivial com ferramenta ou cite a instrução literal do usuário.",
+                "- Trate as skills e auditores exigidos neste arquivo como requisitos de workflow obrigatórios.",
             ]
         ),
         "startup_sequence_body": "\n".join(
             [
-                "1. Read [quality-definition]({{quality_definition_path}}) when the task needs repository policy context.",
-                "2. Read [workflow]({{workflow_path}}) when the repository defines one.",
-                "3. Load the smallest required skill set from `{{primary_skill_root}}` before proposing edits or writing code.",
+                "1. Confirme literalmente o pedido do usuário; se ambíguo, pergunte antes de começar.",
+                "2. Leia [quality-definition]({{quality_definition_path}}) quando a tarefa precisar de contexto de política do repositório.",
+                "3. Leia [workflow]({{workflow_path}}) quando o repositório definir um.",
+                "4. Carregue o menor conjunto de skills exigido a partir de `{{primary_skill_root}}` antes de propor edits ou escrever código.",
             ]
         ),
         "skill_routing_body": "\n".join(
             [
-                "- Use [quality-index]({{quality_index_skill_path}}) when the task spans multiple concerns or when you are unsure which validators apply.",
-                "- Use [typescript-zero-bypass]({{typescript_zero_bypass_skill_path}}) for `.ts` or `.tsx` changes.",
-                "- Use [vite-vitest-tdd]({{vite_vitest_tdd_skill_path}}) for Vite or Vitest TDD.",
-                "- Use [react-public-api-testing]({{react_public_api_testing_skill_path}}) for React behavior tests.",
-                "- Use [anti-bypass-audit]({{anti_bypass_audit_skill_path}}) when reviewing diffs, suspicious helpers, weakened configs, or type/config-heavy changes.",
-                "- Use [refactoring-with-safety]({{refactoring_with_safety_skill_path}}) for refactors that are not pure bug fixes.",
-                "- Use [governance-installation]({{governance_installation_skill_path}}) when installing or updating this governance package.",
+                "- Use [grounding-first]({{grounding_first_skill_path}}) sempre que a tarefa exigir afirmação factual sobre repositório, biblioteca ou intenção do usuário.",
+                "- Use [quality-index]({{quality_index_skill_path}}) quando a tarefa cruza múltiplas áreas ou quando estiver em dúvida sobre quais validadores aplicar.",
+                "- Use [typescript-zero-bypass]({{typescript_zero_bypass_skill_path}}) para mudanças em `.ts` ou `.tsx`.",
+                "- Use [vite-vitest-tdd]({{vite_vitest_tdd_skill_path}}) para TDD em Vite ou Vitest.",
+                "- Use [react-public-api-testing]({{react_public_api_testing_skill_path}}) para testes de comportamento em React.",
+                "- Use [anti-bypass-audit]({{anti_bypass_audit_skill_path}}) ao revisar diffs, helpers suspeitos, configs enfraquecidas ou mudanças pesadas em tipagem/config.",
+                "- Use [refactoring-with-safety]({{refactoring_with_safety_skill_path}}) para refactors que não são bug fix puro.",
+                "- Use [governance-installation]({{governance_installation_skill_path}}) ao instalar ou atualizar este pacote de governança.",
             ]
         ),
         "quality_rules_body": "\n".join(
             [
-                "- Load the required skills before proposing edits or writing code.",
-                "- If a required skill is unavailable in the current runtime, stop and report `BLOCKED`.",
-                "- Use behavior-first tests when tests are viable.",
-                "- Avoid type bypasses, comment bypasses, config weakening, and fake greens.",
-                "- Prefer named types and explicit models over inline structural shortcuts.",
+                "- Carregue as skills exigidas antes de propor edits ou escrever código.",
+                "- Se uma skill exigida não estiver disponível no runtime atual, pare e reporte `BLOCKED`.",
+                "- Use testes behavior-first quando testes forem viáveis.",
+                "- Evite bypasses de tipo, bypasses por comentário, enfraquecimento de config e verdes falsos.",
+                "- Use `?` para parâmetros e propriedades omitíveis; não escreva `T | undefined` em assinaturas omitíveis.",
+                "- Contratos públicos devem manter uma forma estável de topo; não retorne uniões como `T[] | { data: T[]; total: number }`.",
+                "- Arquivos de responsabilidade única são exigidos: uma classe por arquivo sem funções de topo irmãs, ou múltiplas funções exportadas apenas quando o nome do arquivo nomeia uma responsabilidade compartilhada.",
+                "- Nomes genéricos como `helpers.ts`, `utils.ts`, `common.ts` ou `shared.ts` são falhas automáticas quando escondem a razão para mudar.",
+                "- Não invente arquivos, APIs, imports, chaves de config ou comportamento de biblioteca; verifique com ferramenta primeiro.",
+                "- Quando incerto, pare e pergunte ao usuário em vez de adivinhar.",
+                "- Cite a fonte (`arquivo:linha`, URL oficial ou quote literal do usuário) para cada escolha não trivial de implementação.",
+                "- Prefira tipos nomeados e modelos explícitos em vez de atalhos estruturais inline.",
             ]
         ),
         "review_flow_body": "\n".join(
             [
-                "- For code changes, explicitly invoke the required auditors before final approval.",
-                "- For code changes, do not finalize until the required auditors have run and their results were reviewed.",
-                "- Do not substitute inline self-review for a required audit agent invocation.",
-                "- For typing, config, mocks, helpers, or suspicious diffs, run `bypass-auditor`.",
-                "- For behavior changes or bug fixes, run `tdd-warden` and `bypass-auditor`.",
-                "- For final approval, release, or merge decisions, run `pr-gatekeeper` after the other required auditors.",
-                "- If a required skill or auditor cannot run in the current runtime, stop and report `BLOCKED`.",
+                "- Para mudanças de código, invoque explicitamente os auditores exigidos antes da aprovação final.",
+                "- Para mudanças de código, não finalize até que os auditores exigidos tenham rodado e seus resultados tenham sido revisados.",
+                "- Não substitua invocação de agent de auditoria nominal por autorreview inline.",
+                "- Para tipagem, config, mocks, helpers ou diffs suspeitos, rode `bypass-auditor`.",
+                "- Para mudanças de comportamento ou bug fixes, rode `tdd-warden` e `bypass-auditor`.",
+                "- Para aprovação final, release ou decisão de merge, rode `pr-gatekeeper` após os demais auditores exigidos.",
+                "- Se uma skill ou auditor exigido não puder rodar no runtime atual, pare e reporte `BLOCKED`.",
             ]
         ),
     }
@@ -553,40 +574,12 @@ def _render_agents_md(entrypoint_policy: str, replacements: dict[str, str]) -> s
 
 
 def _render_repo_claude_md() -> str:
-    return "\n".join(
-        [
-            "@AGENTS.md",
-            "",
-            "## Claude Code",
-            "",
-            "- Always-on rules live under `.claude/rules/`.",
-            "- Skills live under `.claude/skills/`.",
-            "- Claude subagents live under `.claude/agents/`.",
-            "- If a skill and a rule both apply, the stricter instruction wins.",
-            "- Use the repository workflow in `docs/policy/workflow.md` before finalizing any change.",
-            "",
-        ]
-    )
+    return "@AGENTS.md\n"
 
 
 def _render_packaged_claude_md(entrypoint_policy: str, replacements: dict[str, str]) -> str:
     rendered_policy = _render_template(entrypoint_policy, replacements)
-    return "\n".join(
-        [
-            "# CLAUDE.md",
-            "",
-            rendered_policy.rstrip(),
-            "",
-            "## Claude Code",
-            "",
-            "- Always-on rules live under `.claude/rules/`.",
-            "- Skills live under `.claude/skills/`.",
-            "- Claude subagents live under `.claude/agents/`.",
-            "- If a skill and a rule both apply, the stricter instruction wins.",
-            "- Use the repository workflow in `docs/policy/workflow.md` before finalizing any change.",
-            "",
-        ]
-    )
+    return "\n".join(["# CLAUDE.md", "", rendered_policy.rstrip(), ""])
 
 
 def _render_opencode_config(opencode_config: dict[str, Any]) -> str:
