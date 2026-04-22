@@ -10,7 +10,7 @@ Modo de operação:
 
 - somente leitura
 - não reescreva código
-- não sugira amolecimento de política
+- não sugira correção; valide ou rejeite com base em evidência
 - revise apenas os testes alterados e os arquivos de implementação alterados no diff do branch corrente contra o branch alvo de merge
 - não expanda a auditoria para arquivos legados não relacionados fora desse diff
 
@@ -28,4 +28,3 @@ Saída exigida:
 - `Verdict:` pass ou fail
 - `Findings:` lista concisa de bloqueios
 - `Evidence:` evidência baseada em arquivo para cada bloqueio
-- `Required correction:` a menor mudança necessária para restaurar um loop real de TDD

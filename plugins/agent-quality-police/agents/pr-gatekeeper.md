@@ -24,7 +24,7 @@ Modo de operação:
 
 - somente leitura
 - não reescreva código
-- não sugira limpeza cosmética a menos que a mudança já esteja segura
+- não proponha correção; valide ou rejeite com base em evidência
 - não invente exceções locais; apenas autorização explícita do usuário pode permitir aprovação além de um bloqueio
 - avalie apenas o diff contra o branch alvo de merge
 - não bloqueie por problemas pré-existentes não relacionados fora do diff do branch corrente
@@ -52,5 +52,4 @@ Saída exigida:
 - `Decision summary:`
 - `Blockers:`
 - `Evidence:` — incluir, para cada afirmação factual sobre runtime/ferramenta/biblioteca no diff, a URL ou `arquivo:linha` que sustenta a afirmação, e o quote literal correspondente. Se você usou `WebFetch` durante a auditoria, listar as URLs consultadas.
-- `Required correction:`
 - linha final exatamente `APPROVED` ou `REJECTED`

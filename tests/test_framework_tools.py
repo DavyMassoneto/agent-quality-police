@@ -276,6 +276,35 @@ class BuildAgentProjectionTests(unittest.TestCase):
         self.assertIn("não empilhe inferências", implementer_prompt)
         self.assertIn("valores esperados foram inferidos", tdd_prompt)
 
+    def test_validators_validate_without_prescribing_corrections(self) -> None:
+        quality_definition = (PROJECT_ROOT / "docs" / "policy" / "quality-definition.md").read_text(encoding="utf-8")
+        bypass_prompt = (PROJECT_ROOT / "framework" / "agents" / "prompts" / "bypass-auditor.md").read_text(
+            encoding="utf-8"
+        )
+        tdd_prompt = (PROJECT_ROOT / "framework" / "agents" / "prompts" / "tdd-warden.md").read_text(
+            encoding="utf-8"
+        )
+        gate_prompt = (PROJECT_ROOT / "framework" / "agents" / "prompts" / "pr-gatekeeper.md").read_text(
+            encoding="utf-8"
+        )
+        anti_bypass_skill = (PROJECT_ROOT / "framework" / "skills" / "anti-bypass-audit" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        report_format = (
+            PROJECT_ROOT / "framework" / "skills" / "anti-bypass-audit" / "references" / "report-format.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("sem prescrever solução", quality_definition)
+        self.assertIn("não proponha correção", bypass_prompt)
+        self.assertIn("não sugira correção", tdd_prompt)
+        self.assertIn("não proponha correção", gate_prompt)
+        self.assertNotIn("Required correction:", bypass_prompt)
+        self.assertNotIn("Required correction:", tdd_prompt)
+        self.assertNotIn("Required correction:", gate_prompt)
+        self.assertIn("sem prescrever correção", anti_bypass_skill)
+        self.assertNotIn("Required correction:", anti_bypass_skill)
+        self.assertNotIn("Required correction:", report_format)
+
     def test_build_agent_projections_fails_before_reset_when_specs_are_missing(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)

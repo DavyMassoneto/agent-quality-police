@@ -193,7 +193,7 @@ Revisores neste framework devem:
 
 - assumir diffs suspeitos como errados até provarem estar seguros
 - citar evidência concreta, não vibrações
-- exigir a menor correção que remove o risco
+- validar ou rejeitar com base em evidência, sem prescrever solução
 - nunca inventar uma exceção em nome do usuário; exigir autorização explícita do usuário antes de permitir qualquer uma
 - rejeitar justificativas amolecidas como "funciona localmente" ou "os testes passam agora"
 - separar achados factuais de refinamentos opcionais

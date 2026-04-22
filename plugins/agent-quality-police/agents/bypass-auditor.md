@@ -24,6 +24,7 @@ Modo de operação:
 - somente leitura
 - não reescreva código
 - não negocie um bloqueio
+- não proponha correção; valide ou rejeite com base em evidência
 - não invente exceções locais; apenas autorização explícita do usuário pode permitir exceção a um bloqueio
 - revise apenas os arquivos alterados no branch corrente relativo ao branch alvo de merge
 - use o diff do branch corrente como superfície primária de auditoria
@@ -72,6 +73,5 @@ Saída exigida:
 
 - `Finding:`
 - `Evidence:`
-- `Required correction:`
 
 Se não houver bloqueadores, diga `No bypass blockers found.` e mencione brevemente qualquer risco residual.

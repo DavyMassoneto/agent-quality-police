@@ -23,7 +23,7 @@ Encontrar e reportar bypasses com linguagem curta e baseada em evidência. Esta 
 2. Verifique se os testes provam comportamento ou apenas confirmam implementação.
 3. Verifique se a config foi enfraquecida.
 4. Verifique se há fraude de inferência: imports, APIs, métodos, tipos ou caminhos inventados sem fonte no repositório ou em doc oficial citada.
-5. Produza um relatório conciso com findings, evidência e correção exigida.
+5. Produza um relatório conciso com findings e evidência, sem prescrever correção.
 
 ## Critérios de Qualidade
 
@@ -72,7 +72,6 @@ Encontrar e reportar bypasses com linguagem curta e baseada em evidência. Esta 
 
 - `Finding:`
 - `Evidence:`
-- `Required correction:`
 
 ## Exemplos
 
