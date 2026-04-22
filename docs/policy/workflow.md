@@ -7,13 +7,15 @@
 3. Leia `AGENTS.md` e `docs/policy/quality-definition.md`.
 4. Carregue a skill ou o conjunto de skills relevante.
 5. Defina o comportamento a ser provado.
-6. Escreva ou ajuste o teste que falha primeiro, quando testes forem viáveis.
-7. Implemente o mínimo de código necessário para passar.
-8. Refatore sem alterar o comportamento provado.
-9. Rode os agents de auditoria apropriados.
-10. Valide o repositório antes de commit ou publicação.
+6. Se a tarefa exige mudança de código, o agent principal coordena; a execução deve passar pelo `implementer`.
+7. Escreva ou ajuste o teste que falha primeiro, quando testes forem viáveis.
+8. Implemente o mínimo de código necessário para passar.
+9. Refatore sem alterar o comportamento provado.
+10. Rode os agents de auditoria apropriados.
+11. Valide os receipts exigidos em `.aqp/receipts/` antes de commit, push, merge request, release ou publicação.
+12. Valide o repositório antes de commit ou publicação.
 
-Autorreview inline não satisfaz requisito de auditoria. Quando um agent de auditoria é exigido, invoque o agent nominal. Se o agent exigido não puder rodar, reporte `BLOCKED` em vez de declarar conclusão.
+Autorreview inline não satisfaz requisito de auditoria. Quando um agent de auditoria é exigido, invoque o agent nominal. Se o `implementer`, algum auditor exigido, ou a validação de receipts não puder rodar, reporte `BLOCKED` em vez de declarar conclusão.
 
 ## Regra de Grounding
 
@@ -24,9 +26,17 @@ Autorreview inline não satisfaz requisito de auditoria. Quando um agent de audi
 
 ## Pareamento Obrigatório de Auditoria
 
+- Mudança de código: execute via `implementer`.
 - Mudança de TypeScript ou heavy em config: rode `bypass-auditor`.
 - Novo comportamento ou correção de bug com testes: rode `tdd-warden` e `bypass-auditor`.
 - Decisão final de merge ou publicação: rode `pr-gatekeeper`.
+
+## Contrato de Receipts
+
+- Receipts vivem em `.aqp/receipts/`.
+- Cada gate nominal exigido deve deixar um receipt JSON correspondente antes de commit, push, merge request, release ou aprovação.
+- Mínimo esperado por agent: `implementer`, `bypass-auditor`, `tdd-warden`, `pr-gatekeeper`.
+- Se o runtime ainda não consegue materializar o receipt exigido, a tarefa fica `BLOCKED` em vez de seguir por confiança textual.
 
 ## Manutenção do Repositório
 

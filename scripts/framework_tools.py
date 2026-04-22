@@ -456,8 +456,9 @@ def _repo_policy_sections() -> dict[str, str]:
                 "2. Leia [quality-definition]({{quality_definition_path}}).",
                 "3. Leia [workflow]({{workflow_path}}).",
                 "4. Carregue o menor conjunto relevante de skills a partir de `{{primary_skill_root}}`.",
-                "5. Execute com TDD quando testes forem viáveis.",
-                "6. Rode os agents de auditoria correspondentes antes da aprovação final.",
+                "5. Para mudanças de código, o agent principal coordena; a execução deve passar por `implementer`.",
+                "6. Execute com TDD quando testes forem viáveis.",
+                "7. Rode os agents de auditoria correspondentes antes da aprovação final.",
             ]
         ),
         "skill_routing_body": "\n".join(
@@ -481,6 +482,7 @@ def _repo_policy_sections() -> dict[str, str]:
                 "- Contratos públicos devem manter uma forma estável de topo; não retorne uniões como `T[] | { data: T[]; total: number }`.",
                 "- Arquivos de responsabilidade única são exigidos: uma classe por arquivo sem funções de topo irmãs, ou múltiplas funções exportadas apenas quando o nome do arquivo nomeia uma responsabilidade compartilhada.",
                 "- Nomes genéricos como `helpers.ts`, `utils.ts`, `common.ts` ou `shared.ts` são falhas automáticas quando escondem a razão para mudar.",
+                "- Quando houver mudança de código, a execução deve passar pelo `implementer`; edição direta pelo agent principal é bloqueio.",
                 "- `Map` em contratos públicos ou de domínio é suspeito por padrão e deve ser tratado como bypass de modelagem a menos que uma regra mais forte do repositório permita explicitamente.",
                 "- Helpers, factories, mocks, branches ou narrowing adicionados apenas para silenciar o sistema de tipos ou facilitar testes são falhas automáticas.",
                 "- Zod é permitido apenas em fronteiras de input externo.",
@@ -501,6 +503,7 @@ def _repo_policy_sections() -> dict[str, str]:
                 "- Mantenha o texto da política severo e acionável; não amoleça a linguagem para preservar conforto do agent.",
                 "- Após qualquer mudança em fontes canônicas como `framework/skills/`, `framework/rules/`, `docs/policy/` ou `framework/agents/specs/`, rode `python3 scripts/build_framework.py` antes de declarar o repositório consistente.",
                 "- Depois do build, rode `python3 scripts/validate_framework.py`. Se scripts mudaram, rode `python3 -m unittest tests/test_framework_tools.py` e `node --test tests/node/install.test.mjs`.",
+                "- Antes de commit, push, merge request, release ou aprovação, valide os receipts exigidos em `.aqp/receipts/`.",
                 "- Use `bypass-auditor` para tipagem, config, mocks, helpers ou diffs suspeitos.",
                 "- Use `tdd-warden` quando comportamento ou testes mudaram ou deveriam ter mudado.",
                 "- Use `pr-gatekeeper` apenas para revisão final de aprovar ou rejeitar.",
@@ -525,6 +528,7 @@ def _global_policy_sections() -> dict[str, str]:
                 "2. Leia [quality-definition]({{quality_definition_path}}) quando a tarefa precisar de contexto de política do repositório.",
                 "3. Leia [workflow]({{workflow_path}}) quando o repositório definir um.",
                 "4. Carregue o menor conjunto de skills exigido a partir de `{{primary_skill_root}}` antes de propor edits ou escrever código.",
+                "5. Para mudanças de código, o agent principal coordena; a execução deve passar por `implementer`.",
             ]
         ),
         "skill_routing_body": "\n".join(
@@ -549,6 +553,7 @@ def _global_policy_sections() -> dict[str, str]:
                 "- Contratos públicos devem manter uma forma estável de topo; não retorne uniões como `T[] | { data: T[]; total: number }`.",
                 "- Arquivos de responsabilidade única são exigidos: uma classe por arquivo sem funções de topo irmãs, ou múltiplas funções exportadas apenas quando o nome do arquivo nomeia uma responsabilidade compartilhada.",
                 "- Nomes genéricos como `helpers.ts`, `utils.ts`, `common.ts` ou `shared.ts` são falhas automáticas quando escondem a razão para mudar.",
+                "- Quando houver mudança de código, a execução deve passar pelo `implementer`; edição direta pelo agent principal é bloqueio.",
                 "- Não invente arquivos, APIs, imports, chaves de config ou comportamento de biblioteca; verifique com ferramenta primeiro.",
                 "- Quando incerto, pare e pergunte ao usuário em vez de adivinhar.",
                 "- Cite a fonte (`arquivo:linha`, URL oficial ou quote literal do usuário) para cada escolha não trivial de implementação.",
@@ -557,13 +562,15 @@ def _global_policy_sections() -> dict[str, str]:
         ),
         "review_flow_body": "\n".join(
             [
+                "- Para mudanças de código, execute a implementação via `implementer`; o agent principal coordena, não substitui esse papel.",
                 "- Para mudanças de código, invoque explicitamente os auditores exigidos antes da aprovação final.",
                 "- Para mudanças de código, não finalize até que os auditores exigidos tenham rodado e seus resultados tenham sido revisados.",
                 "- Não substitua invocação de agent de auditoria nominal por autorreview inline.",
+                "- Antes de commit, push, merge request, release ou aprovação, valide os receipts exigidos em `.aqp/receipts/`.",
                 "- Para tipagem, config, mocks, helpers ou diffs suspeitos, rode `bypass-auditor`.",
                 "- Para mudanças de comportamento ou bug fixes, rode `tdd-warden` e `bypass-auditor`.",
                 "- Para aprovação final, release ou decisão de merge, rode `pr-gatekeeper` após os demais auditores exigidos.",
-                "- Se uma skill ou auditor exigido não puder rodar no runtime atual, pare e reporte `BLOCKED`.",
+                "- Se `implementer`, algum auditor exigido, ou a validação de receipts não puder rodar no runtime atual, pare e reporte `BLOCKED`.",
             ]
         ),
     }

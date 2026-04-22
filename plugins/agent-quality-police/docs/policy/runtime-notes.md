@@ -11,6 +11,7 @@ Fontes oficiais consultadas: `https://developers.openai.com/codex/guides/agents-
 - Subagents em `.claude/agents/<nome>.md`. Skills em `.claude/skills/<skill-name>/SKILL.md` (project), `~/.claude/skills/...` (personal) ou `<plugin>/skills/...` (plugin). Custom commands vivem em `.claude/commands/` e estão sendo unificados com skills.
 - Suporta ferramentas estruturadas como `Read`, `Grep`, `Glob`, `WebFetch`, `Task`, `Skill` e integrações MCP. Nomes exatos de ferramentas variam por versão; confirme antes de chamar.
 - Memória persistente `~/.claude/projects/<project>/memory/MEMORY.md` (auto memory) precisa ser tratada como cache verificável, não como fonte de verdade.
+- Claude Code suporta hooks de subagent e `PreToolUse`, o que permite enforcement mais forte de runtime para bloquear operações sem receipt ou fora do papel esperado.
 
 ## Codex
 
@@ -26,6 +27,7 @@ Fontes oficiais consultadas: `https://developers.openai.com/codex/guides/agents-
 - Diretrizes vagas como "não alucine" são inúteis. Apenas regras concretas e verificáveis (por exemplo, "verifique com `Read` antes de afirmar que o arquivo existe") são aplicáveis.
 - Nunca divida a mesma regra em arquivos divergentes entre Claude Code e Codex. Regras canônicas vivem em `framework/rules/` e `docs/policy/`. Ambos os runtimes consomem a mesma projeção gerada.
 - Os arquivos `framework/rules/claude-code-specific.md` e `framework/rules/codex-specific.md` contêm apenas diferenças de runtime (discovery, ferramentas, limites). Política comportamental fica nos demais rules.
+- Se um runtime não suporta o enforcement operacional exigido pelo projeto, o comportamento correto é `BLOCKED`, não fallback silencioso para confiança textual.
 
 ## Projeções Geradas
 

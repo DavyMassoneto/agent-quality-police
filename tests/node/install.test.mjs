@@ -6,6 +6,7 @@ import path from "node:path";
 
 import { formatInstallResult } from "../../framework/package/lib/cli-output.mjs";
 import { installGlobal, resolveCleanupPlan, resolveInstallPlan } from "../../framework/package/lib/install.mjs";
+import { validateRequiredReceipts } from "../../framework/package/lib/receipts.mjs";
 
 async function writeFixture(packageRoot) {
   await mkdir(path.join(packageRoot, "framework", "entrypoints"), { recursive: true });
@@ -140,12 +141,18 @@ test("installGlobal manages Claude, Codex, and OpenCode roots when allowed", asy
   assert.equal(installedClaudeRoot.includes("Carregue as skills exigidas antes de propor edits ou escrever código."), true);
   assert.equal(installedCodexRoot.includes("Carregue as skills exigidas antes de propor edits ou escrever código."), true);
   assert.equal(installedOpenCodeRoot.includes("Carregue as skills exigidas antes de propor edits ou escrever código."), true);
-  assert.equal(installedClaudeRoot.includes("Se uma skill ou auditor exigido não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
-  assert.equal(installedCodexRoot.includes("Se uma skill ou auditor exigido não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
-  assert.equal(installedOpenCodeRoot.includes("Se uma skill ou auditor exigido não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
+  assert.equal(installedClaudeRoot.includes("a execução deve passar por `implementer`"), true);
+  assert.equal(installedCodexRoot.includes("a execução deve passar por `implementer`"), true);
+  assert.equal(installedOpenCodeRoot.includes("a execução deve passar por `implementer`"), true);
+  assert.equal(installedClaudeRoot.includes("Se `implementer`, algum auditor exigido, ou a validação de receipts não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
+  assert.equal(installedCodexRoot.includes("Se `implementer`, algum auditor exigido, ou a validação de receipts não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
+  assert.equal(installedOpenCodeRoot.includes("Se `implementer`, algum auditor exigido, ou a validação de receipts não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
   assert.equal(installedClaudeRoot.includes("Para mudanças de código, não finalize até que os auditores exigidos tenham rodado e seus resultados tenham sido revisados."), true);
   assert.equal(installedCodexRoot.includes("Para mudanças de código, não finalize até que os auditores exigidos tenham rodado e seus resultados tenham sido revisados."), true);
   assert.equal(installedOpenCodeRoot.includes("Para mudanças de código, não finalize até que os auditores exigidos tenham rodado e seus resultados tenham sido revisados."), true);
+  assert.equal(installedClaudeRoot.includes("Antes de commit, push, merge request, release ou aprovação, valide os receipts exigidos em `.aqp/receipts/`."), true);
+  assert.equal(installedCodexRoot.includes("Antes de commit, push, merge request, release ou aprovação, valide os receipts exigidos em `.aqp/receipts/`."), true);
+  assert.equal(installedOpenCodeRoot.includes("Antes de commit, push, merge request, release ou aprovação, valide os receipts exigidos em `.aqp/receipts/`."), true);
   assert.equal(installedClaudeRoot.includes("Não substitua invocação de agent de auditoria nominal por autorreview inline."), true);
   assert.equal(installedCodexRoot.includes("Não substitua invocação de agent de auditoria nominal por autorreview inline."), true);
   assert.equal(installedOpenCodeRoot.includes("Não substitua invocação de agent de auditoria nominal por autorreview inline."), true);
@@ -206,6 +213,7 @@ test("installGlobal emits manual steps when root management is denied", async ()
   assert.equal(result.manualSteps[0].snippet.includes("## Claude Code"), false);
   assert.equal(result.manualSteps[0].snippet.startsWith("## Prioridade"), true);
   assert.equal(result.manualSteps[0].snippet.includes("Carregue as skills exigidas antes de propor edits ou escrever código."), true);
+  assert.equal(result.manualSteps[0].snippet.includes("a execução deve passar por `implementer`"), true);
   assert.equal(result.manualSteps[0].snippet.includes("Arquivos de responsabilidade única são exigidos"), true);
   assert.equal(result.manualSteps[0].snippet.includes("`helpers.ts`"), true);
   assert.equal(result.manualSteps[0].snippet.includes("parâmetros e propriedades omitíveis"), true);
@@ -215,30 +223,35 @@ test("installGlobal emits manual steps when root management is denied", async ()
   assert.equal(result.manualSteps[0].snippet.includes("Dados de treinamento não são fonte de verdade"), true);
   assert.equal(result.manualSteps[0].snippet.includes("Não invente arquivos, APIs, imports, chaves de config ou comportamento de biblioteca"), true);
   assert.equal(result.manualSteps[0].snippet.includes("Para mudanças de código, não finalize até que os auditores exigidos tenham rodado e seus resultados tenham sido revisados."), true);
+  assert.equal(result.manualSteps[0].snippet.includes("Antes de commit, push, merge request, release ou aprovação, valide os receipts exigidos em `.aqp/receipts/`."), true);
   assert.equal(result.manualSteps[0].snippet.includes("Não substitua invocação de agent de auditoria nominal por autorreview inline."), true);
-  assert.equal(result.manualSteps[0].snippet.includes("Se uma skill ou auditor exigido não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
+  assert.equal(result.manualSteps[0].snippet.includes("Se `implementer`, algum auditor exigido, ou a validação de receipts não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
   assert.equal(result.manualSteps[0].snippet.includes("python3 scripts/build_framework.py"), false);
   assert.equal(result.manualSteps[0].snippet.includes("Codex should enter"), false);
   assert.equal(result.manualSteps[0].snippet.includes("OpenCode should enter"), false);
   assert.equal(result.manualSteps[1].snippet.includes("Carregue as skills exigidas antes de propor edits ou escrever código."), true);
+  assert.equal(result.manualSteps[1].snippet.includes("a execução deve passar por `implementer`"), true);
   assert.equal(result.manualSteps[1].snippet.includes("Arquivos de responsabilidade única são exigidos"), true);
   assert.equal(result.manualSteps[1].snippet.includes("parâmetros e propriedades omitíveis"), true);
   assert.equal(result.manualSteps[1].snippet.includes("forma estável de topo"), true);
+  assert.equal(result.manualSteps[1].snippet.includes("Antes de commit, push, merge request, release ou aprovação, valide os receipts exigidos em `.aqp/receipts/`."), true);
   assert.equal(result.manualSteps[1].snippet.includes("Para mudanças de comportamento ou bug fixes, rode `tdd-warden` e `bypass-auditor`."), true);
   assert.equal(result.manualSteps[1].snippet.includes("Para aprovação final, release ou decisão de merge, rode `pr-gatekeeper` após os demais auditores exigidos."), true);
   assert.equal(result.manualSteps[1].snippet.includes("Não substitua invocação de agent de auditoria nominal por autorreview inline."), true);
-  assert.equal(result.manualSteps[1].snippet.includes("Se uma skill ou auditor exigido não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
+  assert.equal(result.manualSteps[1].snippet.includes("Se `implementer`, algum auditor exigido, ou a validação de receipts não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
   assert.equal(result.manualSteps[1].snippet.includes("python3 scripts/build_framework.py"), false);
   assert.equal(result.manualSteps[1].snippet.includes("Claude Code should enter"), false);
   assert.equal(result.manualSteps[1].snippet.includes("OpenCode should enter"), false);
   assert.equal(result.manualSteps[2].snippet.includes("Carregue as skills exigidas antes de propor edits ou escrever código."), true);
+  assert.equal(result.manualSteps[2].snippet.includes("a execução deve passar por `implementer`"), true);
   assert.equal(result.manualSteps[2].snippet.includes("Arquivos de responsabilidade única são exigidos"), true);
   assert.equal(result.manualSteps[2].snippet.includes("parâmetros e propriedades omitíveis"), true);
   assert.equal(result.manualSteps[2].snippet.includes("forma estável de topo"), true);
+  assert.equal(result.manualSteps[2].snippet.includes("Antes de commit, push, merge request, release ou aprovação, valide os receipts exigidos em `.aqp/receipts/`."), true);
   assert.equal(result.manualSteps[2].snippet.includes("Para mudanças de comportamento ou bug fixes, rode `tdd-warden` e `bypass-auditor`."), true);
   assert.equal(result.manualSteps[2].snippet.includes("Para aprovação final, release ou decisão de merge, rode `pr-gatekeeper` após os demais auditores exigidos."), true);
   assert.equal(result.manualSteps[2].snippet.includes("Não substitua invocação de agent de auditoria nominal por autorreview inline."), true);
-  assert.equal(result.manualSteps[2].snippet.includes("Se uma skill ou auditor exigido não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
+  assert.equal(result.manualSteps[2].snippet.includes("Se `implementer`, algum auditor exigido, ou a validação de receipts não puder rodar no runtime atual, pare e reporte `BLOCKED`."), true);
   assert.equal(result.manualSteps[2].snippet.includes("python3 scripts/build_framework.py"), false);
   assert.equal(result.manualSteps[2].snippet.includes("Claude Code should enter"), false);
   assert.equal(result.manualSteps[2].snippet.includes("Codex should enter"), false);
@@ -269,4 +282,62 @@ test("formatInstallResult renders human-readable manual steps instead of JSON bl
   assert.equal(rendered.includes("Destination: /Users/davy/.codex/AGENTS.md"), true);
   assert.equal(rendered.includes("```md"), true);
   assert.equal(rendered.includes("## Priority"), true);
+});
+
+test("validateRequiredReceipts passes when all required receipts are present and valid", async () => {
+  const repoRoot = await mkdtemp(path.join(os.tmpdir(), "aqp-receipts-pass-"));
+  await mkdir(path.join(repoRoot, ".aqp", "receipts"), { recursive: true });
+
+  for (const [agent, verdict] of Object.entries({
+    "implementer": "COMPLETED",
+    "bypass-auditor": "PASS",
+    "tdd-warden": "PASS",
+    "pr-gatekeeper": "APPROVED"
+  })) {
+    await writeFile(
+      path.join(repoRoot, ".aqp", "receipts", `${agent}.json`),
+      JSON.stringify({
+        schemaVersion: 1,
+        agent,
+        verdict,
+        task: "test task",
+        timestamp: "2026-04-21T12:34:56.000Z"
+      }, null, 2),
+      "utf8"
+    );
+  }
+
+  const result = await validateRequiredReceipts(repoRoot, ["implementer", "bypass-auditor", "tdd-warden", "pr-gatekeeper"]);
+  assert.deepEqual(result, { valid: true, missing: [], invalid: [] });
+});
+
+test("validateRequiredReceipts reports missing and invalid receipts", async () => {
+  const repoRoot = await mkdtemp(path.join(os.tmpdir(), "aqp-receipts-fail-"));
+  await mkdir(path.join(repoRoot, ".aqp", "receipts"), { recursive: true });
+
+  await writeFile(
+    path.join(repoRoot, ".aqp", "receipts", "implementer.json"),
+    JSON.stringify({
+      schemaVersion: 1,
+      agent: "implementer",
+      verdict: "PASS",
+      task: "",
+      timestamp: "not-a-date"
+    }, null, 2),
+    "utf8"
+  );
+
+  const result = await validateRequiredReceipts(repoRoot, ["implementer", "bypass-auditor"]);
+  assert.equal(result.valid, false);
+  assert.deepEqual(result.missing, ["bypass-auditor"]);
+  assert.deepEqual(result.invalid, [
+    {
+      agent: "implementer",
+      errors: [
+        "task must be a non-empty string.",
+        "timestamp must be a valid ISO 8601 string.",
+        "verdict must equal COMPLETED."
+      ]
+    }
+  ]);
 });

@@ -6,6 +6,7 @@ import readline from "node:readline/promises";
 import { fileURLToPath } from "node:url";
 
 import { installGlobal, supportedTargets } from "../lib/install.mjs";
+import { validateRequiredReceipts } from "../lib/receipts.mjs";
 import { formatInstallResult } from "../lib/cli-output.mjs";
 
 function usage() {
@@ -13,7 +14,8 @@ function usage() {
     [
       "Usage:",
       "  aqp install",
-      "  aqp install --targets claude,codex,opencode [--manage-global-root claude,codex] [--home <dir>] [--json]"
+      "  aqp install --targets claude,codex,opencode [--manage-global-root claude,codex] [--home <dir>] [--json]",
+      "  aqp validate-receipts --repo <dir> --required implementer,bypass-auditor,tdd-warden,pr-gatekeeper [--json]"
     ].join("\n")
   );
 }
@@ -61,6 +63,54 @@ async function main(argv) {
   if (!command || command === "--help" || command === "-h") {
     usage();
     return 0;
+  }
+
+  if (command === "validate-receipts") {
+    let repoRoot;
+    let requiredAgents;
+    let useJson = false;
+
+    for (let index = 0; index < rest.length; index += 1) {
+      const current = rest[index];
+      if (current === "--repo") {
+        repoRoot = rest[index + 1];
+        index += 1;
+        continue;
+      }
+      if (current === "--required") {
+        requiredAgents = parseCommaList(rest[index + 1]);
+        index += 1;
+        continue;
+      }
+      if (current === "--json") {
+        useJson = true;
+        continue;
+      }
+      throw new Error(`Unknown argument: ${current}`);
+    }
+
+    if (!repoRoot || !requiredAgents || requiredAgents.length === 0) {
+      usage();
+      return 1;
+    }
+
+    const result = await validateRequiredReceipts(path.resolve(repoRoot), requiredAgents);
+    if (useJson) {
+      console.log(JSON.stringify(result, null, 2));
+    } else if (result.valid) {
+      console.log("receipts-ok");
+    } else {
+      if (result.missing.length > 0) {
+        console.log(`Missing receipts: ${result.missing.join(", ")}`);
+      }
+      for (const entry of result.invalid) {
+        console.log(`Invalid receipt: ${entry.agent}`);
+        for (const error of entry.errors) {
+          console.log(`- ${error}`);
+        }
+      }
+    }
+    return result.valid ? 0 : 1;
   }
 
   if (command !== "install") {

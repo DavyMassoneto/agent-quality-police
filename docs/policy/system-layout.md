@@ -5,6 +5,7 @@
 - `framework/entrypoints/`: fonte canônica para prompts gerados e entrypoints do pacote
 - `docs/policy/quality-definition.md`: significado canônico de qualidade
 - `docs/policy/workflow.md`: sequência canônica de execução
+- `docs/policy/receipt-contract.md`: contrato canônico dos receipts operacionais
 - `docs/policy/runtime-notes.md`: notas canônicas de diferenças entre runtimes (Claude Code e Codex)
 - `framework/rules/`: regras canônicas sempre ativas
 - `framework/skills/`: fonte canônica das skills

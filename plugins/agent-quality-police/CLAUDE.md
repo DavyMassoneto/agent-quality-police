@@ -13,6 +13,7 @@
 2. Leia [quality-definition](docs/policy/quality-definition.md) quando a tarefa precisar de contexto de política do repositório.
 3. Leia [workflow](docs/policy/workflow.md) quando o repositório definir um.
 4. Carregue o menor conjunto de skills exigido a partir de `skills/` antes de propor edits ou escrever código.
+5. Para mudanças de código, o agent principal coordena; a execução deve passar por `implementer`.
 
 ## Roteamento de Skills
 
@@ -35,6 +36,7 @@
 - Contratos públicos devem manter uma forma estável de topo; não retorne uniões como `T[] | { data: T[]; total: number }`.
 - Arquivos de responsabilidade única são exigidos: uma classe por arquivo sem funções de topo irmãs, ou múltiplas funções exportadas apenas quando o nome do arquivo nomeia uma responsabilidade compartilhada.
 - Nomes genéricos como `helpers.ts`, `utils.ts`, `common.ts` ou `shared.ts` são falhas automáticas quando escondem a razão para mudar.
+- Quando houver mudança de código, a execução deve passar pelo `implementer`; edição direta pelo agent principal é bloqueio.
 - Não invente arquivos, APIs, imports, chaves de config ou comportamento de biblioteca; verifique com ferramenta primeiro.
 - Quando incerto, pare e pergunte ao usuário em vez de adivinhar.
 - Cite a fonte (`arquivo:linha`, URL oficial ou quote literal do usuário) para cada escolha não trivial de implementação.
@@ -42,10 +44,12 @@
 
 ## Fluxo de Revisão
 
+- Para mudanças de código, execute a implementação via `implementer`; o agent principal coordena, não substitui esse papel.
 - Para mudanças de código, invoque explicitamente os auditores exigidos antes da aprovação final.
 - Para mudanças de código, não finalize até que os auditores exigidos tenham rodado e seus resultados tenham sido revisados.
 - Não substitua invocação de agent de auditoria nominal por autorreview inline.
+- Antes de commit, push, merge request, release ou aprovação, valide os receipts exigidos em `.aqp/receipts/`.
 - Para tipagem, config, mocks, helpers ou diffs suspeitos, rode `bypass-auditor`.
 - Para mudanças de comportamento ou bug fixes, rode `tdd-warden` e `bypass-auditor`.
 - Para aprovação final, release ou decisão de merge, rode `pr-gatekeeper` após os demais auditores exigidos.
-- Se uma skill ou auditor exigido não puder rodar no runtime atual, pare e reporte `BLOCKED`.
+- Se `implementer`, algum auditor exigido, ou a validação de receipts não puder rodar no runtime atual, pare e reporte `BLOCKED`.

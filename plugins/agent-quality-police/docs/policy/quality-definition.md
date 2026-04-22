@@ -4,6 +4,8 @@
 
 Qualidade neste framework não é "o build passou". Qualidade significa que a mudança é provada em comportamento, tem tipagem honesta, escopo estreito, organização em que cada arquivo tem uma razão para mudar, e é revisável sem trabalho de investigação.
 
+Quando o runtime suporta agents nominais e enforcement local, qualidade também exige trilho operacional: mudança de código executada pelo papel de execução correto, gates auditáveis e receipts rastreáveis antes de commit, push, merge request, release ou aprovação.
+
 Qualidade também exige grounding: cada afirmação e decisão precisa estar ancorada em instrução explícita do usuário, em código ou documentação do repositório, ou em documentação oficial consultada no momento da tarefa. Dados de treinamento não são fonte de verdade.
 
 ## Teste Válido
@@ -106,6 +108,8 @@ Rejeitar imediatamente quando um diff introduz qualquer um dos itens abaixo, a m
 - branching que altera semântica de runtime sem justificativa de produto ou domínio
 - qualquer código cuja correção dependa de inferência não verificada (comportamento de biblioteca, formato de API, layout de arquivo, intenção do usuário) sem citação
 - qualquer afirmação sobre o repositório, biblioteca ou usuário apresentada sem citação, resultado de ferramenta ou quote literal
+- mudança de código executada fora do `implementer` quando o runtime suporta agent nominal para execução
+- aprovação, commit, push, merge request ou release sem validação dos receipts exigidos em `.aqp/receipts/` quando o runtime suporta receipts
 
 ## Refactor Seguro
 

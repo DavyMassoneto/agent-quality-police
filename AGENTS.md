@@ -16,8 +16,9 @@
 2. Leia [quality-definition](docs/policy/quality-definition.md).
 3. Leia [workflow](docs/policy/workflow.md).
 4. Carregue o menor conjunto relevante de skills a partir de `framework/skills/`.
-5. Execute com TDD quando testes forem viáveis.
-6. Rode os agents de auditoria correspondentes antes da aprovação final.
+5. Para mudanças de código, o agent principal coordena; a execução deve passar por `implementer`.
+6. Execute com TDD quando testes forem viáveis.
+7. Rode os agents de auditoria correspondentes antes da aprovação final.
 
 ## Roteamento de Skills
 
@@ -39,6 +40,7 @@
 - Contratos públicos devem manter uma forma estável de topo; não retorne uniões como `T[] | { data: T[]; total: number }`.
 - Arquivos de responsabilidade única são exigidos: uma classe por arquivo sem funções de topo irmãs, ou múltiplas funções exportadas apenas quando o nome do arquivo nomeia uma responsabilidade compartilhada.
 - Nomes genéricos como `helpers.ts`, `utils.ts`, `common.ts` ou `shared.ts` são falhas automáticas quando escondem a razão para mudar.
+- Quando houver mudança de código, a execução deve passar pelo `implementer`; edição direta pelo agent principal é bloqueio.
 - `Map` em contratos públicos ou de domínio é suspeito por padrão e deve ser tratado como bypass de modelagem a menos que uma regra mais forte do repositório permita explicitamente.
 - Helpers, factories, mocks, branches ou narrowing adicionados apenas para silenciar o sistema de tipos ou facilitar testes são falhas automáticas.
 - Zod é permitido apenas em fronteiras de input externo.
@@ -58,6 +60,7 @@
 - Mantenha o texto da política severo e acionável; não amoleça a linguagem para preservar conforto do agent.
 - Após qualquer mudança em fontes canônicas como `framework/skills/`, `framework/rules/`, `docs/policy/` ou `framework/agents/specs/`, rode `python3 scripts/build_framework.py` antes de declarar o repositório consistente.
 - Depois do build, rode `python3 scripts/validate_framework.py`. Se scripts mudaram, rode `python3 -m unittest tests/test_framework_tools.py` e `node --test tests/node/install.test.mjs`.
+- Antes de commit, push, merge request, release ou aprovação, valide os receipts exigidos em `.aqp/receipts/`.
 - Use `bypass-auditor` para tipagem, config, mocks, helpers ou diffs suspeitos.
 - Use `tdd-warden` quando comportamento ou testes mudaram ou deveriam ter mudado.
 - Use `pr-gatekeeper` apenas para revisão final de aprovar ou rejeitar.

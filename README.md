@@ -11,6 +11,7 @@ Este repositório é um pacote de governança reutilizável para agents de codif
 - TypeScript deve permanecer fortemente tipado sem `any`, assertions, non-null assertions, bypasses por comentário ou tipos estruturais inline.
 - Revisão deve ser hostil a verdes falsos, enfraquecimento de config e ruído de abstração.
 - Nenhum agent pode afirmar fato sobre repositório, biblioteca ou intenção do usuário sem fonte verificável; dados de treinamento não são fonte.
+- Quando o runtime suporta agents nominais e enforcement local, mudança de código deve passar por `implementer` e os gates devem deixar receipts rastreáveis.
 
 ## Estrutura Canônica
 
@@ -42,6 +43,14 @@ python3 scripts/build_framework.py
 python3 scripts/validate_framework.py
 python3 -m unittest tests/test_framework_tools.py
 node --test tests/node/install.test.mjs
+```
+
+Validação local de receipts:
+
+```bash
+node plugins/agent-quality-police/bin/aqp.mjs validate-receipts \
+  --repo /caminho/do/projeto \
+  --required implementer,bypass-auditor,tdd-warden,pr-gatekeeper
 ```
 
 ## Instalação e Reuso
