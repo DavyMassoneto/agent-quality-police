@@ -84,6 +84,9 @@ Fraude de inferência inclui:
 - citações ou quotes atribuídos a documentos que não foram realmente lidos
 - raciocínio em cascata em que o passo N depende de um chute não verificado no passo N-1
 - qualquer afirmação factual sobre estado do repositório, comportamento de biblioteca ou intenção do usuário apresentada sem citação, resultado de ferramenta ou quote do usuário
+- tratar uma tese técnica do usuário como fato verificado sem separar a parte normativa ("não use X") da parte factual ("X equivale a Y", "generic resolve Z", "o type system permite/impede W")
+- declarar impossibilidade, impasse arquitetural ou limitação do type system sem erro reproduzível, citação de código ou documentação oficial
+- transferir para o usuário o ônus de provar uma tese técnica que a própria LLM pode verificar com ferramenta
 
 ## Rejeição Automática
 
@@ -194,6 +197,7 @@ Revisores neste framework devem:
 - assumir diffs suspeitos como errados até provarem estar seguros
 - citar evidência concreta, não vibrações
 - validar ou rejeitar com base em evidência, sem prescrever solução
+- não elevar alegação técnica do usuário, do implementer ou de outro auditor a fato do repositório ou do type system sem re-verificação
 - nunca inventar uma exceção em nome do usuário; exigir autorização explícita do usuário antes de permitir qualquer uma
 - rejeitar justificativas amolecidas como "funciona localmente" ou "os testes passam agora"
 - separar achados factuais de refinamentos opcionais

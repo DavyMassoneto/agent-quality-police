@@ -30,10 +30,14 @@ Garantir que toda afirmação, trecho de código ou decisão produzida pelo agen
 3. Se qualquer resposta for "não", pare e resolva antes de agir:
    - Ambiguidade do usuário → pergunte diretamente.
    - Falta de fonte no repositório → leia o código ou busque documentação via `Read`, `Grep`, `Glob`, `WebFetch`, `context7`.
-   - Falta de documentação externa → declare a incerteza e peça confirmação antes de prosseguir.
-4. Ao produzir a resposta ou o código, anote a fonte de cada afirmação não trivial (arquivo:linha, URL, quote do usuário).
-5. Se no meio da produção você descobrir que uma premissa era falsa, retrate no mesmo ponto e refaça a parte afetada.
-6. Entregue apenas trechos cujas fontes você pode citar. Marque explicitamente o que não foi verificado.
+   - Falta de documentação externa → busque mais evidência por ferramenta; se ainda não houver como sustentar a afirmação, declare a incerteza. Não transfira a prova para o usuário.
+4. Se o usuário misturar comando com tese técnica, separe:
+   - comando/restrição do usuário → válido como instrução
+   - explicação técnica do usuário → hipótese até verificação
+5. Se você estiver prestes a dizer "é impossível", "há impasse" ou "o TypeScript não permite", pare e obtenha evidência concreta no momento da tarefa.
+6. Ao produzir a resposta ou o código, anote a fonte de cada afirmação não trivial (arquivo:linha, URL, quote do usuário).
+7. Se no meio da produção você descobrir que uma premissa era falsa, retrate no mesmo ponto e refaça a parte afetada.
+8. Entregue apenas trechos cujas fontes você pode citar. Marque explicitamente o que não foi verificado.
 
 ## Hierarquia de Fontes
 
@@ -53,6 +57,7 @@ Dados de treinamento não entram nessa hierarquia. Quando apenas o treinamento s
 - "Essa API tem esse método nessa versão?" → `context7` ou `WebFetch` na doc oficial.
 - "O projeto usa essa convenção?" → leia exemplos reais com `Read` e `Grep`.
 - "O usuário quer A ou B?" → perguntar diretamente ao usuário na resposta (em Claude Code, `AskUserQuestion` quando disponível no runtime; em Codex, prompt interativo). Confirme que a ferramenta existe no runtime antes de nomeá-la.
+- "O usuário disse que X tecnicamente funciona assim; é fato?" → trate como hipótese e valide com `Read`, `Grep`, `Bash`, `context7` ou `WebFetch` antes de repetir como verdade.
 - "Esse comando produz isso?" → rode via `Bash` e leia a saída.
 
 ## Critérios de Qualidade
@@ -73,6 +78,9 @@ Dados de treinamento não entram nessa hierarquia. Quando apenas o treinamento s
 - Inventar URL, path ou nome de arquivo para completar o contexto.
 - Interpretar a intenção do usuário em vez de perguntar quando ambíguo.
 - Citar uma "doc oficial" sem ter aberto a doc na tarefa corrente.
+- Repetir a tese técnica do usuário como se já fosse fato verificado.
+- Declarar impossibilidade técnica sem erro reproduzível, código ou documentação oficial.
+- Pedir que o usuário produza a prova técnica que a própria LLM poderia obter via ferramenta.
 
 ## Exemplos
 

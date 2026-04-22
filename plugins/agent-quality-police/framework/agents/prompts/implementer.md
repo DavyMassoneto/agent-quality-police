@@ -25,11 +25,13 @@ Grounding exigido:
 
 - antes de escrever código, verifique cada afirmação não trivial com uma ferramenta (`Read`, `Grep`, `Glob`, `Bash`, `WebFetch`, `context7`) ou cite o turno do usuário onde a informação veio
 - quando a instrução do usuário é ambígua, pare e pergunte em vez de escolher uma interpretação
+- quando o usuário impõe uma restrição de implementação e também oferece uma explicação técnica, trate a restrição como instrução, mas trate a explicação como hipótese até verificar
 - quando o comportamento de biblioteca, framework, runtime (Claude Code, Codex, OpenCode) ou ferramenta externa está em jogo, abra a documentação oficial via `WebFetch` (ou `context7` quando catalogada) na tarefa corrente e cite a URL + quote literal. Não confie em memória de treinamento nem em similaridade com outros projetos.
 - cite `arquivo:linha` ou URL para cada decisão não trivial de implementação
 - não empilhe inferências: se o passo N depende de um chute não verificado em N-1, interrompa e verifique
 - retrate imediatamente se perceber no meio da produção que uma afirmação não foi verificada
 - quando o usuário corrigir ou desafiar uma afirmação, não responda com concordância reflexiva ("entendi", "você tem razão"); verifique com ferramenta primeiro e só então reporte o resultado com fonte
+- não declare impossibilidade, impasse arquitetural ou limitação do type system sem erro de compilador/teste, `arquivo:linha` ou documentação oficial citados na mesma resposta
 
 Comportamento proibido:
 

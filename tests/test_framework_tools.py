@@ -833,6 +833,50 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("Fraude de Inferência", quality_definition)
         self.assertIn("Nunca use dados de treinamento como fonte de verdade", core_non_negotiables)
 
+    def test_grounding_separates_user_constraints_from_user_technical_claims(self) -> None:
+        grounding_rule = (PROJECT_ROOT / "framework" / "rules" / "grounding-and-verification.md").read_text(encoding="utf-8")
+        grounding_skill = (PROJECT_ROOT / "framework" / "skills" / "grounding-first" / "SKILL.md").read_text(encoding="utf-8")
+        workflow = (PROJECT_ROOT / "docs" / "policy" / "workflow.md").read_text(encoding="utf-8")
+        quality_definition = (PROJECT_ROOT / "docs" / "policy" / "quality-definition.md").read_text(encoding="utf-8")
+        implementer_prompt = (PROJECT_ROOT / "framework" / "agents" / "prompts" / "implementer.md").read_text(
+            encoding="utf-8"
+        )
+        source_priority = (
+            PROJECT_ROOT / "framework" / "skills" / "grounding-first" / "references" / "source-priority.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("restrição de implementação", grounding_rule)
+        self.assertIn("fato técnico", grounding_rule)
+        self.assertIn("comando/restrição do usuário", grounding_skill)
+        self.assertIn("explicação técnica do usuário", grounding_skill)
+        self.assertIn("trate a prescrição como instrução e a explicação como hipótese", workflow)
+        self.assertIn("tese técnica do usuário como fato verificado", quality_definition)
+        self.assertIn("trate a restrição como instrução, mas trate a explicação como hipótese até verificar", implementer_prompt)
+        self.assertIn("Resumos de subagents sem que o team-lead tenha verificado a cadeia de evidência.", source_priority)
+        self.assertIn("ônus de buscar evidência técnica é da LLM", grounding_rule)
+        self.assertIn("Não transfira a prova para o usuário.", grounding_skill)
+        self.assertIn("Não peça que o usuário prove tese técnica", workflow)
+        self.assertIn("transferir para o usuário o ônus de provar uma tese técnica", quality_definition)
+
+    def test_impossibility_claims_require_direct_evidence(self) -> None:
+        grounding_rule = (PROJECT_ROOT / "framework" / "rules" / "grounding-and-verification.md").read_text(encoding="utf-8")
+        grounding_skill = (PROJECT_ROOT / "framework" / "skills" / "grounding-first" / "SKILL.md").read_text(encoding="utf-8")
+        workflow = (PROJECT_ROOT / "docs" / "policy" / "workflow.md").read_text(encoding="utf-8")
+        quality_definition = (PROJECT_ROOT / "docs" / "policy" / "quality-definition.md").read_text(encoding="utf-8")
+        implementer_prompt = (PROJECT_ROOT / "framework" / "agents" / "prompts" / "implementer.md").read_text(
+            encoding="utf-8"
+        )
+        review_rules = (PROJECT_ROOT / "framework" / "rules" / "review-and-gates.md").read_text(encoding="utf-8")
+
+        self.assertIn("Declarações como \"isso é impossível\"", grounding_rule)
+        self.assertIn("Se você estiver prestes a dizer \"é impossível\"", grounding_skill)
+        self.assertIn("obtenha evidência concreta", grounding_skill)
+        self.assertIn("Se você for declarar impasse, impossibilidade ou incompatibilidade técnica", workflow)
+        self.assertIn("obtenha e cite a evidência concreta", workflow)
+        self.assertIn("declarar impossibilidade, impasse arquitetural ou limitação do type system sem erro reproduzível", quality_definition)
+        self.assertIn("não declare impossibilidade, impasse arquitetural ou limitação do type system sem erro de compilador/teste", implementer_prompt)
+        self.assertIn("team-lead deve verificar a cadeia de evidência", review_rules)
+
     def test_runtime_specific_rules_exist_for_claude_and_codex(self) -> None:
         claude_rule = (PROJECT_ROOT / "framework" / "rules" / "claude-code-specific.md").read_text(encoding="utf-8")
         codex_rule = (PROJECT_ROOT / "framework" / "rules" / "codex-specific.md").read_text(encoding="utf-8")

@@ -20,6 +20,8 @@ Autorreview inline não satisfaz requisito de auditoria. Quando um agent de audi
 ## Regra de Grounding
 
 - Antes de fazer qualquer afirmação não trivial (sobre layout do repositório, comportamento de biblioteca, formato de API, intenção do usuário), verifique com uma ferramenta e cite a fonte. Se a verificação não for possível, marque a afirmação como incerta ou pergunte ao usuário.
+- Quando o usuário prescreve um estilo de solução e ao mesmo tempo oferece uma explicação técnica, trate a prescrição como instrução e a explicação como hipótese até verificar. Não responda como se a hipótese já estivesse provada.
+- A LLM tem o ônus de buscar a evidência técnica por conta própria. Não peça que o usuário prove tese técnica que pode ser verificada com código, compilador, teste ou documentação.
 - Se o suporte de pesquisa for incerto, reporte como não sustentado em vez de inventar.
 - Não empilhe inferências: se o passo N depende de uma suposição não verificada em N-1, pare e verifique antes de continuar.
 - Dados de treinamento não sustentam afirmação. Use apenas instrução do usuário, código do repositório ou documentação oficial consultada na tarefa corrente.
@@ -48,6 +50,7 @@ Autorreview inline não satisfaz requisito de auditoria. Quando um agent de audi
 ## Tratamento de Falha
 
 - Se o suporte de pesquisa for incerto, marque como não sustentado em vez de inventar.
+- Se você for declarar impasse, impossibilidade ou incompatibilidade técnica, obtenha e cite a evidência concreta no mesmo ponto: erro de compilador, teste, `arquivo:linha` ou documentação oficial.
 - Se uma correção está bloqueada, registre o bloqueio explicitamente e pare de chamar de completo.
 - Se uma projeção gerada divergir da fonte canônica, reconstrua antes da revisão.
 - Se um bloqueio for descoberto no meio da produção, retrate imediatamente e interrompa a cadeia até a dúvida ser resolvida.
